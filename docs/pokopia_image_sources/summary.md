@@ -74,3 +74,18 @@ Generated: 2026-05-12
   - 638 images downloaded from PokopiaDex.
   - 19 images downloaded from InfiPoke.
   - 1 image uses a shared InfiPoke Farm soil fallback because `Farm soil (Skyland)` is listed by InfiPoke but its item-specific rendered image URL returns 404; the other Farm soil variants share identical image bytes.
+
+## Complete PokopiaDex placeable item scrape
+- Generated: 2026-05-12
+- Requirement: include all PokopiaDex items with `inventory_status` set to `in-collection`, matching the 1,219 items shown as collectible/placeable on the PokopiaDex items page.
+- Source page:
+  - `https://pokopiadex.com/items?source=base`
+- Output files:
+  - `pokopiadex_placeable_items.csv`: normalized item meta for the 1,219 in-collection rows.
+  - `pokopiadex_placeable_items.json`: raw PokopiaDex item objects after the in-collection filter.
+  - `item_portraits/`: downloaded local icon files for all 1,219 rows.
+  - `item_portraits/manifest.csv`: normalized meta plus local filename, source URL, content type, byte size, SHA-256, and download status.
+  - `pokopiadex_placeable_items_summary.md`: generated count summary for this complete scrape.
+- Download result:
+  - 1,219 images downloaded from PokopiaDex.
+  - 0 image download failures.
