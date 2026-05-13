@@ -36,6 +36,8 @@ type RawJsonItem = {
   id?: unknown;
   slug?: unknown;
   menu_category?: unknown;
+  color_variants?: unknown;
+  variantSrcs?: unknown;
 };
 
 const projectRoot = process.cwd();
@@ -235,6 +237,10 @@ async function buildPokemonIndex(
     }
     const imagePath = toRootAbsolutePath(requireField(row.values, "relative_path", pokemonManifestPath, row.rowNumber, issues, slug));
     const localImagePath = resolve(projectRoot, imagePath.slice(1));
+    const preferenceTerms = normalizePreferenceTerms(override?.preferenceTerms ?? []);
+    const preferenceSource = preferenceTerms.length > 0 ? "override" : null;
+    const hasMetadataOverride = Boolean(override?.primaryColor || override?.palette || override?.pattern || preferenceTerms.length);
+    const overrideSource = hasMetadataOverride ? `${pokemonOverridePath}#pokemon.${slug}` : null;
 
     if (override?.primaryColor || override?.palette) {
       const overridePalette = buildOverridePalette(override);
@@ -248,8 +254,10 @@ async function buildPokemonIndex(
         palette: overridePalette,
         colorSource: "override",
         fallbackReason: null,
-        overrideSource: `${pokemonOverridePath}#pokemon.${slug}`,
+        overrideSource,
         pattern: override.pattern ?? overridePalette.map((color) => color.hex),
+        preferenceTerms,
+        preferenceSource,
       };
     }
 
@@ -266,8 +274,10 @@ async function buildPokemonIndex(
         palette,
         colorSource: "extracted",
         fallbackReason: null,
-        overrideSource: override?.pattern ? `${pokemonOverridePath}#pokemon.${slug}` : null,
+        overrideSource,
         pattern: override?.pattern ?? palette.map((color) => color.hex),
+        preferenceTerms,
+        preferenceSource,
       };
     }
 
@@ -281,8 +291,10 @@ async function buildPokemonIndex(
       palette: [],
       colorSource: "fallback",
       fallbackReason: result.reason,
-      overrideSource: override?.pattern ? `${pokemonOverridePath}#pokemon.${slug}` : null,
+      overrideSource,
       pattern: override?.pattern ?? [],
+      preferenceTerms,
+      preferenceSource,
     };
   });
 
@@ -404,7 +416,7 @@ function toCompactItem(
     sourceIndex,
     sourceRow: manifestRow.rowNumber,
     recommendation: {
-      isDyeable: null,
+      isDyeable: isDyeableItem(rawJson),
       itemPrimaryColor: null,
       colorSource: null,
       fallbackReason: null,
@@ -424,6 +436,17 @@ function parsePokemonOverrides(text: string, issues: GenerationIssue[]): Pokemon
     return { schemaVersion: "pokemon-metadata-overrides.v1", pokemon: {} };
   }
   return parsed as PokemonMetadataOverridesData;
+}
+
+function isDyeableItem(rawJson: RawJsonItem | undefined): boolean | null {
+  if (!rawJson) {
+    return null;
+  }
+  return hasNonEmptyArray(rawJson.color_variants) || hasNonEmptyArray(rawJson.variantSrcs);
+}
+
+function hasNonEmptyArray(value: unknown): boolean {
+  return Array.isArray(value) && value.length > 0;
 }
 
 function parsePlaceableJson(text: string, issues: GenerationIssue[]): Map<string, RawJsonItem> {
@@ -466,6 +489,9 @@ function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssu
   }
 
   data.items.forEach((item) => {
+    if (item.recommendation.isDyeable === null) {
+      issues.push({ file: compactItemsOutputPath, slug: item.slug, field: "$.recommendation.isDyeable", message: "Expected derived dyeable status" });
+    }
     validateRootAbsoluteImagePath(
       item.imagePath,
       localItemImageRoot,
@@ -717,6 +743,14 @@ function asString(value: unknown): string | undefined {
 function normalizeHex(value: string): string {
   const normalized = value.trim().toUpperCase();
   return normalized.startsWith("#") ? normalized : `#${normalized}`;
+}
+
+function normalizePreferenceTerms(values: string[]): string[] {
+  return uniqueSorted(values.map(toPreferenceTerm).filter(Boolean));
+}
+
+function toPreferenceTerm(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function slugify(value: unknown): string {

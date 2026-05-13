@@ -5,6 +5,7 @@ export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overr
 
 export type CompactItemColorSource = "extracted" | "override" | "fallback";
 export type PokemonColorSource = "extracted" | "override" | "fallback";
+export type PokemonPreferenceSource = "metadata" | "override";
 
 export type CompactItemRecommendationFields = {
   isDyeable: boolean | null;
@@ -66,6 +67,8 @@ export type PokemonIndexEntry = {
   fallbackReason: string | null;
   overrideSource: string | null;
   pattern: string[];
+  preferenceTerms: string[];
+  preferenceSource: PokemonPreferenceSource | null;
 };
 
 export type PokemonIndexData = {
@@ -107,6 +110,7 @@ export type PokemonMetadataOverrideEntry = {
   primaryColor?: string;
   palette?: string[];
   pattern?: string[];
+  preferenceTerms?: string[];
 };
 
 export type PokemonMetadataOverridesData = {
@@ -289,6 +293,8 @@ export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
     requireNullableString(pokemon, "fallbackReason", path, issues, slug);
     requireNullableString(pokemon, "overrideSource", path, issues, slug);
     requireStringArray(pokemon, "pattern", path, issues, slug);
+    requireStringArray(pokemon, "preferenceTerms", path, issues, slug);
+    requireNullablePreferenceSource(pokemon, "preferenceSource", path, issues, slug);
 
     if (slug) {
       if (slugs.has(slug)) {
@@ -359,6 +365,9 @@ export function validatePokemonMetadataOverridesData(value: unknown): SchemaIssu
     }
     if ("pattern" in override) {
       requireStringArray(override, "pattern", path, issues, slug);
+    }
+    if ("preferenceTerms" in override) {
+      requireStringArray(override, "preferenceTerms", path, issues, slug);
     }
   });
 
@@ -539,6 +548,19 @@ function requireColorSource(
   const value = record[key];
   if (typeof value !== "string" || !colorSources.has(value)) {
     issue(path, key, "Expected known color source", issues, slug);
+  }
+}
+
+function requireNullablePreferenceSource(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (value !== null && value !== "metadata" && value !== "override") {
+    issue(path, key, "Expected known preference source or null", issues, slug);
   }
 }
 

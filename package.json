@@ -10,9 +10,10 @@
     "validate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js --validate-only && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
     "validate:build": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-build.js",
     "validate:dist": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-build.js --dist",
+    "validate:recommendations": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-recommendation-fixtures.js",
     "smoke:story-1-4": "npm run build:data-script && node .tmp/data-scripts/scripts/smoke-story-1-4.js",
     "dev": "vite --host 127.0.0.1",
-    "build": "npm run validate:build && tsc --noEmit && vite build && npm run validate:dist",
+    "build": "npm run validate:recommendations && npm run validate:build && tsc --noEmit && vite build && npm run validate:dist",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {

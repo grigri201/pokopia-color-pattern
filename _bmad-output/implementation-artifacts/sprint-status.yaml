@@ -1,5 +1,5 @@
 # generated: 2026-05-13T15:28:23+0800
-# last_updated: 2026-05-13T19:46:46+0800
+# last_updated: 2026-05-13T19:57:57+0800
 # project: pokopia-color-pattern
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,14 +35,14 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-13T15:28:23+0800
-last_updated: 2026-05-13T19:46:46+0800
+last_updated: 2026-05-13T19:57:57+0800
 project: pokopia-color-pattern
 project_key: NOKEY
 tracking_system: file-system
 story_location: /Users/grigri/side-project/pokopia/pokopia-color-pattern/_bmad-output/implementation-artifacts
 
 development_status:
-  epic-1: in-progress
+  epic-1: done
   1-1-生成-compact-item-数据契约: done
   1-2-生成-pokemon-和-item-色彩元数据: done
   1-3-通过-generated-data-驱动-pokemon-浏览: done
@@ -51,7 +51,7 @@ development_status:
   epic-1-retrospective: optional
 
   epic-2: in-progress
-  2-1-基于偏好词和可染色状态筛选推荐候选: ready-for-dev
+  2-1-基于偏好词和可染色状态筛选推荐候选: done
   2-2-用-oklch-和谐判断筛选不可染色-item: ready-for-dev
   2-3-生成-deterministic-推荐排序和解释字段: ready-for-dev
   2-4-支持-pokemon-metadata-override-的颜色-pattern-和搭配道具模式: ready-for-dev
