@@ -1,13 +1,12 @@
 import "./styles.css";
+import { filterPokemon, isPokemonRange, pokemonAltText, type PokemonRange } from "./app/pokemon-ui.js";
 import { GeneratedDataError, loadGeneratedData } from "./data/client";
 import type { CompactItem, PokemonIndexEntry } from "./data/schemas";
 
 const DEFAULT_POKEMON = "ditto";
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
-const POKEMON_RANGES = ["all", "early", "late"] as const;
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
-type PokemonRange = (typeof POKEMON_RANGES)[number];
 type Rgb = { r: number; g: number; b: number };
 type Hsl = { h: number; s: number; l: number };
 type Cmyk = { c: number; m: number; y: number; k: number };
@@ -81,10 +80,6 @@ function isItemFilter(value: string): value is ItemFilter {
   return ITEM_FILTER_KEYS.includes(value as ItemFilter);
 }
 
-function isPokemonRange(value: string | undefined): value is PokemonRange {
-  return value !== undefined && POKEMON_RANGES.includes(value as PokemonRange);
-}
-
 const els = {
   app: queryElement<HTMLElement>("#app"),
   loading: queryElement<HTMLElement>("#loading"),
@@ -117,6 +112,7 @@ async function boot(): Promise<void> {
   state.pokemon = generatedData.pokemonIndex.pokemon.map(toPokemon);
   state.items = generatedData.compactItems.items.map(toPlaceableItem);
 
+  closeDrawer();
   bindEvents();
   renderList();
 
@@ -166,12 +162,11 @@ function bindEvents(): void {
       if (isPokemonRange(button.dataset.range)) {
         state.range = button.dataset.range;
       }
-      document
-        .querySelectorAll<HTMLButtonElement>("[data-range]")
-        .forEach((item) => item.classList.toggle("is-active", item === button));
+      updateRangeButtons();
       renderList();
     });
   });
+  updateRangeButtons();
 
   window.addEventListener("hashchange", () => {
     const slug = slugify(decodeURIComponent(location.hash.replace(/^#/, "")));
@@ -182,15 +177,7 @@ function bindEvents(): void {
 }
 
 function renderList(): void {
-  const filtered = state.pokemon.filter((pokemon) => {
-    const index = Number(pokemon.sequence);
-    const matchesRange =
-      state.range === "all" ||
-      (state.range === "early" && index <= 120) ||
-      (state.range === "late" && index > 120);
-    const haystack = `${pokemon.sequence} ${pokemon.name} ${pokemon.zh}`.toLowerCase();
-    return matchesRange && (!state.query || haystack.includes(state.query));
-  });
+  const filtered = filterPokemon(state.pokemon, state.query, state.range);
 
   els.resultCount.textContent = String(filtered.length).padStart(3, "0");
   els.pokemonList.innerHTML = filtered
@@ -200,7 +187,8 @@ function renderList(): void {
           <button class="pokemon-item${state.selected?.slug === pokemon.slug ? " is-active" : ""}"
             type="button"
             data-slug="${pokemon.slug}"
-            aria-label="${escapeHtml(pokemon.zh)} ${escapeHtml(pokemon.name)}">
+            aria-current="${state.selected?.slug === pokemon.slug ? "true" : "false"}"
+            aria-label="${escapeHtml(pokemonAltText(pokemon))}">
             <img class="thumb" src="${pokemon.image}" alt="" loading="lazy" />
             <span class="pokemon-name">
               <strong>${escapeHtml(pokemon.zh)}</strong>
@@ -223,8 +211,18 @@ function renderList(): void {
   });
 }
 
+function updateRangeButtons(): void {
+  document.querySelectorAll<HTMLButtonElement>("[data-range]").forEach((button) => {
+    const isActive = button.dataset.range === state.range;
+    button.classList.toggle("is-active", isActive);
+    button.setAttribute("aria-pressed", String(isActive));
+  });
+}
+
 function openDrawer(): void {
   document.body.classList.add("drawer-open");
+  els.drawer.inert = false;
+  els.drawerBackdrop.tabIndex = 0;
   els.drawer.setAttribute("aria-hidden", "false");
   els.drawerTrigger.setAttribute("aria-expanded", "true");
   window.setTimeout(() => els.searchInput.focus(), 120);
@@ -232,6 +230,8 @@ function openDrawer(): void {
 
 function closeDrawer(): void {
   document.body.classList.remove("drawer-open");
+  els.drawer.inert = true;
+  els.drawerBackdrop.tabIndex = -1;
   els.drawer.setAttribute("aria-hidden", "true");
   els.drawerTrigger.setAttribute("aria-expanded", "false");
 }
@@ -269,7 +269,7 @@ function renderStage(pokemon: SelectedPokemon): void {
 
   els.title.innerHTML = `${escapeHtml(pokemon.zh)} <em>${escapeHtml(pokemon.name)}</em>`;
   els.selectedPortrait.src = pokemon.image;
-  els.selectedPortrait.alt = `${pokemon.zh} ${pokemon.name}`;
+  els.selectedPortrait.alt = pokemonAltText(pokemon);
   els.portraitNumber.textContent = pokemon.sequence;
   els.hashLabel.textContent = `#${pokemon.slug}`;
 

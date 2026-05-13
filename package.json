@@ -8,6 +8,7 @@
     "generate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js",
     "validate:colors": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
     "validate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js --validate-only && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
+    "smoke:story-1-4": "npm run build:data-script && node .tmp/data-scripts/scripts/smoke-story-1-4.js",
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1"

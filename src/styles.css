@@ -492,6 +492,7 @@ body.drawer-open .selected-float {
 .stage-title {
   margin: 0;
   max-width: 9ch;
+  overflow-wrap: anywhere;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 6rem;
   font-weight: 500;
@@ -503,6 +504,7 @@ body.drawer-open .selected-float {
   grid-template-columns: auto 1fr;
   gap: 16px;
   align-items: center;
+  min-width: 0;
   max-width: 620px;
   margin-top: 28px;
 }
@@ -670,10 +672,13 @@ body.drawer-open .selected-float {
   justify-content: space-between;
   gap: 14px;
   margin-bottom: 8px;
+  min-width: 0;
 }
 
 .section-label h2 {
   margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-family: Georgia, "Times New Roman", serif;
   font-size: 1.28rem;
   font-weight: 500;

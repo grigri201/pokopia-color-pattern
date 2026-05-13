@@ -58,13 +58,18 @@
 
         <div class="search-block">
           <label class="search-field">
-            <input id="searchInput" type="search" placeholder="Search / 搜索" autocomplete="off" />
-            <span id="resultCount">000</span>
+            <input
+              id="searchInput"
+              type="search"
+              placeholder="Search / 搜索"
+              autocomplete="off"
+              aria-label="搜索 Pokemon 名称、英文名或编号" />
+            <span id="resultCount" aria-live="polite">000</span>
           </label>
           <div class="filter-row" aria-label="Pokemon list range">
-            <button class="is-active" type="button" data-range="all">All</button>
-            <button type="button" data-range="early">001-120</button>
-            <button type="button" data-range="late">121+</button>
+            <button class="is-active" type="button" data-range="all" aria-pressed="true">All</button>
+            <button type="button" data-range="early" aria-pressed="false">001-120</button>
+            <button type="button" data-range="late" aria-pressed="false">121+</button>
           </div>
         </div>
 
