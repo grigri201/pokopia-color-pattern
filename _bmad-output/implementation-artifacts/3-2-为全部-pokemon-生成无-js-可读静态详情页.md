@@ -1,6 +1,6 @@
 # Story 3.2: 为全部 Pokemon 生成无 JS 可读静态详情页
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,18 +16,18 @@ so that 分享链接和搜索结果打开时不需要等待客户端推荐计算
 
 ## Tasks / Subtasks
 
-- [ ] 实现 SSG 生成脚本 (AC: 1)
-  - [ ] 新增 `scripts/generate-ssg.ts`，读取 `dist/index.html`、`generated/data/pokemon-index.json` 和 recommendation data。
-  - [ ] 为全部 311 个 Pokemon 写入 `dist/pokemon/{slug}/index.html`。
-- [ ] 生成 no-JS 核心内容 (AC: 2)
-  - [ ] 静态 HTML 包含 Pokemon 名称、英文名、编号、图片、主色、色板文本值和推荐摘要。
-  - [ ] 不是只包含 `<div id="app"></div>` 的空 shell。
-- [ ] 处理嵌套路由资源路径 (AC: 3)
-  - [ ] CSS、JS、图片、JSON 使用 root-absolute path 或等价安全路径。
-  - [ ] 确认 `/pokemon/{slug}/` 下不会因相对路径找错 assets/data。
-- [ ] 接入 production build 流程 (AC: 1)
-  - [ ] 在 `package.json` 中将 SSG 命令放到 Vite build 后执行。
-  - [ ] 保持 `dist/` 是唯一部署输出。
+- [x] 实现 SSG 生成脚本 (AC: 1)
+  - [x] 新增 `scripts/generate-ssg.ts`，读取 `dist/index.html`、`generated/data/pokemon-index.json` 和 recommendation data。
+  - [x] 为全部 311 个 Pokemon 写入 `dist/pokemon/{slug}/index.html`。
+- [x] 生成 no-JS 核心内容 (AC: 2)
+  - [x] 静态 HTML 包含 Pokemon 名称、英文名、编号、图片、主色、色板文本值和推荐摘要。
+  - [x] 不是只包含 `<div id="app"></div>` 的空 shell。
+- [x] 处理嵌套路由资源路径 (AC: 3)
+  - [x] CSS、JS、图片、JSON 使用 root-absolute path 或等价安全路径。
+  - [x] 确认 `/pokemon/{slug}/` 下不会因相对路径找错 assets/data。
+- [x] 接入 production build 流程 (AC: 1)
+  - [x] 在 `package.json` 中将 SSG 命令放到 Vite build 后执行。
+  - [x] 保持 `dist/` 是唯一部署输出。
 
 ## Dev Notes
 
@@ -55,10 +55,39 @@ so that 分享链接和搜索结果打开时不需要等待客户端推荐计算
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run build:data-script`
+- `npx tsc --noEmit`
+- `npm run build`
+- `find dist/pokemon -name index.html | wc -l`
+- `rg -n "百变怪|Ditto|#ditto|主色|推荐摘要|/assets/|/docs/|/data/" dist/pokemon/ditto/index.html`
+- `git diff --check`
+- `npm run preview -- --port 4173`
+- `curl -fsS http://127.0.0.1:4173/pokemon/ditto/`
+- `curl -fsS http://127.0.0.1:4173/assets/...css`
+- `curl -fsS http://127.0.0.1:4173/docs/pokopia_image_sources/pokemon_portraits/063-ditto.png`
+- `rg -n "staticPage|--field:#1D1843|--field-ink:#fff8ea|--static-muted:#d8d0c4|主色与色板|推荐摘要" dist/pokemon/ceruledge/index.html`
+
 ### Completion Notes List
 
+- 新增 build-time SSG 脚本，Vite build 后读取 `dist/index.html` 和 generated data，为全部 311 个 Pokemon 生成 `dist/pokemon/{slug}/index.html`。
+- 静态页在 `#staticPage` 中输出 no-JS 核心内容，JS 启动后由 `src/main.ts` 移除静态块并 hydrate 原 SPA。
+- 静态页复用 Vite 产出的 root-absolute `/assets/*`，Pokemon 图片使用 root-absolute `/docs/*`，preview 嵌套路由冒烟通过。
+- Review 后补强 SSG 注入失败、图片路径、深色 Pokemon 可读文本色和 `dist/pokemon/**/*.html` 发布校验。
+
+### Review Results
+
+- Acceptance review: 通过。确认 311 个静态页生成、no-JS 内容不是空 shell，嵌套路由资源路径使用 root-absolute。
+- Edge-case review: 修复 SSG template marker 静默失败风险，生成后断言 `#staticPage` 已注入；修复图片路径约束不足，Pokemon 和推荐图片必须是规范 root-absolute path。
+- Blind review: 修复深色 Pokemon 静态页正文对比度不足，为静态页写入 `--field-ink` 和 `--static-muted`；修复 `validate:dist` 未覆盖 `dist/pokemon/**/*.html`，发布门禁现在验证静态页数量、关键 no-JS 内容、颜色变量和 root-absolute 引用。
+
 ### File List
+
+- `scripts/generate-ssg.ts`
+- `scripts/validate-build.ts`
+- `package.json`
+- `src/main.ts`
+- `src/styles.css`

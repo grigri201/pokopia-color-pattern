@@ -25,6 +25,7 @@ const recommendationDiagnosticsPath = "generated/reports/recommendation-diagnost
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
 const compactGzipLimit = 50 * 1024;
 const recommendationGzipLimit = 5 * 1024;
+const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
 const distOnly = process.argv.includes("--dist");
 const issues: ValidationIssue[] = [];
@@ -75,9 +76,15 @@ async function validateDistOutput(): Promise<void> {
     return;
   }
   const distDataFiles = await validateRuntimeDataTree("dist/data");
+  await validateStaticPokemonPages();
   const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
-    return outputPath === "dist/index.html" || outputPath.startsWith("dist/assets/") || outputPath.startsWith("dist/data/");
+    return (
+      outputPath === "dist/index.html" ||
+      outputPath.startsWith("dist/assets/") ||
+      outputPath.startsWith("dist/data/") ||
+      outputPath.startsWith("dist/pokemon/")
+    );
   });
   const bundleFiles = files.filter((file) => {
     const extension = extname(file);
@@ -85,6 +92,108 @@ async function validateDistOutput(): Promise<void> {
   });
   validateNoRuntimeManifestFetch(await readFiles(bundleFiles), "dist runtime bundle");
   await validateSensitiveRuntimeData([...bundleFiles.map((file) => relative(projectRoot, file)), ...distDataFiles]);
+}
+
+async function validateStaticPokemonPages(): Promise<void> {
+  const pokemonIndexFile = "dist/data/pokemon-index.json";
+  let pokemonIndexText: string;
+  try {
+    pokemonIndexText = await readFile(pokemonIndexFile, "utf8");
+  } catch (error) {
+    issues.push({ file: pokemonIndexFile, message: `Unable to read Pokemon index for static page validation: ${error instanceof Error ? error.message : String(error)}` });
+    return;
+  }
+
+  const pokemonIndex = parseJson(pokemonIndexText, pokemonIndexFile);
+  if (!isRecord(pokemonIndex) || !Array.isArray(pokemonIndex.pokemon)) {
+    issues.push({ file: pokemonIndexFile, message: "Expected pokemon array for static page validation" });
+    return;
+  }
+
+  const expectedSlugs = pokemonIndex.pokemon
+    .filter(isRecord)
+    .map((pokemon) => pokemon.slug)
+    .filter((slug): slug is string => typeof slug === "string")
+    .sort((left, right) => left.localeCompare(right, "en"));
+
+  if (expectedSlugs.length !== expectedPokemonCount) {
+    issues.push({ file: pokemonIndexFile, message: `Expected ${expectedPokemonCount} Pokemon slugs for static pages, got ${expectedSlugs.length}` });
+  }
+
+  const staticRoot = resolve(projectRoot, "dist/pokemon");
+  if (!existsSync(staticRoot)) {
+    issues.push({ file: "dist/pokemon", message: "Expected static Pokemon page directory to exist" });
+    return;
+  }
+
+  const actualFiles = (await listFiles(staticRoot, [".html"]))
+    .map((file) => relative(projectRoot, file))
+    .sort((left, right) => left.localeCompare(right, "en"));
+  const actualFileSet = new Set(actualFiles);
+  const expectedFileSet = new Set(expectedSlugs.map((slug) => `dist/pokemon/${slug}/index.html`));
+
+  if (actualFiles.length !== expectedSlugs.length) {
+    issues.push({ file: "dist/pokemon", message: `Expected ${expectedSlugs.length} static Pokemon HTML files, got ${actualFiles.length}` });
+  }
+
+  expectedFileSet.forEach((file) => {
+    if (!actualFileSet.has(file)) {
+      issues.push({ file, message: "Missing static Pokemon HTML page" });
+    }
+  });
+  actualFiles.forEach((file) => {
+    if (!expectedFileSet.has(file)) {
+      issues.push({ file, message: "Unexpected static Pokemon HTML page" });
+    }
+  });
+
+  await Promise.all(
+    expectedSlugs.map(async (slug) => {
+      const file = `dist/pokemon/${slug}/index.html`;
+      let text: string;
+      try {
+        text = await readFile(file, "utf8");
+      } catch (error) {
+        issues.push({ file, message: `Unable to read static Pokemon page: ${error instanceof Error ? error.message : String(error)}` });
+        return;
+      }
+      validateStaticPokemonPage(file, slug, text);
+    }),
+  );
+}
+
+function validateStaticPokemonPage(file: string, slug: string, text: string): void {
+  if (!text.includes('id="staticPage"')) {
+    issues.push({ file, message: "Static Pokemon page is missing #staticPage no-JS content" });
+  }
+  if (!text.includes(`data-static-pokemon="${slug}"`)) {
+    issues.push({ file, message: `Static Pokemon page does not identify slug ${slug}` });
+  }
+  if (!text.includes("--field-ink:") || !text.includes("--static-muted:")) {
+    issues.push({ file, message: "Static Pokemon page must include readable text color variables" });
+  }
+  if (!text.includes("主色与色板") || !text.includes("推荐摘要") || !/<img\b[^>]*class="static-portrait"/.test(text)) {
+    issues.push({ file, message: "Static Pokemon page is missing required no-JS readable content" });
+  }
+  validateRootAbsoluteHtmlReferences(file, text);
+}
+
+function validateRootAbsoluteHtmlReferences(file: string, text: string): void {
+  const attributePattern = /\b(?:href|src)=["']([^"']+)["']/g;
+  let match: RegExpExecArray | null;
+  while ((match = attributePattern.exec(text)) !== null) {
+    const value = match[1];
+    if (isSafeNonPathReference(value)) {
+      continue;
+    }
+    if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\") || value.includes("..")) {
+      issues.push({ file, message: `Expected root-absolute static page asset reference, got ${value}` });
+    }
+  }
+}
+
+function isSafeNonPathReference(value: string): boolean {
+  return value.startsWith("#") || value.startsWith("data:") || value.startsWith("mailto:") || value.startsWith("tel:") || /^https?:\/\//.test(value);
 }
 
 async function validateSchemasAndSize(): Promise<void> {

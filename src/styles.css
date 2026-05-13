@@ -1040,6 +1040,133 @@ body.drawer-open .selected-float {
   font-size: 0.78rem;
 }
 
+.static-page-shell {
+  display: block;
+  min-height: 100vh;
+  background: var(--field);
+  color: var(--field-ink, var(--ink));
+}
+
+.static-page {
+  width: min(1080px, 100%);
+  margin: 0 auto;
+  padding: 48px 24px 64px;
+}
+
+.static-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 360px);
+  align-items: center;
+  gap: 32px;
+  min-height: 64vh;
+}
+
+.static-hero h1 {
+  margin: 10px 0;
+  max-width: 10ch;
+  overflow-wrap: anywhere;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 5rem;
+  font-weight: 500;
+  line-height: 0.92;
+}
+
+.static-hero h1 em {
+  font-style: italic;
+  font-weight: 400;
+}
+
+.static-number {
+  margin: 0;
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-weight: 700;
+}
+
+.static-portrait {
+  width: 100%;
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 28px 28px rgba(20, 15, 10, 0.28));
+}
+
+.static-section {
+  border-top: 1px solid currentColor;
+  padding: 22px 0;
+}
+
+.static-section h2 {
+  margin: 0 0 12px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.5rem;
+  font-weight: 500;
+}
+
+.static-color-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  margin: 0 0 16px;
+}
+
+.static-color-grid div {
+  border: 1px solid currentColor;
+  padding: 10px;
+}
+
+.static-color-grid dt {
+  font-family:
+    "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.static-color-grid dd {
+  margin: 4px 0 0;
+  overflow-wrap: anywhere;
+}
+
+.static-swatches,
+.static-recommendations {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.static-swatches li,
+.static-recommendations li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+.static-swatches span {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 24px;
+  border: 1px solid rgba(28, 26, 23, 0.18);
+  border-radius: 6px;
+}
+
+.static-recommendations img {
+  width: 58px;
+  height: 58px;
+  object-fit: contain;
+}
+
+.static-recommendations strong,
+.static-recommendations small {
+  display: block;
+}
+
+.static-empty,
+.static-recommendations small {
+  color: var(--static-muted, var(--muted));
+}
+
 .is-hidden {
   display: none;
 }
@@ -1142,6 +1269,15 @@ body.drawer-open .selected-float {
 
   .stage-title {
     font-size: 3.15rem;
+  }
+
+  .static-hero,
+  .static-color-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .static-hero h1 {
+    font-size: 3.4rem;
   }
 
   .filter-row,

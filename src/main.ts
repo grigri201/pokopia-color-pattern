@@ -135,6 +135,7 @@ async function boot(): Promise<void> {
   }
 
   const route = parsePokemonSlugFromLocation(location, DEFAULT_POKEMON_SLUG);
+  document.querySelector("#staticPage")?.remove();
   els.loading.classList.add("is-hidden");
   els.app.classList.remove("is-hidden");
   els.drawerTrigger.classList.remove("is-hidden");
