@@ -1,7 +1,7 @@
 import "./styles.css";
 import { filterPokemon, isPokemonRange, pokemonAltText, type PokemonRange } from "./app/pokemon-ui.js";
-import { GeneratedDataError, loadGeneratedData } from "./data/client";
-import type { CompactItem, PokemonIndexEntry } from "./data/schemas";
+import { GeneratedDataError, loadGeneratedData, loadRecommendationData } from "./data/client";
+import type { CompactItem, PokemonIndexEntry, RecommendationEntry, RecommendationsData } from "./data/schemas";
 
 const DEFAULT_POKEMON = "ditto";
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
@@ -12,7 +12,6 @@ type Hsl = { h: number; s: number; l: number };
 type Cmyk = { c: number; m: number; y: number; k: number };
 type PaletteColor = { rgb: Rgb; hex: string; percent: number };
 type NormalizedPaletteColor = PaletteColor & { ratio: number };
-type PaletteTone = "NEUTRAL" | "ROSE" | "AMBER" | "GREEN" | "BLUE" | "VIOLET" | "MAGENTA";
 
 type Pokemon = {
   sequence: string;
@@ -38,34 +37,40 @@ type PlaceableItem = {
   source: string;
 };
 
-type ScoredItem = PlaceableItem & { score: number };
-type FurnitureSlot =
-  | { state: "candidate"; label: string; item: ScoredItem }
-  | { state: "reserved"; label: string };
-
-const ITEM_FILTERS: Record<ItemFilter, (item: PlaceableItem) => boolean> = {
-  全部: () => true,
-  家具: (item) => item.category === "Furniture",
-  装饰: (item) => item.tags.includes("Decoration"),
-  玩具: (item) => item.tags.includes("Toy"),
-  地块: (item) => item.category === "Blocks" || item.tags.includes("Road"),
-  食物: (item) => item.category === "Food" || item.tags.includes("Food"),
+type RecommendationPanelState = {
+  status: "idle" | "loading" | "ready" | "error";
+  slug: string | null;
+  data: RecommendationsData | null;
+  error: string | null;
+  pageIndex: number;
+  requestId: number;
 };
 
 const state: {
   pokemon: Pokemon[];
   items: PlaceableItem[];
+  itemBySlug: Map<string, PlaceableItem>;
   selected: SelectedPokemon | null;
   query: string;
   range: PokemonRange;
   itemCategory: ItemFilter;
+  recommendations: RecommendationPanelState;
 } = {
   pokemon: [],
   items: [],
+  itemBySlug: new Map(),
   selected: null,
   query: "",
   range: "all",
   itemCategory: "全部",
+  recommendations: {
+    status: "idle",
+    slug: null,
+    data: null,
+    error: null,
+    pageIndex: 0,
+    requestId: 0,
+  },
 };
 
 function queryElement<T extends Element>(selector: string): T {
@@ -111,6 +116,7 @@ async function boot(): Promise<void> {
   const generatedData = await loadGeneratedData();
   state.pokemon = generatedData.pokemonIndex.pokemon.map(toPokemon);
   state.items = generatedData.compactItems.items.map(toPlaceableItem);
+  state.itemBySlug = new Map(state.items.map((item) => [item.slug, item]));
 
   closeDrawer();
   bindEvents();
@@ -151,9 +157,10 @@ function bindEvents(): void {
     const value = (event.currentTarget as HTMLSelectElement).value;
     if (isItemFilter(value)) {
       state.itemCategory = value;
+      state.recommendations.pageIndex = 0;
     }
     if (state.selected) {
-      renderFurniture(state.selected);
+      renderRecommendations();
     }
   });
 
@@ -202,9 +209,9 @@ function renderList(): void {
     .join("");
 
   els.pokemonList.querySelectorAll<HTMLButtonElement>("[data-slug]").forEach((button) => {
-    button.addEventListener("click", async () => {
+    button.addEventListener("click", () => {
       if (button.dataset.slug) {
-        await selectPokemon(button.dataset.slug);
+        selectPokemon(button.dataset.slug);
       }
       closeDrawer();
     });
@@ -236,7 +243,7 @@ function closeDrawer(): void {
   els.drawerTrigger.setAttribute("aria-expanded", "false");
 }
 
-async function selectPokemon(slug: string, updateHash = true): Promise<void> {
+function selectPokemon(slug: string, updateHash = true): void {
   const pokemon = state.pokemon.find((item) => item.slug === slug) || state.pokemon[0];
   if (!pokemon) {
     return;
@@ -246,7 +253,16 @@ async function selectPokemon(slug: string, updateHash = true): Promise<void> {
     ...pokemon,
     palette: pokemon.palette.length ? pokemon.palette : [fallbackColor(pokemon.slug)],
   };
+  const requestId = state.recommendations.requestId + 1;
   state.selected = selected;
+  state.recommendations = {
+    status: "loading",
+    slug: selected.slug,
+    data: null,
+    error: null,
+    pageIndex: 0,
+    requestId,
+  };
 
   if (updateHash) {
     history.replaceState(null, "", `#${pokemon.slug}`);
@@ -256,6 +272,41 @@ async function selectPokemon(slug: string, updateHash = true): Promise<void> {
   renderStage(selected);
   renderInspector(selected);
   renderFloatingPokemon(selected);
+  void loadSelectedRecommendations(selected.slug, requestId);
+}
+
+async function loadSelectedRecommendations(slug: string, requestId: number): Promise<void> {
+  try {
+    const data = await loadRecommendationData(slug);
+    if (!isActiveRecommendationRequest(slug, requestId)) {
+      return;
+    }
+    state.recommendations = {
+      status: "ready",
+      slug,
+      data,
+      error: null,
+      pageIndex: 0,
+      requestId,
+    };
+  } catch (error) {
+    if (!isActiveRecommendationRequest(slug, requestId)) {
+      return;
+    }
+    state.recommendations = {
+      status: "error",
+      slug,
+      data: null,
+      error: errorMessage(error),
+      pageIndex: 0,
+      requestId,
+    };
+  }
+  renderRecommendations();
+}
+
+function isActiveRecommendationRequest(slug: string, requestId: number): boolean {
+  return state.selected?.slug === slug && state.recommendations.requestId === requestId;
 }
 
 function renderStage(pokemon: SelectedPokemon): void {
@@ -303,7 +354,7 @@ function renderFloatingPokemon(pokemon: SelectedPokemon): void {
 function renderInspector(pokemon: SelectedPokemon): void {
   renderPalette(pokemon.palette);
   renderPattern(pokemon.palette);
-  renderFurniture(pokemon);
+  renderRecommendations();
 }
 
 function renderPalette(palette: PaletteColor[]): void {
@@ -346,61 +397,243 @@ function renderPattern(palette: PaletteColor[]): void {
     .join("");
 }
 
-function renderFurniture(pokemon: SelectedPokemon): void {
-  const primary = pokemon.palette[0] || fallbackColor(pokemon.slug);
-  els.itemSectionTitle.textContent = state.itemCategory;
+function renderRecommendations(): void {
+  els.itemSectionTitle.textContent = `推荐搭配 · ${state.itemCategory}`;
 
-  const filter = ITEM_FILTERS[state.itemCategory];
-  const matches = state.items
-    .filter(filter)
-    .map((item) => ({
-      ...item,
-      score: furnitureScore(item, primary, pokemon.slug),
-    }))
-    .sort((left, right) => right.score - left.score)
-    .slice(0, 4);
+  const selected = state.selected;
+  const panel = state.recommendations;
+  if (!selected || panel.status === "idle" || panel.status === "loading" || panel.slug !== selected.slug) {
+    renderRecommendationState("正在读取推荐搭配", "recommendation-state");
+    return;
+  }
 
-  const slots: FurnitureSlot[] = [
-    ...matches.map(
-      (item, index): FurnitureSlot => ({
-        state: "candidate",
-        label: `Match ${String(index + 1).padStart(2, "0")}`,
-        item,
-      }),
-    ),
-    { state: "reserved", label: "Reserve 05" },
-    { state: "reserved", label: "Reserve 06" },
-  ];
+  if (panel.status === "error") {
+    renderRecommendationState(
+      `推荐搭配暂时不可用：${panel.error || "未知错误"}`,
+      "recommendation-state is-error",
+      "retry",
+    );
+    return;
+  }
 
-  els.furnitureGrid.innerHTML = slots
-    .map((slot) => {
-      if (slot.state === "reserved") {
-        return `
-          <article class="slot">
-            <div class="slot-visual"><span class="empty-mark">+</span></div>
-            <div class="slot-name">
-              <strong>家具色板位</strong>
-              <span>Reserved</span>
-            </div>
-            <span class="slot-state">${slot.label}</span>
-          </article>
-        `;
+  if (!panel.data) {
+    renderRecommendationState("推荐搭配暂时不可用", "recommendation-state is-error");
+    return;
+  }
+
+  const filtered = panel.data.recommendations.filter(recommendationMatchesFilter);
+  const totalPages = Math.ceil(filtered.length / panel.data.pageSize);
+  const maxPageIndex = Math.max(0, totalPages - 1);
+  const pageIndex = clamp(panel.pageIndex, 0, maxPageIndex);
+  if (pageIndex !== panel.pageIndex) {
+    state.recommendations.pageIndex = pageIndex;
+  }
+
+  if (filtered.length === 0) {
+    const message =
+      panel.data.recommendations.length === 0
+        ? "当前 Pokemon 暂无推荐搭配数据"
+        : "当前筛选下没有推荐搭配";
+    renderRecommendationState(message, "recommendation-state");
+    return;
+  }
+
+  const start = pageIndex * panel.data.pageSize;
+  const pageItems = filtered.slice(start, start + panel.data.pageSize);
+  els.furnitureGrid.innerHTML = `
+    <div class="recommendation-summary" aria-live="polite">
+      <span>${escapeHtml(selected.zh)} 的匹配度较高道具</span>
+      <strong>${start + 1}-${start + pageItems.length} / ${filtered.length}</strong>
+    </div>
+    <div class="recommendation-list">
+      ${pageItems.map(renderRecommendationCard).join("")}
+    </div>
+    ${renderRecommendationPagination(pageIndex, totalPages)}
+  `;
+  bindRecommendationPagination(totalPages);
+}
+
+function renderRecommendationState(message: string, className: string, action?: "retry"): void {
+  els.furnitureGrid.innerHTML = `
+    <div class="${className}" role="status">
+      <span>${escapeHtml(message)}</span>
+      ${
+        action === "retry"
+          ? '<button class="recommendation-retry" type="button" data-recommendation-retry>重新读取</button>'
+          : ""
       }
+    </div>
+  `;
 
-      return `
-        <article class="slot">
-          <div class="slot-visual">
-            <img src="${slot.item.image}" alt="${escapeHtml(slot.item.zh)}" loading="lazy" />
+  els.furnitureGrid.querySelector<HTMLButtonElement>("[data-recommendation-retry]")?.addEventListener("click", () => {
+    if (state.selected) {
+      const requestId = state.recommendations.requestId + 1;
+      state.recommendations = {
+        status: "loading",
+        slug: state.selected.slug,
+        data: null,
+        error: null,
+        pageIndex: 0,
+        requestId,
+      };
+      renderRecommendations();
+      void loadSelectedRecommendations(state.selected.slug, requestId);
+    }
+  });
+}
+
+function renderRecommendationCard(entry: RecommendationEntry): string {
+  const item = state.itemBySlug.get(entry.itemSlug);
+  const displayName = recommendationDisplayName(entry);
+  const category = entry.category || item?.category || "Other";
+  const terms = entry.matchedPreferenceTerms.map((term) => `<span>${escapeHtml(term)}</span>`).join("");
+  const color = entry.itemPrimaryColor;
+
+  return `
+    <article class="recommendation-card">
+      <div class="recommendation-visual">
+        ${
+          entry.itemImagePath
+            ? `<img src="${escapeHtml(entry.itemImagePath)}" alt="${escapeHtml(displayName)}" loading="lazy" />`
+            : '<span class="recommendation-placeholder" aria-hidden="true"></span>'
+        }
+      </div>
+      <div class="recommendation-copy">
+        <div class="recommendation-card-head">
+          <h3>${escapeHtml(displayName)}</h3>
+          <span>#${String(entry.rank).padStart(2, "0")}</span>
+        </div>
+        <p>${escapeHtml(recommendationReason(entry))}</p>
+        <dl class="recommendation-facts">
+          <div>
+            <dt>分类</dt>
+            <dd>${escapeHtml(category)}</dd>
           </div>
-          <div class="slot-name">
-            <strong>${escapeHtml(slot.item.zh)}</strong>
-            <span>${escapeHtml(itemMetaLabel(slot.item))}</span>
+          <div>
+            <dt>可染色</dt>
+            <dd>${entry.isDyeable ? "是" : "否"}</dd>
           </div>
-          <span class="slot-state">${slot.label}</span>
-        </article>
-      `;
-    })
-    .join("");
+          <div>
+            <dt>主色</dt>
+            <dd class="color-value">
+              ${color ? `<span class="color-chip" style="background:${escapeHtml(color)}"></span>${escapeHtml(color)}` : "无"}
+            </dd>
+          </div>
+          <div>
+            <dt>OKLCH</dt>
+            <dd>${escapeHtml(harmonyLabel(entry))}</dd>
+          </div>
+          <div class="preference-cell">
+            <dt>偏好词</dt>
+            <dd class="preference-tags">${terms}</dd>
+          </div>
+          <div>
+            <dt>数据页</dt>
+            <dd>${entry.pageIndex + 1}</dd>
+          </div>
+        </dl>
+      </div>
+    </article>
+  `;
+}
+
+function renderRecommendationPagination(pageIndex: number, totalPages: number): string {
+  const hasPrevious = pageIndex > 0;
+  const hasNext = pageIndex < totalPages - 1;
+  return `
+    <nav class="recommendation-pagination" aria-label="推荐搭配分页">
+      <button
+        type="button"
+        data-recommendation-page="previous"
+        aria-label="上一页推荐搭配"
+        ${hasPrevious ? "" : "disabled"}>
+        上一页
+      </button>
+      <span>第 ${pageIndex + 1} / ${totalPages} 页</span>
+      <button
+        type="button"
+        data-recommendation-page="next"
+        aria-label="下一页推荐搭配"
+        ${hasNext ? "" : "disabled"}>
+        下一页
+      </button>
+    </nav>
+  `;
+}
+
+function bindRecommendationPagination(totalPages: number): void {
+  els.furnitureGrid.querySelectorAll<HTMLButtonElement>("[data-recommendation-page]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const direction = button.dataset.recommendationPage;
+      const delta = direction === "previous" ? -1 : 1;
+      state.recommendations.pageIndex = clamp(state.recommendations.pageIndex + delta, 0, Math.max(0, totalPages - 1));
+      renderRecommendations();
+    });
+  });
+}
+
+function recommendationMatchesFilter(entry: RecommendationEntry): boolean {
+  if (state.itemCategory === "全部") {
+    return true;
+  }
+
+  const item = state.itemBySlug.get(entry.itemSlug);
+  const category = entry.category || item?.category || "";
+  const tags = item?.tags || [];
+  switch (state.itemCategory) {
+    case "家具":
+      return category === "Furniture";
+    case "装饰":
+      return tags.includes("Decoration") || category === "Decoration";
+    case "玩具":
+      return tags.includes("Toy") || category === "Toy";
+    case "地块":
+      return category === "Blocks" || tags.includes("Road");
+    case "食物":
+      return category === "Food" || tags.includes("Food");
+  }
+}
+
+function recommendationDisplayName(entry: RecommendationEntry): string {
+  if (!entry.itemZhName || entry.itemZhName === entry.itemName) {
+    return entry.itemName;
+  }
+  return `${entry.itemZhName} / ${entry.itemName}`;
+}
+
+function recommendationReason(entry: RecommendationEntry): string {
+  const terms = entry.matchedPreferenceTerms.join(", ");
+  if (entry.isDyeable) {
+    return `命中偏好词：${terms}。可染色道具不需要 OKLCH 过滤。`;
+  }
+  return `命中偏好词：${terms}。${harmonyLabel(entry)}。`;
+}
+
+function harmonyLabel(entry: RecommendationEntry): string {
+  if (entry.harmonyStatus === "not_required") {
+    return "不需要 OKLCH";
+  }
+  if (entry.harmonyStatus === "override") {
+    return "Override";
+  }
+  return entry.harmonyType ? `通过 · ${harmonyTypeLabel(entry.harmonyType)}` : "通过";
+}
+
+function harmonyTypeLabel(type: RecommendationEntry["harmonyType"]): string {
+  switch (type) {
+    case "analogous":
+      return "Analogous";
+    case "complementary":
+      return "Complementary";
+    case "splitComplementary":
+      return "Split Complementary";
+    case "triadic":
+      return "Triadic";
+    case "monochrome":
+      return "Monochrome";
+    default:
+      return "";
+  }
 }
 
 function slugify(value: unknown): string {
@@ -415,35 +648,6 @@ function rgbToHex(rgb: Rgb): string {
   return `#${[rgb.r, rgb.g, rgb.b]
     .map((value) => clamp(Math.round(value), 0, 255).toString(16).padStart(2, "0"))
     .join("")}`;
-}
-
-function rgbToHsl(rgb: Rgb): Hsl {
-  const r = rgb.r / 255;
-  const g = rgb.g / 255;
-  const b = rgb.b / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  let h = 0;
-  let s = 0;
-  const l = (max + min) / 2;
-
-  if (max !== min) {
-    const delta = max - min;
-    s = l > 0.5 ? delta / (2 - max - min) : delta / (max + min);
-    switch (max) {
-      case r:
-        h = (g - b) / delta + (g < b ? 6 : 0);
-        break;
-      case g:
-        h = (b - r) / delta + 2;
-        break;
-      default:
-        h = (r - g) / delta + 4;
-    }
-    h *= 60;
-  }
-
-  return { h, s, l };
 }
 
 function rgbToCmyk(rgb: Rgb): Cmyk {
@@ -467,48 +671,12 @@ function readableInk(rgb: Rgb): string {
   return luminance > 0.57 ? "#1c1a17" : "#fff8ea";
 }
 
-function paletteTone(color: PaletteColor): PaletteTone {
-  const hsl = rgbToHsl(color.rgb);
-  if (hsl.s < 0.16) return "NEUTRAL";
-  if (hsl.h < 24 || hsl.h >= 340) return "ROSE";
-  if (hsl.h < 58) return "AMBER";
-  if (hsl.h < 150) return "GREEN";
-  if (hsl.h < 220) return "BLUE";
-  if (hsl.h < 290) return "VIOLET";
-  return "MAGENTA";
-}
-
 function normalizePalette(palette: PaletteColor[]): NormalizedPaletteColor[] {
   const total = palette.reduce((sum, color) => sum + color.percent, 0) || 1;
   return palette.map((color) => ({
     ...color,
     ratio: (color.percent / total) * 100,
   }));
-}
-
-function furnitureScore(item: PlaceableItem, color: PaletteColor, slug: string): number {
-  const tone = paletteTone(color).toLowerCase() as Lowercase<PaletteTone>;
-  const text = `${item.name} ${item.zh} ${item.category} ${item.tags.join(" ")}`.toLowerCase();
-  const keywords: Record<Lowercase<PaletteTone>, string[]> = {
-    rose: ["berry", "flower", "antique", "sofa", "bed"],
-    amber: ["wood", "straw", "lamp", "camp", "table", "chair"],
-    green: ["leaf", "plant", "garden", "flower", "grass"],
-    blue: ["beach", "water", "ice", "avalugg", "glass"],
-    violet: ["ghost", "mystic", "antique", "lamp"],
-    magenta: ["berry", "flower", "sofa", "bed"],
-    neutral: ["stone", "brick", "basic", "antique", "closet", "chest"],
-  };
-  const keywordScore = (keywords[tone] || []).reduce(
-    (sum, word) => sum + (text.includes(word) ? 32 : 0),
-    0,
-  );
-  return keywordScore + seededScore(`${slug}-${item.name}-${color.hex}`);
-}
-
-function itemMetaLabel(item: PlaceableItem): string {
-  const tags = item.tags.length ? ` · ${item.tags.join(" / ")}` : "";
-  const event = item.event ? ` · ${item.event}` : "";
-  return `${item.category}${tags}${event}`;
 }
 
 function seededScore(value: string): number {
@@ -600,6 +768,10 @@ function hexToRgb(hex: string): Rgb {
     g: Number.parseInt(normalized.slice(2, 4), 16),
     b: Number.parseInt(normalized.slice(4, 6), 16),
   };
+}
+
+function errorMessage(error: unknown): string {
+  return error instanceof Error ? error.message : String(error);
 }
 
 function renderBootError(error: unknown): void {

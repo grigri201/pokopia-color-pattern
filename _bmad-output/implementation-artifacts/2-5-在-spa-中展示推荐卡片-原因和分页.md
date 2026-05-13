@@ -1,6 +1,6 @@
 # Story 2.5: 在 SPA 中展示推荐卡片、原因和分页
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,19 +16,19 @@ so that 我可以逐页判断哪些 item 适合搭配。
 
 ## Tasks / Subtasks
 
-- [ ] 加载当前 Pokemon 推荐 JSON (AC: 1)
-  - [ ] 在选中 Pokemon 后 fetch `/data/recommendations/{slug}.json`。
-  - [ ] 数据缺失或解析失败时显示可恢复推荐区域状态，不影响 Pokemon 核心详情。
-- [ ] 渲染推荐卡片和原因 (AC: 1)
-  - [ ] 展示 item 名称、图像、分类、matched preference terms、isDyeable、primary color、harmony status/type。
-  - [ ] item 图片 alt 包含 item 名称；纯占位图使用空 alt。
-  - [ ] 用户可见字符串通过 DOM text API 或 `escapeHtml`。
-- [ ] 实现分页 (AC: 2)
-  - [ ] 每页最多 10 个 item，数据 `pageIndex` zero-based，UI 可显示 one-based。
-  - [ ] 上一页/下一页控件支持键盘、禁用态和可读标签。
-- [ ] 保留现有 item 筛选能力 (AC: 3)
-  - [ ] 当前 inspector 的 `itemFilter` 体验迁移到 generated recommendation data 上。
-  - [ ] 不重新读取完整 `item_portraits/manifest.csv`。
+- [x] 加载当前 Pokemon 推荐 JSON (AC: 1)
+  - [x] 在选中 Pokemon 后 fetch `/data/recommendations/{slug}.json`。
+  - [x] 数据缺失或解析失败时显示可恢复推荐区域状态，不影响 Pokemon 核心详情。
+- [x] 渲染推荐卡片和原因 (AC: 1)
+  - [x] 展示 item 名称、图像、分类、matched preference terms、isDyeable、primary color、harmony status/type。
+  - [x] item 图片 alt 包含 item 名称；纯占位图使用空 alt。
+  - [x] 用户可见字符串通过 DOM text API 或 `escapeHtml`。
+- [x] 实现分页 (AC: 2)
+  - [x] 每页最多 10 个 item，数据 `pageIndex` zero-based，UI 可显示 one-based。
+  - [x] 上一页/下一页控件支持键盘、禁用态和可读标签。
+- [x] 保留现有 item 筛选能力 (AC: 3)
+  - [x] 当前 inspector 的 `itemFilter` 体验迁移到 generated recommendation data 上。
+  - [x] 不重新读取完整 `item_portraits/manifest.csv`。
 
 ## Dev Notes
 
@@ -57,10 +57,46 @@ so that 我可以逐页判断哪些 item 适合搭配。
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run build:data-script`
+- `npx tsc --noEmit`
+- `npm run validate:build`
+- `npm run build`
+- `git diff --check`
+- `npm run dev -- --port 5173`
+- `curl -fsS http://127.0.0.1:5173/`
+- `curl -fsS http://127.0.0.1:5173/data/recommendations/ditto.json`
+
 ### Completion Notes List
 
+- 新增 `loadRecommendationData(slug)`，按当前 Pokemon 读取并校验 `/data/recommendations/{slug}.json`。
+- 将 inspector 旧启发式家具 slots 替换为推荐卡片、推荐原因、筛选、分页和可恢复错误/空状态。
+- 筛选基于当前 Pokemon 的 recommendation entries 过滤，并只复用已生成的 compact item data 补充 category/tag 信息，没有读取 raw manifest。
+- Code review 后增加 `requestId` 防止同一 Pokemon 重复请求乱序覆盖，并强化推荐原因/错误状态长文本折行。
+
 ### File List
+
+- `src/data/client.ts`
+- `src/main.ts`
+- `src/styles.css`
+
+## Senior Developer Review (AI)
+
+### Review Outcome
+
+Approve after fixes.
+
+### Findings
+
+- [x] [P2] `src/main.ts` 同一 Pokemon 的并发推荐请求可能让旧请求覆盖新状态。已通过 `requestId` 只允许当前最新请求落盘渲染。
+- [x] [P3] `src/styles.css` 推荐原因含超长偏好词时移动端可能横向溢出。已为推荐原因增加 `overflow-wrap: anywhere`。
+- [x] [P3] `src/styles.css` 解析失败信息含长校验路径时移动端可能横向溢出。已为推荐状态文本增加折行保护。
+
+### Review Agents
+
+- Blind Hunter: 发现并发请求乱序覆盖风险。
+- Edge Case Hunter: 发现并发请求乱序覆盖风险和长文本折行风险。
+- Acceptance Auditor: AC1-AC3 通过，未发现必须修复问题。

@@ -1,8 +1,10 @@
 import {
   validateCompactItemsData,
   validatePokemonIndexData,
+  validateRecommendationsData,
   type CompactItemsData,
   type PokemonIndexData,
+  type RecommendationsData,
   type SchemaIssue,
 } from "./schemas.js";
 
@@ -31,6 +33,19 @@ export async function loadGeneratedData(): Promise<GeneratedData> {
   ]);
 
   return { pokemonIndex, compactItems };
+}
+
+export async function loadRecommendationData(slug: string): Promise<RecommendationsData> {
+  const filePath = recommendationDataPath(slug);
+  const data = await fetchAndValidate<RecommendationsData>(filePath, validateRecommendationsData);
+  if (data.pokemonSlug !== slug) {
+    throw new GeneratedDataError(filePath, `推荐数据 pokemonSlug 不匹配：expected ${slug}, got ${data.pokemonSlug}`);
+  }
+  return data;
+}
+
+function recommendationDataPath(slug: string): string {
+  return `/data/recommendations/${encodeURIComponent(slug)}.json`;
 }
 
 async function fetchAndValidate<T>(
