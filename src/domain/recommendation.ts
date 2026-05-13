@@ -82,7 +82,7 @@ export type RecommendationRankingInput = {
   itemSlug: string;
   matchedPreferenceTerms: string[];
   isDyeable: boolean;
-  harmonyStatus: "not_required" | "passed";
+  harmonyStatus: "not_required" | "passed" | "override";
   harmonyType: HarmonyType | null;
   overrideSource: string | null;
   roleFitScore?: number;

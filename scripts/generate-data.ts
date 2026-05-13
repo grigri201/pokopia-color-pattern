@@ -11,10 +11,8 @@ import {
   type CompactItemsData,
   type ItemColorEntry,
   type ItemColorsData,
-  type PokemonColorSwatch,
   type PokemonIndexData,
   type PokemonIndexEntry,
-  type PokemonMetadataOverrideEntry,
   type PokemonMetadataOverridesData,
   type RecommendationsData,
   validateCompactItemsData,
@@ -24,6 +22,7 @@ import {
   validateRecommendationsData,
 } from "../src/data/schemas.js";
 import { buildRecommendationDataSet } from "../src/domain/recommendation-data.js";
+import { resolvePokemonMetadataOverrideFields } from "../src/domain/pokemon-metadata.js";
 import { DEFAULT_FALLBACK_COLOR, extractImagePalette } from "./lib/image-colors.js";
 import { parseCsv, type CsvRow } from "./lib/csv.js";
 import { writeJsonFile } from "./lib/write-json.js";
@@ -99,7 +98,7 @@ async function generateData(): Promise<void> {
   const compactItems = buildCompactItems(manifestCsv, placeableCsv, placeableJsonText, issues);
   const itemColors = await buildItemColors(compactItems.items, issues);
   const pokemonIndex = await buildPokemonIndex(pokemonCsv, overrides, issues);
-  const recommendations = buildRecommendations(pokemonIndex, compactItems, itemColors, issues);
+  const recommendations = buildRecommendations(pokemonIndex, compactItems, itemColors, overrides, issues);
 
   validateAllData(compactItems, itemColors, pokemonIndex, overrides, recommendations, issues);
 
@@ -255,25 +254,25 @@ async function buildPokemonIndex(
     }
     const imagePath = toRootAbsolutePath(requireField(row.values, "relative_path", pokemonManifestPath, row.rowNumber, issues, slug));
     const localImagePath = resolve(projectRoot, imagePath.slice(1));
-    const preferenceTerms = normalizePreferenceTerms(override?.preferenceTerms ?? []);
-    const preferenceSource = preferenceTerms.length > 0 ? "override" : null;
-    const hasMetadataOverride = Boolean(override?.primaryColor || override?.palette || override?.pattern || preferenceTerms.length);
-    const overrideSource = hasMetadataOverride ? `${pokemonOverridePath}#pokemon.${slug}` : null;
+    const overrideFields = resolvePokemonMetadataOverrideFields(slug, override, pokemonOverridePath, DEFAULT_FALLBACK_COLOR);
+    const preferenceTerms = overrideFields.preferenceTerms;
+    const preferenceSource = overrideFields.preferenceSource;
+    const overrideSource = overrideFields.overrideSource;
 
     if (override?.primaryColor || override?.palette) {
-      const overridePalette = buildOverridePalette(override);
+      const overridePalette = overrideFields.overridePalette;
       return {
         slug,
         sequence,
         name,
         zhName: nullable(row.values.name_zh_hans),
         imagePath,
-        primaryColor: normalizeHex(override.primaryColor ?? overridePalette[0]?.hex ?? DEFAULT_FALLBACK_COLOR),
+        primaryColor: overrideFields.overridePrimaryColor ?? overridePalette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
         palette: overridePalette,
         colorSource: "override",
         fallbackReason: null,
         overrideSource,
-        pattern: override.pattern ?? overridePalette.map((color) => color.hex),
+        pattern: overrideFields.overridePattern ?? overridePalette.map((color) => color.hex),
         preferenceTerms,
         preferenceSource,
       };
@@ -293,7 +292,7 @@ async function buildPokemonIndex(
         colorSource: "extracted",
         fallbackReason: null,
         overrideSource,
-        pattern: override?.pattern ?? palette.map((color) => color.hex),
+        pattern: overrideFields.overridePattern ?? palette.map((color) => color.hex),
         preferenceTerms,
         preferenceSource,
       };
@@ -310,7 +309,7 @@ async function buildPokemonIndex(
       colorSource: "fallback",
       fallbackReason: result.reason,
       overrideSource,
-      pattern: override?.pattern ?? [],
+      pattern: overrideFields.overridePattern ?? [],
       preferenceTerms,
       preferenceSource,
     };
@@ -354,13 +353,18 @@ function buildRecommendations(
   pokemonIndex: PokemonIndexData,
   compactItems: CompactItemsData,
   itemColors: ItemColorsData,
+  overrides: PokemonMetadataOverridesData,
   issues: GenerationIssue[],
 ): RecommendationsData[] {
-  const result = buildRecommendationDataSet(pokemonIndex.pokemon, compactItems.items, itemColors.items);
+  const result = buildRecommendationDataSet(pokemonIndex.pokemon, compactItems.items, itemColors.items, {
+    overrides: overrides.pokemon,
+    overridePath: pokemonOverridePath,
+  });
   result.issues.forEach((issue) => {
     issues.push({
-      file: recommendationsOutputPath(issue.pokemonSlug),
+      file: issue.file ?? recommendationsOutputPath(issue.pokemonSlug),
       slug: issue.itemSlug,
+      field: issue.field,
       message: issue.message,
     });
   });
@@ -744,16 +748,6 @@ function validateNoPrivatePaths(file: string, data: unknown, issues: GenerationI
   }
 }
 
-function buildOverridePalette(override: PokemonMetadataOverrideEntry): PokemonColorSwatch[] {
-  const colors = (override.palette?.length ? override.palette : [override.primaryColor ?? DEFAULT_FALLBACK_COLOR]).map(normalizeHex);
-  let assigned = 0;
-  return colors.map((hex, index) => {
-    const percent = index === colors.length - 1 ? Math.round((100 - assigned) * 10) / 10 : Math.round((100 / colors.length) * 10) / 10;
-    assigned += percent;
-    return { hex, percent };
-  });
-}
-
 function indexCsvRowsBySlug(rows: CsvRow[], file: string, issues: GenerationIssue[]): Map<string, CsvRow> {
   const bySlug = new Map<string, CsvRow>();
   rows.forEach((row) => {
@@ -897,19 +891,6 @@ function asString(value: unknown): string | undefined {
     return undefined;
   }
   return String(value);
-}
-
-function normalizeHex(value: string): string {
-  const normalized = value.trim().toUpperCase();
-  return normalized.startsWith("#") ? normalized : `#${normalized}`;
-}
-
-function normalizePreferenceTerms(values: string[]): string[] {
-  return uniqueSorted(values.map(toPreferenceTerm).filter(Boolean));
-}
-
-function toPreferenceTerm(value: string): string {
-  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function slugify(value: unknown): string {

@@ -1,13 +1,14 @@
 export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v1" as const;
 export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v1" as const;
 export const ITEM_COLORS_SCHEMA_VERSION = "item-colors.v1" as const;
-export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v1" as const;
+export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v2" as const;
 export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overrides.v1" as const;
 
 export type CompactItemColorSource = "extracted" | "override" | "fallback";
 export type PokemonColorSource = "extracted" | "override" | "fallback";
 export type PokemonPreferenceSource = "metadata" | "override";
-export type RecommendationHarmonyStatus = "not_required" | "passed";
+export type PokemonRecommendationOverrideMode = "append" | "replace";
+export type RecommendationHarmonyStatus = "not_required" | "passed" | "override";
 export type RecommendationHarmonyType = "analogous" | "complementary" | "splitComplementary" | "triadic" | "monochrome";
 
 export type CompactItemRecommendationFields = {
@@ -134,11 +135,22 @@ export type RecommendationsData = {
   recommendations: RecommendationEntry[];
 };
 
+export type PokemonRecommendedItemOverrideEntry = {
+  itemSlug: string;
+  matchedPreferenceTerms: string[];
+};
+
+export type PokemonRecommendedItemsOverride = {
+  mode: PokemonRecommendationOverrideMode;
+  items: PokemonRecommendedItemOverrideEntry[];
+};
+
 export type PokemonMetadataOverrideEntry = {
   primaryColor?: string;
   palette?: string[];
   pattern?: string[];
   preferenceTerms?: string[];
+  recommendedItems?: PokemonRecommendedItemsOverride;
 };
 
 export type PokemonMetadataOverridesData = {
@@ -397,6 +409,9 @@ export function validatePokemonMetadataOverridesData(value: unknown): SchemaIssu
     if ("preferenceTerms" in override) {
       requireStringArray(override, "preferenceTerms", path, issues, slug);
     }
+    if ("recommendedItems" in override) {
+      requireRecommendedItemsOverride(override, "recommendedItems", path, issues, slug);
+    }
   });
 
   return issues;
@@ -484,6 +499,7 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
   }
 
   const seenRanks = new Set<number>();
+  const seenItemSlugs = new Set<string>();
   value.recommendations.forEach((entry, index) => {
     const path = `$.recommendations[${index}]`;
     if (!isRecord(entry)) {
@@ -493,6 +509,12 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
 
     const slug = typeof entry.itemSlug === "string" ? entry.itemSlug : undefined;
     requireSlug(entry, "itemSlug", path, issues);
+    if (slug) {
+      if (seenItemSlugs.has(slug)) {
+        issues.push({ path: `${path}.itemSlug`, message: "Duplicate recommendation item slug", slug });
+      }
+      seenItemSlugs.add(slug);
+    }
     requireString(entry, "itemName", path, issues, slug);
     requireNullableString(entry, "itemZhName", path, issues, slug);
     requireString(entry, "itemImagePath", path, issues, slug);
@@ -536,6 +558,14 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
     }
     if (entry.harmonyStatus === "passed" && entry.itemPrimaryColor === null) {
       issues.push({ path: `${path}.itemPrimaryColor`, message: "Expected item primary color when harmony passed", slug });
+    }
+    if (entry.harmonyStatus === "override") {
+      if (typeof entry.overrideSource !== "string" || entry.overrideSource.trim() === "") {
+        issues.push({ path: `${path}.overrideSource`, message: "Expected overrideSource when harmony status is override", slug });
+      }
+      if (entry.harmonyType !== null) {
+        issues.push({ path: `${path}.harmonyType`, message: "Expected null harmonyType when harmony status is override", slug });
+      }
     }
   });
 
@@ -724,9 +754,55 @@ function requireRecommendationHarmonyStatus(
   slug?: string,
 ): void {
   const value = record[key];
-  if (value !== "not_required" && value !== "passed") {
+  if (value !== "not_required" && value !== "passed" && value !== "override") {
     issue(path, key, "Expected known recommendation harmony status", issues, slug);
   }
+}
+
+function requireRecommendedItemsOverride(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  const overridePath = `${path}.${key}`;
+  if (!isRecord(value)) {
+    issue(path, key, "Expected recommended items override object", issues, slug);
+    return;
+  }
+
+  if (value.mode !== "append" && value.mode !== "replace") {
+    issue(overridePath, "mode", "Expected append or replace", issues, slug);
+  }
+  if (!Array.isArray(value.items)) {
+    issue(overridePath, "items", "Expected recommended item override array", issues, slug);
+    return;
+  }
+  if (value.items.length === 0) {
+    issue(overridePath, "items", "Expected at least one recommended item override", issues, slug);
+  }
+
+  const seenItemSlugs = new Set<string>();
+  value.items.forEach((item, index) => {
+    const itemPath = `${overridePath}.items[${index}]`;
+    if (!isRecord(item)) {
+      issues.push({ path: itemPath, message: "Expected recommended item override object", slug });
+      return;
+    }
+
+    const itemSlug = typeof item.itemSlug === "string" ? item.itemSlug : undefined;
+    requireSlug(item, "itemSlug", itemPath, issues);
+    if (itemSlug) {
+      if (seenItemSlugs.has(itemSlug)) {
+        issues.push({ path: `${itemPath}.itemSlug`, message: "Duplicate recommended item override slug", slug: itemSlug });
+      }
+      seenItemSlugs.add(itemSlug);
+    }
+    requireStringArray(item, "matchedPreferenceTerms", itemPath, issues, itemSlug);
+    requireNonEmptyNormalizedStringArray(item, "matchedPreferenceTerms", itemPath, issues, itemSlug);
+  });
 }
 
 function requireNullableRecommendationHarmonyType(

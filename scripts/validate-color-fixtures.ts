@@ -2,6 +2,7 @@ import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import sharp from "sharp";
 import { validatePokemonMetadataOverridesData } from "../src/data/schemas.js";
+import { resolvePokemonMetadataOverrideFields } from "../src/domain/pokemon-metadata.js";
 import { DEFAULT_FALLBACK_COLOR, extractImagePalette } from "./lib/image-colors.js";
 
 const fixtureDir = ".tmp/color-fixtures";
@@ -65,6 +66,10 @@ const validOverrideIssues = validatePokemonMetadataOverridesData({
       primaryColor: "#AABBCC",
       palette: ["#AABBCC", "#112233", "#445566"],
       pattern: ["soft", "round"],
+      recommendedItems: {
+        mode: "append",
+        items: [{ itemSlug: "flower-chair", matchedPreferenceTerms: ["flower"] }],
+      },
     },
   },
 });
@@ -72,17 +77,140 @@ if (validOverrideIssues.length > 0) {
   throw new Error(`Expected valid Pokemon metadata override fixture: ${JSON.stringify(validOverrideIssues)}`);
 }
 
-const invalidOverrideIssues = validatePokemonMetadataOverridesData({
-  schemaVersion: "pokemon-metadata-overrides.v1",
-  pokemon: {
-    ditto: {
-      primaryColor: "not-a-color",
+const overrideFields = resolvePokemonMetadataOverrideFields(
+  "ditto",
+  {
+    primaryColor: "#AABBCC",
+    palette: ["#AABBCC", "#112233", "#445566"],
+    pattern: ["soft", "round"],
+    recommendedItems: {
+      mode: "append",
+      items: [{ itemSlug: "flower-chair", matchedPreferenceTerms: ["flower"] }],
     },
   },
-});
-if (invalidOverrideIssues.length === 0) {
-  throw new Error("Expected invalid Pokemon metadata override fixture to fail validation");
+  "fixture-overrides.json",
+  DEFAULT_FALLBACK_COLOR,
+);
+if (
+  overrideFields.overrideSource !== "fixture-overrides.json#pokemon.ditto" ||
+  overrideFields.overridePrimaryColor !== "#AABBCC" ||
+  overrideFields.overridePalette.length !== 3 ||
+  overrideFields.overridePattern?.join(",") !== "soft,round"
+) {
+  throw new Error(`Expected metadata override fields to be resolved for generated Pokemon metadata: ${JSON.stringify(overrideFields)}`);
 }
+
+assertOverrideIssue(
+  "invalid primary color",
+  {
+    schemaVersion: "pokemon-metadata-overrides.v1",
+    pokemon: {
+      ditto: {
+        primaryColor: "not-a-color",
+      },
+    },
+  },
+  "$.pokemon.ditto.primaryColor",
+);
+assertOverrideIssue(
+  "invalid recommended item mode",
+  {
+    schemaVersion: "pokemon-metadata-overrides.v1",
+    pokemon: {
+      ditto: {
+        recommendedItems: {
+          mode: "sideways",
+          items: [{ itemSlug: "flower-chair", matchedPreferenceTerms: ["flower"] }],
+        },
+      },
+    },
+  },
+  "$.pokemon.ditto.recommendedItems.mode",
+);
+assertOverrideIssue(
+  "empty recommended items",
+  {
+    schemaVersion: "pokemon-metadata-overrides.v1",
+    pokemon: {
+      ditto: {
+        recommendedItems: {
+          mode: "append",
+          items: [],
+        },
+      },
+    },
+  },
+  "$.pokemon.ditto.recommendedItems.items",
+);
+assertOverrideIssue(
+  "missing recommended items",
+  {
+    schemaVersion: "pokemon-metadata-overrides.v1",
+    pokemon: {
+      ditto: {
+        recommendedItems: {
+          mode: "append",
+        },
+      },
+    },
+  },
+  "$.pokemon.ditto.recommendedItems.items",
+);
+assertOverrideIssue(
+  "duplicate recommended item",
+  {
+    schemaVersion: "pokemon-metadata-overrides.v1",
+    pokemon: {
+      ditto: {
+        recommendedItems: {
+          mode: "append",
+          items: [
+            { itemSlug: "flower-chair", matchedPreferenceTerms: ["flower"] },
+            { itemSlug: "flower-chair", matchedPreferenceTerms: ["manual"] },
+          ],
+        },
+      },
+    },
+  },
+  "$.pokemon.ditto.recommendedItems.items[1].itemSlug",
+);
+assertOverrideIssue(
+  "empty matched preference terms",
+  {
+    schemaVersion: "pokemon-metadata-overrides.v1",
+    pokemon: {
+      ditto: {
+        recommendedItems: {
+          mode: "append",
+          items: [{ itemSlug: "flower-chair", matchedPreferenceTerms: [] }],
+        },
+      },
+    },
+  },
+  "$.pokemon.ditto.recommendedItems.items[0].matchedPreferenceTerms",
+);
+assertOverrideIssue(
+  "non-normalized matched preference term",
+  {
+    schemaVersion: "pokemon-metadata-overrides.v1",
+    pokemon: {
+      ditto: {
+        recommendedItems: {
+          mode: "append",
+          items: [{ itemSlug: "flower-chair", matchedPreferenceTerms: [" Flower "] }],
+        },
+      },
+    },
+  },
+  "$.pokemon.ditto.recommendedItems.items[0].matchedPreferenceTerms[0]",
+);
 
 await writeFile(join(fixtureDir, "ok.txt"), "color fixtures passed\n", "utf8");
 console.log("Validated color extraction and override fixtures.");
+
+function assertOverrideIssue(label: string, data: unknown, expectedPath: string): void {
+  const issues = validatePokemonMetadataOverridesData(data);
+  if (!issues.some((issue) => issue.path === expectedPath)) {
+    throw new Error(`Expected ${label} override fixture to fail at ${expectedPath}: ${JSON.stringify(issues)}`);
+  }
+}

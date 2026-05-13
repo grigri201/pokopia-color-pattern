@@ -261,11 +261,13 @@ const compactDataFixture: CompactItem[] = [
   compactItemFixture("flower-chair", "Flower chair", true),
   compactItemFixture("flower-garden-lamp", "Flower garden lamp", false, ["Garden"], ["decoration", "garden"]),
   compactItemFixture("flower-vase", "Flower vase", false),
+  compactItemFixture("manual-rock", "Manual rock", false),
 ];
 const itemColorDataFixture: ItemColorEntry[] = [
   { slug: "flower-chair", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null },
   { slug: "flower-garden-lamp", itemPrimaryColor: harmony.complementary, colorSource: "extracted", fallbackReason: null },
   { slug: "flower-vase", itemPrimaryColor: harmony.analogous[0], colorSource: "extracted", fallbackReason: null },
+  { slug: "manual-rock", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null },
 ];
 const builtData = buildRecommendationDataSet(pokemonDataFixture, compactDataFixture, itemColorDataFixture);
 if (builtData.issues.length > 0) {
@@ -286,6 +288,117 @@ if (
   firstBuiltEntry.overrideSource !== null
 ) {
   throw new Error(`Unexpected built recommendation data entry: ${JSON.stringify(firstBuiltEntry)}`);
+}
+
+const appendOverrideData = buildRecommendationDataSet(pokemonDataFixture, compactDataFixture, itemColorDataFixture, {
+  overridePath: "fixture-overrides.json",
+  overrides: {
+    "fixture-mon": {
+      recommendedItems: {
+        mode: "append",
+        items: [{ itemSlug: "manual-rock", matchedPreferenceTerms: ["manual"] }],
+      },
+    },
+  },
+});
+if (appendOverrideData.issues.length > 0) {
+  throw new Error(`Expected append override fixture to have no issues: ${JSON.stringify(appendOverrideData.issues)}`);
+}
+const appendRecommendations = appendOverrideData.recommendations[0].recommendations;
+const appendedManualItem = appendRecommendations.find((entry) => entry.itemSlug === "manual-rock");
+if (
+  !appendedManualItem ||
+  appendedManualItem.rank !== 1 ||
+  appendedManualItem.pageIndex !== 0 ||
+  appendedManualItem.overrideSource !== "fixture-overrides.json#pokemon.fixture-mon.recommendedItems.manual-rock" ||
+  appendedManualItem.harmonyStatus !== "override" ||
+  !appendRecommendations.some((entry) => entry.itemSlug === "flower-garden-lamp")
+) {
+  throw new Error(`Unexpected append override recommendations: ${JSON.stringify(appendRecommendations)}`);
+}
+const appendSchemaIssues = validateRecommendationsData(appendOverrideData.recommendations[0]);
+if (appendSchemaIssues.length > 0) {
+  throw new Error(`Expected append override recommendations to pass schema: ${JSON.stringify(appendSchemaIssues)}`);
+}
+
+const duplicateAppendOverrideData = buildRecommendationDataSet(pokemonDataFixture, compactDataFixture, itemColorDataFixture, {
+  overridePath: "fixture-overrides.json",
+  overrides: {
+    "fixture-mon": {
+      recommendedItems: {
+        mode: "append",
+        items: [{ itemSlug: "flower-garden-lamp", matchedPreferenceTerms: ["manual"] }],
+      },
+    },
+  },
+});
+const duplicateAppendIssue = duplicateAppendOverrideData.issues.find(
+  (issue) =>
+    issue.file === "fixture-overrides.json" &&
+    issue.field === "$.pokemon.fixture-mon.recommendedItems.items[0].itemSlug" &&
+    issue.message.includes("duplicates an automatic recommendation"),
+);
+if (!duplicateAppendIssue) {
+  throw new Error(`Expected duplicate append override to fail with override field context: ${JSON.stringify(duplicateAppendOverrideData.issues)}`);
+}
+
+const unknownOverrideItemData = buildRecommendationDataSet(pokemonDataFixture, compactDataFixture, itemColorDataFixture, {
+  overridePath: "fixture-overrides.json",
+  overrides: {
+    "fixture-mon": {
+      recommendedItems: {
+        mode: "replace",
+        items: [{ itemSlug: "missing-item", matchedPreferenceTerms: ["manual"] }],
+      },
+    },
+  },
+});
+const unknownOverrideIssue = unknownOverrideItemData.issues.find(
+  (issue) =>
+    issue.file === "fixture-overrides.json" &&
+    issue.field === "$.pokemon.fixture-mon.recommendedItems.items[0].itemSlug" &&
+    issue.itemSlug === "missing-item",
+);
+if (!unknownOverrideIssue) {
+  throw new Error(`Expected unknown override item to fail with override field context: ${JSON.stringify(unknownOverrideItemData.issues)}`);
+}
+
+const replaceOverrideData = buildRecommendationDataSet(pokemonDataFixture, compactDataFixture, itemColorDataFixture, {
+  overridePath: "fixture-overrides.json",
+  overrides: {
+    "fixture-mon": {
+      recommendedItems: {
+        mode: "replace",
+        items: [{ itemSlug: "manual-rock", matchedPreferenceTerms: ["manual"] }],
+      },
+    },
+  },
+});
+const replaceRecommendations = replaceOverrideData.recommendations[0].recommendations;
+if (
+  replaceOverrideData.issues.length > 0 ||
+  replaceRecommendations.length !== 1 ||
+  replaceRecommendations[0]?.itemSlug !== "manual-rock" ||
+  replaceRecommendations[0].overrideSource !== "fixture-overrides.json#pokemon.fixture-mon.recommendedItems.manual-rock"
+) {
+  throw new Error(`Unexpected replace override recommendations: ${JSON.stringify(replaceOverrideData)}`);
+}
+const replaceSchemaIssues = validateRecommendationsData(replaceOverrideData.recommendations[0]);
+if (replaceSchemaIssues.length > 0) {
+  throw new Error(`Expected replace override recommendations to pass schema: ${JSON.stringify(replaceSchemaIssues)}`);
+}
+
+const untrackedOverrideStatusIssues = validateRecommendationsData({
+  ...replaceOverrideData.recommendations[0],
+  recommendations: [
+    {
+      ...replaceOverrideData.recommendations[0].recommendations[0],
+      overrideSource: null,
+    },
+  ],
+});
+if (!untrackedOverrideStatusIssues.some((issue) => issue.path === "$.recommendations[0].overrideSource")) {
+  throw new Error(`Expected override harmony status to require overrideSource: ${JSON.stringify(untrackedOverrideStatusIssues)}`);
 }
 
 console.log("Validated recommendation candidate, harmony, ranking, and schema fixtures.");
