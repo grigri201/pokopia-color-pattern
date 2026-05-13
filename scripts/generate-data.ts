@@ -4,10 +4,23 @@ import { isAbsolute, relative, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import {
   COMPACT_ITEMS_SCHEMA_VERSION,
+  ITEM_COLORS_SCHEMA_VERSION,
+  POKEMON_INDEX_SCHEMA_VERSION,
   type CompactItem,
   type CompactItemsData,
+  type ItemColorEntry,
+  type ItemColorsData,
+  type PokemonColorSwatch,
+  type PokemonIndexData,
+  type PokemonIndexEntry,
+  type PokemonMetadataOverrideEntry,
+  type PokemonMetadataOverridesData,
   validateCompactItemsData,
+  validateItemColorsData,
+  validatePokemonIndexData,
+  validatePokemonMetadataOverridesData,
 } from "../src/data/schemas.js";
+import { DEFAULT_FALLBACK_COLOR, extractImagePalette } from "./lib/image-colors.js";
 import { parseCsv, type CsvRow } from "./lib/csv.js";
 import { writeJsonFile } from "./lib/write-json.js";
 
@@ -30,45 +43,123 @@ const projectRoot = process.cwd();
 const itemManifestPath = "docs/pokopia_image_sources/item_portraits/manifest.csv";
 const placeableCsvPath = "docs/pokopia_image_sources/pokopiadex_placeable_items.csv";
 const placeableJsonPath = "docs/pokopia_image_sources/pokopiadex_placeable_items.json";
-const outputPath = "generated/data/compact-items.json";
+const pokemonManifestPath = "docs/pokopia_image_sources/pokemon_portraits/manifest.csv";
+const pokemonOverridePath = "data/overrides/pokemon-metadata.json";
+
+const compactItemsOutputPath = "generated/data/compact-items.json";
+const itemColorsOutputPath = "generated/data/item-colors.json";
+const pokemonIndexOutputPath = "generated/data/pokemon-index.json";
+
 const maxCompactItemsGzipBytes = 50 * 1024;
+const maxItemColorsGzipBytes = 25 * 1024;
+const maxPokemonIndexGzipBytes = 40 * 1024;
+const expectedItemCount = 1219;
+const expectedPokemonCount = 311;
 
 const absoluteItemManifestPath = resolve(projectRoot, itemManifestPath);
 const absolutePlaceableCsvPath = resolve(projectRoot, placeableCsvPath);
 const absolutePlaceableJsonPath = resolve(projectRoot, placeableJsonPath);
-const absoluteOutputPath = resolve(projectRoot, outputPath);
-const localImageRoot = resolve(projectRoot, "docs/pokopia_image_sources/item_portraits");
+const absolutePokemonManifestPath = resolve(projectRoot, pokemonManifestPath);
+const absolutePokemonOverridePath = resolve(projectRoot, pokemonOverridePath);
+const absoluteCompactItemsOutputPath = resolve(projectRoot, compactItemsOutputPath);
+const absoluteItemColorsOutputPath = resolve(projectRoot, itemColorsOutputPath);
+const absolutePokemonIndexOutputPath = resolve(projectRoot, pokemonIndexOutputPath);
+const localItemImageRoot = resolve(projectRoot, "docs/pokopia_image_sources/item_portraits");
+const localPokemonImageRoot = resolve(projectRoot, "docs/pokopia_image_sources/pokemon_portraits");
 
 const validateOnly = process.argv.includes("--validate-only");
 
 if (validateOnly) {
-  await validateExistingOutput();
+  await validateExistingOutputs();
 } else {
-  await generateCompactItems();
+  await generateData();
 }
 
-async function generateCompactItems(): Promise<void> {
+async function generateData(): Promise<void> {
   const issues: GenerationIssue[] = [];
-  const [manifestCsv, placeableCsv, placeableJsonText] = await Promise.all([
+  const [manifestCsv, placeableCsv, placeableJsonText, pokemonCsv, overrideText] = await Promise.all([
     readFile(absoluteItemManifestPath, "utf8"),
     readFile(absolutePlaceableCsvPath, "utf8"),
     readFile(absolutePlaceableJsonPath, "utf8"),
+    readFile(absolutePokemonManifestPath, "utf8"),
+    readFile(absolutePokemonOverridePath, "utf8"),
   ]);
 
+  const overrides = parsePokemonOverrides(overrideText, issues);
+  const compactItems = buildCompactItems(manifestCsv, placeableCsv, placeableJsonText, issues);
+  const itemColors = await buildItemColors(compactItems.items, issues);
+  const pokemonIndex = await buildPokemonIndex(pokemonCsv, overrides, issues);
+
+  validateAllData(compactItems, itemColors, pokemonIndex, overrides, issues);
+
+  if (issues.length > 0) {
+    printIssues("Data generation failed", issues);
+    process.exitCode = 1;
+    return;
+  }
+
+  await Promise.all([
+    writeJsonFile(absoluteCompactItemsOutputPath, compactItems),
+    writeJsonFile(absoluteItemColorsOutputPath, itemColors),
+    writeJsonFile(absolutePokemonIndexOutputPath, pokemonIndex),
+  ]);
+
+  const compactGzipBytes = gzipSync(serializeJsonForOutput(compactItems)).length;
+  console.log(`Generated ${compactItemsOutputPath} with ${compactItems.items.length} compact items (${compactGzipBytes} gzip bytes).`);
+  console.log(`Generated ${itemColorsOutputPath} with ${itemColors.items.length} item colors.`);
+  console.log(`Generated ${pokemonIndexOutputPath} with ${pokemonIndex.pokemon.length} Pokemon.`);
+}
+
+async function validateExistingOutputs(): Promise<void> {
+  const issues: GenerationIssue[] = [];
+  const [compactText, itemColorsText, pokemonIndexText, overrideText] = await Promise.all([
+    readFile(absoluteCompactItemsOutputPath, "utf8"),
+    readFile(absoluteItemColorsOutputPath, "utf8"),
+    readFile(absolutePokemonIndexOutputPath, "utf8"),
+    readFile(absolutePokemonOverridePath, "utf8"),
+  ]);
+
+  const compactItems = parseJsonValue(compactText, compactItemsOutputPath, issues);
+  const itemColors = parseJsonValue(itemColorsText, itemColorsOutputPath, issues);
+  const pokemonIndex = parseJsonValue(pokemonIndexText, pokemonIndexOutputPath, issues);
+  const overrides = parseJsonValue(overrideText, pokemonOverridePath, issues);
+
+  validateAllData(compactItems, itemColors, pokemonIndex, overrides, issues);
+
+  if (issues.length > 0) {
+    printIssues("Data validation failed", issues);
+    process.exitCode = 1;
+    return;
+  }
+
+  const compactCount = Array.isArray((compactItems as { items?: unknown }).items)
+    ? (compactItems as { items: unknown[] }).items.length
+    : 0;
+  const itemColorCount = Array.isArray((itemColors as { items?: unknown }).items)
+    ? (itemColors as { items: unknown[] }).items.length
+    : 0;
+  const pokemonCount = Array.isArray((pokemonIndex as { pokemon?: unknown }).pokemon)
+    ? (pokemonIndex as { pokemon: unknown[] }).pokemon.length
+    : 0;
+  console.log(
+    `Validated ${compactItemsOutputPath} (${compactCount}), ${itemColorsOutputPath} (${itemColorCount}), and ${pokemonIndexOutputPath} (${pokemonCount}).`,
+  );
+}
+
+function buildCompactItems(manifestCsv: string, placeableCsv: string, placeableJsonText: string, issues: GenerationIssue[]): CompactItemsData {
   const manifest = parseCsv(manifestCsv);
   const placeable = parseCsv(placeableCsv);
   manifest.issues.forEach((message) => issues.push({ file: itemManifestPath, message }));
   placeable.issues.forEach((message) => issues.push({ file: placeableCsvPath, message }));
 
   const placeableBySlug = indexCsvRowsBySlug(placeable.rows, placeableCsvPath, issues);
-
   const rawJsonBySlug = parsePlaceableJson(placeableJsonText, issues);
   const compactRows = manifest.rows
     .filter((row) => row.values.status === "ok" && row.values.kind === "placeable_item")
     .map((row) => toCompactItem(row, placeableBySlug.get(row.values.slug), rawJsonBySlug.get(row.values.slug), issues))
     .sort(compareCompactItems);
 
-  const data: CompactItemsData = {
+  return {
     schemaVersion: COMPACT_ITEMS_SCHEMA_VERSION,
     generatedFrom: {
       itemManifestPath,
@@ -83,59 +174,180 @@ async function generateCompactItems(): Promise<void> {
     },
     items: compactRows,
   };
-
-  const schemaIssues = validateCompactItemsData(data);
-  schemaIssues.forEach((issue) =>
-    issues.push({
-      file: outputPath,
-      slug: issue.slug,
-      field: issue.path,
-      message: issue.message,
-    }),
-  );
-  validateGeneratedDataShape(data, issues);
-
-  if (issues.length > 0) {
-    printIssues("Compact item generation failed", issues);
-    process.exitCode = 1;
-    return;
-  }
-
-  await writeJsonFile(absoluteOutputPath, data);
-  const gzipBytes = gzipSync(serializeJsonForOutput(data)).length;
-  console.log(`Generated ${outputPath} with ${data.items.length} compact items (${gzipBytes} gzip bytes).`);
 }
 
-async function validateExistingOutput(): Promise<void> {
-  const text = await readFile(absoluteOutputPath, "utf8");
-  const issues: GenerationIssue[] = [];
-  const data = parseJsonValue(text, outputPath, issues);
-  if (issues.length > 0) {
-    printIssues("Compact item validation failed", issues);
-    process.exitCode = 1;
-    return;
-  }
+async function buildItemColors(items: CompactItem[], issues: GenerationIssue[]): Promise<ItemColorsData> {
+  const colorRows = await mapWithConcurrency(items, 12, async (item): Promise<ItemColorEntry> => {
+    const imagePath = resolve(projectRoot, item.imagePath.slice(1));
+    const result = await extractImagePalette(imagePath);
 
-  validateCompactItemsData(data).forEach((issue) =>
+    if (result.status === "ok") {
+      return {
+        slug: item.slug,
+        itemPrimaryColor: result.palette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
+        colorSource: "extracted",
+        fallbackReason: null,
+      };
+    }
+
+    return {
+      slug: item.slug,
+      itemPrimaryColor: DEFAULT_FALLBACK_COLOR,
+      colorSource: "fallback",
+      fallbackReason: result.reason,
+    };
+  });
+
+  const fallbackCount = colorRows.filter((item) => item.colorSource === "fallback").length;
+
+  return {
+    schemaVersion: ITEM_COLORS_SCHEMA_VERSION,
+    generatedFrom: {
+      compactItemsPath: compactItemsOutputPath,
+      rawBoundary: "docs/pokopia_image_sources/**",
+    },
+    summary: {
+      itemCount: colorRows.length,
+      fallbackCount,
+    },
+    items: colorRows.sort((left, right) => left.slug.localeCompare(right.slug, "en")),
+  };
+}
+
+async function buildPokemonIndex(
+  pokemonCsv: string,
+  overrides: PokemonMetadataOverridesData,
+  issues: GenerationIssue[],
+): Promise<PokemonIndexData> {
+  const manifest = parseCsv(pokemonCsv);
+  manifest.issues.forEach((message) => issues.push({ file: pokemonManifestPath, message }));
+  const rows = manifest.rows.filter((row) => row.values.status === "ok" && row.values.kind === "pokemon");
+  const seenPokemonSlugs = new Set<string>();
+
+  const pokemonRows = await mapWithConcurrency(rows, 12, async (row): Promise<PokemonIndexEntry> => {
+    const name = requireField(row.values, "name", pokemonManifestPath, row.rowNumber, issues);
+    const slug = pokemonSlug(row.values, name);
+    seenPokemonSlugs.add(slug);
+    const override = overrides.pokemon[slug];
+    const sequence = requireField(row.values, "sequence", pokemonManifestPath, row.rowNumber, issues, slug);
+    if (!/^\d+$/.test(sequence)) {
+      issues.push({ file: pokemonManifestPath, row: row.rowNumber, slug, field: "sequence", message: "Expected numeric sequence" });
+    }
+    const imagePath = toRootAbsolutePath(requireField(row.values, "relative_path", pokemonManifestPath, row.rowNumber, issues, slug));
+    const localImagePath = resolve(projectRoot, imagePath.slice(1));
+
+    if (override?.primaryColor || override?.palette) {
+      const overridePalette = buildOverridePalette(override);
+      return {
+        slug,
+        sequence,
+        name,
+        zhName: nullable(row.values.name_zh_hans),
+        imagePath,
+        primaryColor: normalizeHex(override.primaryColor ?? overridePalette[0]?.hex ?? DEFAULT_FALLBACK_COLOR),
+        palette: overridePalette,
+        colorSource: "override",
+        fallbackReason: null,
+        overrideSource: `${pokemonOverridePath}#pokemon.${slug}`,
+        pattern: override.pattern ?? overridePalette.map((color) => color.hex),
+      };
+    }
+
+    const result = await extractImagePalette(localImagePath);
+    if (result.status === "ok") {
+      const palette = result.palette.map((color) => ({ hex: color.hex, percent: color.percent }));
+      return {
+        slug,
+        sequence,
+        name,
+        zhName: nullable(row.values.name_zh_hans),
+        imagePath,
+        primaryColor: palette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
+        palette,
+        colorSource: "extracted",
+        fallbackReason: null,
+        overrideSource: override?.pattern ? `${pokemonOverridePath}#pokemon.${slug}` : null,
+        pattern: override?.pattern ?? palette.map((color) => color.hex),
+      };
+    }
+
+    return {
+      slug,
+      sequence,
+      name,
+      zhName: nullable(row.values.name_zh_hans),
+      imagePath,
+      primaryColor: DEFAULT_FALLBACK_COLOR,
+      palette: [],
+      colorSource: "fallback",
+      fallbackReason: result.reason,
+      overrideSource: override?.pattern ? `${pokemonOverridePath}#pokemon.${slug}` : null,
+      pattern: override?.pattern ?? [],
+    };
+  });
+
+  Object.keys(overrides.pokemon).forEach((slug) => {
+    if (!seenPokemonSlugs.has(slug)) {
+      issues.push({ file: pokemonOverridePath, slug, field: `$.pokemon.${slug}`, message: "Override slug has no matching Pokemon" });
+    }
+  });
+
+  const sortedRows = pokemonRows.sort(comparePokemon);
+  const fallbackCount = sortedRows.filter((pokemon) => pokemon.colorSource === "fallback").length;
+  const overrideCount = sortedRows.filter((pokemon) => pokemon.colorSource === "override" || pokemon.overrideSource).length;
+
+  if (sortedRows.length !== expectedPokemonCount) {
     issues.push({
-      file: outputPath,
-      slug: issue.slug,
-      field: issue.path,
-      message: issue.message,
-    }),
+      file: pokemonIndexOutputPath,
+      field: "$.summary.pokemonCount",
+      message: `Expected ${expectedPokemonCount} Pokemon rows, got ${sortedRows.length}`,
+    });
+  }
+
+  return {
+    schemaVersion: POKEMON_INDEX_SCHEMA_VERSION,
+    generatedFrom: {
+      pokemonManifestPath,
+      overridePath: pokemonOverridePath,
+      rawBoundary: "docs/pokopia_image_sources/**",
+    },
+    summary: {
+      pokemonCount: sortedRows.length,
+      fallbackCount,
+      overrideCount,
+    },
+    pokemon: sortedRows,
+  };
+}
+
+function validateAllData(
+  compactItems: unknown,
+  itemColors: unknown,
+  pokemonIndex: unknown,
+  overrides: unknown,
+  issues: GenerationIssue[],
+): void {
+  validateCompactItemsData(compactItems).forEach((issue) =>
+    issues.push({ file: compactItemsOutputPath, slug: issue.slug, field: issue.path, message: issue.message }),
   );
+  validateItemColorsData(itemColors).forEach((issue) =>
+    issues.push({ file: itemColorsOutputPath, slug: issue.slug, field: issue.path, message: issue.message }),
+  );
+  validatePokemonIndexData(pokemonIndex).forEach((issue) =>
+    issues.push({ file: pokemonIndexOutputPath, slug: issue.slug, field: issue.path, message: issue.message }),
+  );
+  validatePokemonMetadataOverridesData(overrides).forEach((issue) =>
+    issues.push({ file: pokemonOverridePath, slug: issue.slug, field: issue.path, message: issue.message }),
+  );
+
   if (issues.length === 0) {
-    validateGeneratedDataShape(data as CompactItemsData, issues);
+    validateCompactDataShape(compactItems as CompactItemsData, issues);
+    validateItemColorShape(itemColors as ItemColorsData, compactItems as CompactItemsData, issues);
+    validatePokemonIndexShape(pokemonIndex as PokemonIndexData, issues);
+    validateNoPrivatePaths(compactItemsOutputPath, compactItems, issues);
+    validateNoPrivatePaths(itemColorsOutputPath, itemColors, issues);
+    validateNoPrivatePaths(pokemonIndexOutputPath, pokemonIndex, issues);
   }
-
-  if (issues.length > 0) {
-    printIssues("Compact item validation failed", issues);
-    process.exitCode = 1;
-    return;
-  }
-
-  const count = Array.isArray((data as { items?: unknown }).items) ? (data as { items: unknown[] }).items.length : 0;
-  console.log(`Validated ${outputPath} with ${count} compact items.`);
 }
 
 function toCompactItem(
@@ -168,19 +380,10 @@ function toCompactItem(
   );
 
   if (!placeableRow) {
-    issues.push({
-      file: placeableCsvPath,
-      slug,
-      message: "No matching placeable source row found for compact item",
-    });
+    issues.push({ file: placeableCsvPath, slug, message: "No matching placeable source row found for compact item" });
   }
-
   if (!rawJson) {
-    issues.push({
-      file: placeableJsonPath,
-      slug,
-      message: "No matching raw JSON source row found for compact item",
-    });
+    issues.push({ file: placeableJsonPath, slug, message: "No matching raw JSON source row found for compact item" });
   }
 
   const sourceIndex = parseNumberField(row.sequence, "sequence", itemManifestPath, manifestRow.rowNumber, slug, issues);
@@ -195,20 +398,31 @@ function toCompactItem(
     sources,
     habitatItemCategoryIds,
     favoriteCategoryIds,
-    imagePath: toRootAbsolutePath(
-      requireField(row, "relative_path", itemManifestPath, manifestRow.rowNumber, issues, slug),
-    ),
+    imagePath: toRootAbsolutePath(requireField(row, "relative_path", itemManifestPath, manifestRow.rowNumber, issues, slug)),
     sourceDataset: nullable(row.source),
     sourceIndex,
     sourceRow: manifestRow.rowNumber,
     recommendation: {
       isDyeable: null,
-      primaryColor: null,
+      itemPrimaryColor: null,
       colorSource: null,
+      fallbackReason: null,
       preferenceTerms: [],
       roleTags: buildRoleTags(category, tags),
     },
   };
+}
+
+function parsePokemonOverrides(text: string, issues: GenerationIssue[]): PokemonMetadataOverridesData {
+  const parsed = parseJsonValue(text, pokemonOverridePath, issues);
+  const schemaIssues = validatePokemonMetadataOverridesData(parsed);
+  schemaIssues.forEach((issue) =>
+    issues.push({ file: pokemonOverridePath, slug: issue.slug, field: issue.path, message: issue.message }),
+  );
+  if (schemaIssues.length > 0) {
+    return { schemaVersion: "pokemon-metadata-overrides.v1", pokemon: {} };
+  }
+  return parsed as PokemonMetadataOverridesData;
 }
 
 function parsePlaceableJson(text: string, issues: GenerationIssue[]): Map<string, RawJsonItem> {
@@ -240,46 +454,117 @@ function parsePlaceableJson(text: string, issues: GenerationIssue[]): Map<string
   return bySlug;
 }
 
-function validateGeneratedDataShape(data: CompactItemsData, issues: GenerationIssue[]): void {
-  const serialized = serializeJsonForOutput(data);
-  const gzipBytes = gzipSync(serialized).length;
+function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssue[]): void {
+  const gzipBytes = gzipSync(serializeJsonForOutput(data)).length;
   if (gzipBytes >= maxCompactItemsGzipBytes) {
     issues.push({
-      file: outputPath,
+      file: compactItemsOutputPath,
       field: "$",
       message: `Expected gzip size below ${maxCompactItemsGzipBytes} bytes, got ${gzipBytes}`,
     });
   }
 
   data.items.forEach((item) => {
-    if (!item.imagePath.startsWith("/docs/pokopia_image_sources/item_portraits/")) {
-      issues.push({
-        file: outputPath,
-        slug: item.slug,
-        field: "$.items[].imagePath",
-        message: "Expected root-absolute item portrait path under /docs/pokopia_image_sources/item_portraits/",
-      });
-    }
+    validateRootAbsoluteImagePath(
+      item.imagePath,
+      localItemImageRoot,
+      "/docs/pokopia_image_sources/item_portraits/",
+      compactItemsOutputPath,
+      item.slug,
+      issues,
+    );
+  });
+}
 
-    const localImagePath = resolve(projectRoot, item.imagePath.slice(1));
-    const rootRelativeImagePath = relative(localImageRoot, localImagePath);
-    if (rootRelativeImagePath.startsWith("..") || isAbsolute(rootRelativeImagePath)) {
-      issues.push({
-        file: outputPath,
-        slug: item.slug,
-        field: "$.items[].imagePath",
-        message: "Referenced image path escapes item portrait root",
-      });
-    }
+function validateItemColorShape(data: ItemColorsData, compactItems: CompactItemsData, issues: GenerationIssue[]): void {
+  const gzipBytes = gzipSync(serializeJsonForOutput(data)).length;
+  if (gzipBytes >= maxItemColorsGzipBytes) {
+    issues.push({
+      file: itemColorsOutputPath,
+      field: "$",
+      message: `Expected gzip size below ${maxItemColorsGzipBytes} bytes, got ${gzipBytes}`,
+    });
+  }
+  if (data.items.length !== expectedItemCount) {
+    issues.push({
+      file: itemColorsOutputPath,
+      field: "$.summary.itemCount",
+      message: `Expected ${expectedItemCount} item color rows, got ${data.items.length}`,
+    });
+  }
+  if (data.items.length !== compactItems.items.length) {
+    issues.push({
+      file: itemColorsOutputPath,
+      field: "$.items",
+      message: `Expected ${compactItems.items.length} item color rows, got ${data.items.length}`,
+    });
+  }
 
-    if (!existsSync(localImagePath)) {
-      issues.push({
-        file: outputPath,
-        slug: item.slug,
-        field: "$.items[].imagePath",
-        message: `Referenced image file does not exist: ${item.imagePath}`,
-      });
+  const compactSlugs = new Set(compactItems.items.map((item) => item.slug));
+  data.items.forEach((item) => {
+    if (!compactSlugs.has(item.slug)) {
+      issues.push({ file: itemColorsOutputPath, slug: item.slug, field: "$.items[].slug", message: "Item color has no compact item" });
     }
+  });
+}
+
+function validatePokemonIndexShape(data: PokemonIndexData, issues: GenerationIssue[]): void {
+  const gzipBytes = gzipSync(serializeJsonForOutput(data)).length;
+  if (gzipBytes >= maxPokemonIndexGzipBytes) {
+    issues.push({
+      file: pokemonIndexOutputPath,
+      field: "$",
+      message: `Expected gzip size below ${maxPokemonIndexGzipBytes} bytes, got ${gzipBytes}`,
+    });
+  }
+  data.pokemon.forEach((pokemon) => {
+    validateRootAbsoluteImagePath(
+      pokemon.imagePath,
+      localPokemonImageRoot,
+      "/docs/pokopia_image_sources/pokemon_portraits/",
+      pokemonIndexOutputPath,
+      pokemon.slug,
+      issues,
+    );
+  });
+}
+
+function validateRootAbsoluteImagePath(
+  imagePath: string,
+  localRoot: string,
+  expectedPrefix: string,
+  file: string,
+  slug: string,
+  issues: GenerationIssue[],
+): void {
+  if (!imagePath.startsWith(expectedPrefix)) {
+    issues.push({ file, slug, field: "$.imagePath", message: `Expected root-absolute image path under ${expectedPrefix}` });
+  }
+
+  const localImagePath = resolve(projectRoot, imagePath.slice(1));
+  const rootRelativeImagePath = relative(localRoot, localImagePath);
+  if (rootRelativeImagePath.startsWith("..") || isAbsolute(rootRelativeImagePath)) {
+    issues.push({ file, slug, field: "$.imagePath", message: "Referenced image path escapes expected image root" });
+  }
+  if (!existsSync(localImagePath)) {
+    issues.push({ file, slug, field: "$.imagePath", message: `Referenced image file does not exist: ${imagePath}` });
+  }
+}
+
+function validateNoPrivatePaths(file: string, data: unknown, issues: GenerationIssue[]): void {
+  const serialized = JSON.stringify(data);
+  if (serialized.includes(projectRoot) || serialized.includes("/Users/")) {
+    issues.push({ file, field: "$", message: "Generated data contains local absolute path" });
+  }
+}
+
+function buildOverridePalette(override: PokemonMetadataOverrideEntry): PokemonColorSwatch[] {
+  const colors = (override.palette?.length ? override.palette : [override.primaryColor ?? DEFAULT_FALLBACK_COLOR]).map(normalizeHex);
+  let assigned = 0;
+  return colors.map((hex, index) => {
+    const percent = index === colors.length - 1 ? Math.round((100 - assigned) * 10) / 10 : Math.round((100 / colors.length) * 10) / 10;
+    assigned += percent;
+    return { hex, percent };
   });
 }
 
@@ -364,35 +649,6 @@ function requireField(
   return value ?? "";
 }
 
-function nullable(value: string | undefined): string | null {
-  const normalized = value?.trim();
-  return normalized ? normalized : null;
-}
-
-function firstText(...values: Array<string | undefined>): string | undefined {
-  return values.find((value) => value?.trim());
-}
-
-function toRootAbsolutePath(value: string): string {
-  return value.startsWith("/") ? value : `/${value}`;
-}
-
-function asString(value: unknown): string | undefined {
-  if (value === undefined || value === null || value === "") {
-    return undefined;
-  }
-  return String(value);
-}
-
-function parseNullableNumber(value: string | undefined): number | null {
-  const normalized = value?.trim();
-  if (!normalized) {
-    return null;
-  }
-  const parsed = Number(normalized);
-  return Number.isFinite(parsed) ? parsed : null;
-}
-
 function parseNumberField(
   value: string | undefined,
   field: string,
@@ -423,8 +679,60 @@ function parseJsonValue(text: string, file: string, issues: GenerationIssue[]): 
   }
 }
 
-function serializeJsonForOutput(data: unknown): string {
-  return `${JSON.stringify(data, null, 2)}\n`;
+async function mapWithConcurrency<T, U>(items: T[], concurrency: number, work: (item: T) => Promise<U>): Promise<U[]> {
+  const results = new Array<U>(items.length);
+  let nextIndex = 0;
+  const workers = Array.from({ length: Math.min(concurrency, items.length) }, async () => {
+    while (nextIndex < items.length) {
+      const currentIndex = nextIndex;
+      nextIndex += 1;
+      results[currentIndex] = await work(items[currentIndex]);
+    }
+  });
+  await Promise.all(workers);
+  return results;
+}
+
+function nullable(value: string | undefined): string | null {
+  const normalized = value?.trim();
+  return normalized ? normalized : null;
+}
+
+function firstText(...values: Array<string | undefined>): string | undefined {
+  return values.find((value) => value?.trim());
+}
+
+function toRootAbsolutePath(value: string): string {
+  return value.startsWith("/") ? value : `/${value}`;
+}
+
+function asString(value: unknown): string | undefined {
+  if (value === undefined || value === null || value === "") {
+    return undefined;
+  }
+  return String(value);
+}
+
+function normalizeHex(value: string): string {
+  const normalized = value.trim().toUpperCase();
+  return normalized.startsWith("#") ? normalized : `#${normalized}`;
+}
+
+function slugify(value: unknown): string {
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+}
+
+function pokemonSlug(row: Record<string, string>, name: string): string {
+  const explicitSlug = row.slug?.trim();
+  if (explicitSlug) {
+    return explicitSlug;
+  }
+  const filenameSlug = row.filename?.trim().replace(/\.[^.]+$/, "").replace(/^\d+-/, "");
+  return filenameSlug || slugify(name);
 }
 
 function buildRoleTags(category: string | null, tags: string[]): string[] {
@@ -446,6 +754,10 @@ function compareCompactItems(left: CompactItem, right: CompactItem): number {
   );
 }
 
+function comparePokemon(left: PokemonIndexEntry, right: PokemonIndexEntry): number {
+  return Number(left.sequence) - Number(right.sequence) || left.slug.localeCompare(right.slug, "en");
+}
+
 function countBy(items: CompactItem[], select: (item: CompactItem) => string): Record<string, number> {
   const counts = new Map<string, number>();
   items.forEach((item) => {
@@ -465,6 +777,10 @@ function countTags(items: CompactItem[]): Record<string, number> {
 
 function sortedRecord(counts: Map<string, number>): Record<string, number> {
   return Object.fromEntries(Array.from(counts.entries()).sort(([left], [right]) => left.localeCompare(right, "en")));
+}
+
+function serializeJsonForOutput(data: unknown): string {
+  return `${JSON.stringify(data, null, 2)}\n`;
 }
 
 function printIssues(title: string, issues: GenerationIssue[]): void {

@@ -1,11 +1,16 @@
 export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v1" as const;
+export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v1" as const;
+export const ITEM_COLORS_SCHEMA_VERSION = "item-colors.v1" as const;
+export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overrides.v1" as const;
 
 export type CompactItemColorSource = "extracted" | "override" | "fallback";
+export type PokemonColorSource = "extracted" | "override" | "fallback";
 
 export type CompactItemRecommendationFields = {
   isDyeable: boolean | null;
-  primaryColor: string | null;
+  itemPrimaryColor: string | null;
   colorSource: CompactItemColorSource | null;
+  fallbackReason: string | null;
   preferenceTerms: string[];
   roleTags: string[];
 };
@@ -41,6 +46,71 @@ export type CompactItemsData = {
     tagCounts: Record<string, number>;
   };
   items: CompactItem[];
+};
+
+export type PokemonColorSwatch = {
+  hex: string;
+  percent: number;
+};
+
+export type PokemonIndexEntry = {
+  slug: string;
+  sequence: string;
+  name: string;
+  zhName: string | null;
+  imagePath: string;
+  primaryColor: string;
+  palette: PokemonColorSwatch[];
+  colorSource: PokemonColorSource;
+  fallbackReason: string | null;
+  overrideSource: string | null;
+  pattern: string[];
+};
+
+export type PokemonIndexData = {
+  schemaVersion: typeof POKEMON_INDEX_SCHEMA_VERSION;
+  generatedFrom: {
+    pokemonManifestPath: string;
+    overridePath: string;
+    rawBoundary: string;
+  };
+  summary: {
+    pokemonCount: number;
+    fallbackCount: number;
+    overrideCount: number;
+  };
+  pokemon: PokemonIndexEntry[];
+};
+
+export type ItemColorEntry = {
+  slug: string;
+  itemPrimaryColor: string;
+  colorSource: CompactItemColorSource;
+  fallbackReason: string | null;
+};
+
+export type ItemColorsData = {
+  schemaVersion: typeof ITEM_COLORS_SCHEMA_VERSION;
+  generatedFrom: {
+    compactItemsPath: string;
+    rawBoundary: string;
+  };
+  summary: {
+    itemCount: number;
+    fallbackCount: number;
+  };
+  items: ItemColorEntry[];
+};
+
+export type PokemonMetadataOverrideEntry = {
+  primaryColor?: string;
+  palette?: string[];
+  pattern?: string[];
+};
+
+export type PokemonMetadataOverridesData = {
+  schemaVersion: typeof POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION;
+  pokemon: Record<string, PokemonMetadataOverrideEntry>;
 };
 
 export type SchemaIssue = {
@@ -159,10 +229,198 @@ function validateCompactItem(
   }
 
   requireNullableBoolean(item.recommendation, "isDyeable", `${path}.recommendation`, issues, slug);
-  requireNullableString(item.recommendation, "primaryColor", `${path}.recommendation`, issues, slug);
+  requireNullableHex(item.recommendation, "itemPrimaryColor", `${path}.recommendation`, issues, slug);
   requireNullableColorSource(item.recommendation, "colorSource", `${path}.recommendation`, issues, slug);
+  requireNullableString(item.recommendation, "fallbackReason", `${path}.recommendation`, issues, slug);
   requireStringArray(item.recommendation, "preferenceTerms", `${path}.recommendation`, issues, slug);
   requireStringArray(item.recommendation, "roleTags", `${path}.recommendation`, issues, slug);
+}
+
+export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
+  const issues: SchemaIssue[] = [];
+
+  if (!isRecord(value)) {
+    return [{ path: "$", message: "Expected pokemon index data object" }];
+  }
+
+  requireLiteral(value, "schemaVersion", POKEMON_INDEX_SCHEMA_VERSION, "$", issues);
+
+  if (!isRecord(value.generatedFrom)) {
+    issues.push({ path: "$.generatedFrom", message: "Expected source traceability object" });
+  }
+
+  const summary = value.summary;
+  if (isRecord(summary)) {
+    requireNumber(summary, "pokemonCount", "$.summary", issues);
+    requireNumber(summary, "fallbackCount", "$.summary", issues);
+    requireNumber(summary, "overrideCount", "$.summary", issues);
+  } else {
+    issues.push({ path: "$.summary", message: "Expected summary object" });
+  }
+
+  if (!Array.isArray(value.pokemon)) {
+    issues.push({ path: "$.pokemon", message: "Expected pokemon array" });
+    return issues;
+  }
+
+  const slugs = new Set<string>();
+  value.pokemon.forEach((pokemon, index) => {
+    const path = `$.pokemon[${index}]`;
+    if (!isRecord(pokemon)) {
+      issues.push({ path, message: "Expected pokemon object" });
+      return;
+    }
+
+    const slug = typeof pokemon.slug === "string" ? pokemon.slug : undefined;
+    requireSlug(pokemon, "slug", path, issues);
+    requireString(pokemon, "sequence", path, issues, slug);
+    requireString(pokemon, "name", path, issues, slug);
+    requireNullableString(pokemon, "zhName", path, issues, slug);
+    requireString(pokemon, "imagePath", path, issues, slug);
+    requireHex(pokemon, "primaryColor", path, issues, slug);
+    requirePalette(pokemon, "palette", path, issues, slug);
+    requireColorSource(pokemon, "colorSource", path, issues, slug);
+    requireNullableString(pokemon, "fallbackReason", path, issues, slug);
+    requireNullableString(pokemon, "overrideSource", path, issues, slug);
+    requireStringArray(pokemon, "pattern", path, issues, slug);
+
+    if (slug) {
+      if (slugs.has(slug)) {
+        issues.push({ path: `${path}.slug`, message: "Duplicate pokemon slug", slug });
+      }
+      slugs.add(slug);
+    }
+  });
+
+  if (isRecord(summary) && typeof summary.pokemonCount === "number" && summary.pokemonCount !== value.pokemon.length) {
+    issues.push({
+      path: "$.summary.pokemonCount",
+      message: `Expected pokemonCount ${summary.pokemonCount} to match pokemon length ${value.pokemon.length}`,
+    });
+  }
+  if (isRecord(summary)) {
+    const fallbackCount = value.pokemon.filter(
+      (pokemon) => isRecord(pokemon) && pokemon.colorSource === "fallback",
+    ).length;
+    const overrideCount = value.pokemon.filter(
+      (pokemon) => isRecord(pokemon) && (pokemon.colorSource === "override" || typeof pokemon.overrideSource === "string"),
+    ).length;
+    if (typeof summary.fallbackCount === "number" && summary.fallbackCount !== fallbackCount) {
+      issues.push({
+        path: "$.summary.fallbackCount",
+        message: `Expected fallbackCount ${summary.fallbackCount} to match actual fallback count ${fallbackCount}`,
+      });
+    }
+    if (typeof summary.overrideCount === "number" && summary.overrideCount !== overrideCount) {
+      issues.push({
+        path: "$.summary.overrideCount",
+        message: `Expected overrideCount ${summary.overrideCount} to match actual override count ${overrideCount}`,
+      });
+    }
+  }
+
+  return issues;
+}
+
+export function validatePokemonMetadataOverridesData(value: unknown): SchemaIssue[] {
+  const issues: SchemaIssue[] = [];
+
+  if (!isRecord(value)) {
+    return [{ path: "$", message: "Expected pokemon metadata overrides object" }];
+  }
+
+  requireLiteral(value, "schemaVersion", POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION, "$", issues);
+  if (!isRecord(value.pokemon)) {
+    issues.push({ path: "$.pokemon", message: "Expected pokemon override map" });
+    return issues;
+  }
+
+  Object.entries(value.pokemon).forEach(([slug, override]) => {
+    const path = `$.pokemon.${slug}`;
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      issues.push({ path, message: "Expected canonical kebab-case override slug", slug });
+    }
+    if (!isRecord(override)) {
+      issues.push({ path, message: "Expected override object", slug });
+      return;
+    }
+
+    if ("primaryColor" in override) {
+      requireOptionalHex(override, "primaryColor", path, issues, slug);
+    }
+    if ("palette" in override) {
+      requireOptionalHexArray(override, "palette", path, issues, slug);
+    }
+    if ("pattern" in override) {
+      requireStringArray(override, "pattern", path, issues, slug);
+    }
+  });
+
+  return issues;
+}
+
+export function validateItemColorsData(value: unknown): SchemaIssue[] {
+  const issues: SchemaIssue[] = [];
+
+  if (!isRecord(value)) {
+    return [{ path: "$", message: "Expected item colors data object" }];
+  }
+
+  requireLiteral(value, "schemaVersion", ITEM_COLORS_SCHEMA_VERSION, "$", issues);
+  if (!isRecord(value.generatedFrom)) {
+    issues.push({ path: "$.generatedFrom", message: "Expected source traceability object" });
+  }
+
+  const summary = value.summary;
+  if (isRecord(summary)) {
+    requireNumber(summary, "itemCount", "$.summary", issues);
+    requireNumber(summary, "fallbackCount", "$.summary", issues);
+  } else {
+    issues.push({ path: "$.summary", message: "Expected summary object" });
+  }
+
+  if (!Array.isArray(value.items)) {
+    issues.push({ path: "$.items", message: "Expected item color array" });
+    return issues;
+  }
+
+  const slugs = new Set<string>();
+  value.items.forEach((item, index) => {
+    const path = `$.items[${index}]`;
+    if (!isRecord(item)) {
+      issues.push({ path, message: "Expected item color object" });
+      return;
+    }
+    const slug = typeof item.slug === "string" ? item.slug : undefined;
+    requireSlug(item, "slug", path, issues);
+    requireHex(item, "itemPrimaryColor", path, issues, slug);
+    requireColorSource(item, "colorSource", path, issues, slug);
+    requireNullableString(item, "fallbackReason", path, issues, slug);
+    if (slug) {
+      if (slugs.has(slug)) {
+        issues.push({ path: `${path}.slug`, message: "Duplicate item color slug", slug });
+      }
+      slugs.add(slug);
+    }
+  });
+
+  if (isRecord(summary) && typeof summary.itemCount === "number" && summary.itemCount !== value.items.length) {
+    issues.push({
+      path: "$.summary.itemCount",
+      message: `Expected itemCount ${summary.itemCount} to match item color length ${value.items.length}`,
+    });
+  }
+  if (isRecord(summary)) {
+    const fallbackCount = value.items.filter((item) => isRecord(item) && item.colorSource === "fallback").length;
+    if (typeof summary.fallbackCount === "number" && summary.fallbackCount !== fallbackCount) {
+      issues.push({
+        path: "$.summary.fallbackCount",
+        message: `Expected fallbackCount ${summary.fallbackCount} to match actual fallback count ${fallbackCount}`,
+      });
+    }
+  }
+
+  return issues;
 }
 
 function isRecord(value: unknown): value is UnknownRecord {
@@ -265,6 +523,91 @@ function requireNullableColorSource(
   }
 }
 
+function requireColorSource(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (typeof value !== "string" || !colorSources.has(value)) {
+    issue(path, key, "Expected known color source", issues, slug);
+  }
+}
+
+function requireHex(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  if (typeof record[key] !== "string" || !isHexColor(record[key])) {
+    issue(path, key, "Expected #RRGGBB hex color", issues, slug);
+  }
+}
+
+function requireNullableHex(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  if (record[key] !== null && (typeof record[key] !== "string" || !isHexColor(record[key]))) {
+    issue(path, key, "Expected #RRGGBB hex color or null", issues, slug);
+  }
+}
+
+function requireOptionalHex(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  if (record[key] !== undefined && (typeof record[key] !== "string" || !isHexColor(record[key]))) {
+    issue(path, key, "Expected #RRGGBB hex color", issues, slug);
+  }
+}
+
+function requireOptionalHexArray(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (!Array.isArray(value) || value.some((item) => typeof item !== "string" || !isHexColor(item))) {
+    issue(path, key, "Expected #RRGGBB hex color array", issues, slug);
+  }
+}
+
+function requirePalette(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (!Array.isArray(value)) {
+    issue(path, key, "Expected palette array", issues, slug);
+    return;
+  }
+
+  value.forEach((entry, index) => {
+    if (!isRecord(entry)) {
+      issues.push({ path: `${path}.${key}[${index}]`, message: "Expected palette swatch object", slug });
+      return;
+    }
+    requireHex(entry, "hex", `${path}.${key}[${index}]`, issues, slug);
+    requireNumber(entry, "percent", `${path}.${key}[${index}]`, issues, slug);
+  });
+}
+
 function requireStringArray(
   record: UnknownRecord,
   key: string,
@@ -303,6 +646,10 @@ function requireNumberRecord(record: UnknownRecord, key: string, path: string, i
       issues.push({ path: `${path}.${key}.${entryKey}`, message: "Expected finite number" });
     }
   });
+}
+
+function isHexColor(value: unknown): value is string {
+  return typeof value === "string" && /^#[0-9A-F]{6}$/.test(value);
 }
 
 function areAllItemsRecords(items: unknown[]): items is Array<UnknownRecord & { tags: string[] }> {

@@ -1,6 +1,6 @@
 # Story 1.2: 生成 Pokemon 和 item 色彩元数据
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,19 +16,31 @@ so that 我可以理解搭配体验的色彩依据。
 
 ## Tasks / Subtasks
 
-- [ ] 生成 Pokemon 色彩 metadata (AC: 1, 2, 3)
-  - [ ] 从 `docs/pokopia_image_sources/pokemon_portraits/manifest.csv` 读取全部 311 个 Pokemon。
-  - [ ] 生成 `generated/data/pokemon-index.json`，包含 slug、sequence、name、zhName、image、primaryColor、palette、colorSource 和 fallback reason。
-  - [ ] 对透明背景和近白背景噪声做过滤，失败时写入 fallback 而不是抛出空白结果。
-- [ ] 为参与推荐的 item 生成主色基础字段 (AC: 1, 2)
-  - [ ] 在 compact item 或配套 metadata 中补充 `itemPrimaryColor`、`colorSource`、`fallbackReason`。
-  - [ ] 处理 PNG/WebP 输入，不依赖 URL 后缀判断图片真实格式。
-- [ ] 建立 Pokemon metadata override schema (AC: 3)
-  - [ ] 新增 `data/overrides/pokemon-metadata.json` 和 schema/校验逻辑，支持 primary color、palette、pattern 字段。
-  - [ ] override 优先级高于自动取色，并在生成结果记录 override 来源。
-- [ ] 增加 fixture 或单元校验 (AC: 2, 3)
-  - [ ] 覆盖透明像素、近白背景、取色失败 fallback、override 覆盖主色和色板。
-  - [ ] 校验生成数据不包含本机绝对路径或开发机私有信息。
+- [x] 生成 Pokemon 色彩 metadata (AC: 1, 2, 3)
+  - [x] 从 `docs/pokopia_image_sources/pokemon_portraits/manifest.csv` 读取全部 311 个 Pokemon。
+  - [x] 生成 `generated/data/pokemon-index.json`，包含 slug、sequence、name、zhName、image、primaryColor、palette、colorSource 和 fallback reason。
+  - [x] 对透明背景和近白背景噪声做过滤，失败时写入 fallback 而不是抛出空白结果。
+- [x] 为参与推荐的 item 生成主色基础字段 (AC: 1, 2)
+  - [x] 在 compact item 或配套 metadata 中补充 `itemPrimaryColor`、`colorSource`、`fallbackReason`。
+  - [x] 处理 PNG/WebP 输入，不依赖 URL 后缀判断图片真实格式。
+- [x] 建立 Pokemon metadata override schema (AC: 3)
+  - [x] 新增 `data/overrides/pokemon-metadata.json` 和 schema/校验逻辑，支持 primary color、palette、pattern 字段。
+  - [x] override 优先级高于自动取色，并在生成结果记录 override 来源。
+- [x] 增加 fixture 或单元校验 (AC: 2, 3)
+  - [x] 覆盖透明像素、近白背景、取色失败 fallback、override 覆盖主色和色板。
+  - [x] 校验生成数据不包含本机绝对路径或开发机私有信息。
+
+### Review Findings
+
+- [x] [Review][Patch] 无效 Pokemon metadata override 必须报错，不能静默降级为空 override。
+- [x] [Review][Patch] Pokemon 和 item color summary fallback/override 计数必须与实际条目重算结果一致。
+- [x] [Review][Patch] item color 产物数量必须硬性锁定 1,219，避免 compact 与 color 数据一起缩水仍通过。
+- [x] [Review][Patch] Pokemon slug 应优先使用源数据/filename 的 canonical slug，缺失时才 fallback 到 name slugify。
+- [x] [Review][Patch] 图片取色聚类合并必须使用合并前 count 做加权平均，避免主色偏移。
+- [x] [Review][Patch] item-colors 和 pokemon-index 需要 gzip 预算校验。
+- [x] [Review][Patch] Pokemon sequence 必须校验为数字，避免排序退化。
+- [x] [Review][Patch] override palette 百分比需要补齐到 100。
+- [x] [Review][Patch] 增加 override primaryColor、palette、pattern 的 fixture 校验。
 
 ## Dev Notes
 
@@ -57,10 +69,33 @@ so that 我可以理解搭配体验的色彩依据。
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run generate:data`
+- `npm run validate:data`
+- `npm run build`
+
 ### Completion Notes List
 
+- 新增 build-time `sharp` 图片取色 helper，过滤透明像素和近白背景噪声。
+- 生成 `generated/data/pokemon-index.json`，覆盖 311 个 Pokemon，包含主色、色板、colorSource、fallbackReason、overrideSource 和 pattern。
+- 生成 `generated/data/item-colors.json`，覆盖 1,219 个 compact items，包含 `itemPrimaryColor`、`colorSource`、`fallbackReason`。
+- 新增 `data/overrides/pokemon-metadata.json` 和 schema validator，支持 primaryColor、palette、pattern，并在生成时优先于自动取色。
+- `validate:data` 增加透明像素、近白背景、解码失败 fallback、override schema fixture 校验，并校验生成数据不包含本机绝对路径。
+- review 后补强：override schema 失败会中断生成；summary 计数、产物数量、gzip 预算、Pokemon sequence 和 slug 来源均有校验。
+
 ### File List
+
+- `package.json`
+- `package-lock.json`
+- `tsconfig.scripts.json`
+- `src/data/schemas.ts`
+- `scripts/generate-data.ts`
+- `scripts/lib/image-colors.ts`
+- `scripts/validate-color-fixtures.ts`
+- `data/overrides/pokemon-metadata.json`
+- `generated/data/compact-items.json`
+- `generated/data/item-colors.json`
+- `generated/data/pokemon-index.json`

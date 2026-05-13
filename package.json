@@ -6,13 +6,15 @@
   "scripts": {
     "build:data-script": "rm -rf .tmp/data-scripts && tsc -p tsconfig.scripts.json",
     "generate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js",
-    "validate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js --validate-only",
+    "validate:colors": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
+    "validate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js --validate-only && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
     "dev": "vite --host 127.0.0.1",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {
     "@types/node": "^24.10.1",
+    "sharp": "^0.34.5",
     "typescript": "^5.9.3",
     "vite": "^7.1.12"
   }
