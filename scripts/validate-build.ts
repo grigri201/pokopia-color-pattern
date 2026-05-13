@@ -8,6 +8,7 @@ import {
   validateCompactItemsData,
   validateItemColorsData,
   validatePokemonIndexData,
+  validateRecommendationsData,
   type SchemaIssue,
 } from "../src/data/schemas.js";
 
@@ -19,9 +20,10 @@ type ValidationIssue = {
 const compactItemsPath = "generated/data/compact-items.json";
 const itemColorsPath = "generated/data/item-colors.json";
 const pokemonIndexPath = "generated/data/pokemon-index.json";
+const recommendationsDir = "generated/data/recommendations";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
-const deterministicContractPaths = [...runtimeDataPaths, "src/data/schemas.ts"];
 const compactGzipLimit = 50 * 1024;
+const recommendationGzipLimit = 5 * 1024;
 const projectRoot = process.cwd();
 const distOnly = process.argv.includes("--dist");
 const issues: ValidationIssue[] = [];
@@ -45,20 +47,22 @@ async function validateGeneratedDataGate(): Promise<void> {
   if (issues.length > 0) {
     return;
   }
-  const firstSnapshot = await snapshotDeterministicContracts();
+  const firstRuntimeFiles = await validateRuntimeDataTree("generated/data");
+  const firstSnapshot = await snapshotDeterministicContracts(firstRuntimeFiles);
 
   validateNoRuntimeManifestFetch(
     await collectTextFiles("src", [".ts", ".tsx", ".js", ".jsx", ".mjs"]),
     "browser source",
   );
   await validateSchemasAndSize();
-  await validateSensitiveRuntimeData(runtimeDataPaths);
+  await validateSensitiveRuntimeData(firstRuntimeFiles);
 
   await runGenerator("second deterministic pass");
   if (issues.length > 0) {
     return;
   }
-  const secondSnapshot = await snapshotDeterministicContracts();
+  const secondRuntimeFiles = await validateRuntimeDataTree("generated/data");
+  const secondSnapshot = await snapshotDeterministicContracts(secondRuntimeFiles);
   compareSnapshots(firstSnapshot, secondSnapshot);
 }
 
@@ -67,6 +71,7 @@ async function validateDistOutput(): Promise<void> {
     issues.push({ file: "dist", message: "Expected dist output to exist before dist validation" });
     return;
   }
+  const distDataFiles = await validateRuntimeDataTree("dist/data");
   const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
     return outputPath === "dist/index.html" || outputPath.startsWith("dist/assets/") || outputPath.startsWith("dist/data/");
@@ -76,14 +81,16 @@ async function validateDistOutput(): Promise<void> {
     return extension === ".html" || extension === ".css" || extension === ".js";
   });
   validateNoRuntimeManifestFetch(await readFiles(bundleFiles), "dist runtime bundle");
-  await validateSensitiveRuntimeData(files.map((file) => relative(projectRoot, file)));
+  await validateSensitiveRuntimeData([...bundleFiles.map((file) => relative(projectRoot, file)), ...distDataFiles]);
 }
 
 async function validateSchemasAndSize(): Promise<void> {
-  const [compactText, itemColorsText, pokemonText] = await Promise.all([
+  const recommendationFiles = await listRecommendationFiles();
+  const [compactText, itemColorsText, pokemonText, recommendationTexts] = await Promise.all([
     readFile(compactItemsPath, "utf8"),
     readFile(itemColorsPath, "utf8"),
     readFile(pokemonIndexPath, "utf8"),
+    readFilesAsText(recommendationFiles),
   ]);
 
   const compactGzipBytes = gzipSync(compactText).length;
@@ -99,6 +106,7 @@ async function validateSchemasAndSize(): Promise<void> {
   const compactItems = parseJson(compactText, compactItemsPath);
   const itemColors = parseJson(itemColorsText, itemColorsPath);
   const pokemonIndex = parseJson(pokemonText, pokemonIndexPath);
+  const recommendations = recommendationTexts.map(([file, text]) => [file, parseJson(text, file)] as const);
 
   if (compactItems !== null) {
     addSchemaIssues(compactItemsPath, validateCompactItemsData(compactItems));
@@ -109,6 +117,21 @@ async function validateSchemasAndSize(): Promise<void> {
   if (pokemonIndex !== null) {
     addSchemaIssues(pokemonIndexPath, validatePokemonIndexData(pokemonIndex));
   }
+  recommendations.forEach(([file, recommendation]) => {
+    if (recommendation === null) {
+      return;
+    }
+    addSchemaIssues(file, validateRecommendationsData(recommendation));
+    const gzipBytes = gzipSync(JSON.stringify(recommendation, null, 2)).length;
+    if (gzipBytes >= recommendationGzipLimit) {
+      issues.push({
+        file,
+        message: `Expected gzip size below ${recommendationGzipLimit} bytes, got ${gzipBytes}`,
+      });
+    }
+  });
+
+  validateRecommendationCoverage(pokemonIndex, recommendations);
 }
 
 function validateNoRuntimeManifestFetch(sourceFiles: Map<string, string>, label: string): void {
@@ -141,7 +164,13 @@ async function validateSensitiveRuntimeData(files: string[]): Promise<void> {
 
   await Promise.all(
     files.map(async (file) => {
-      const text = await readFile(file, "utf8");
+      let text: string;
+      try {
+        text = await readFile(file, "utf8");
+      } catch (error) {
+        issues.push({ file, message: `Unable to read runtime data for sensitive scan: ${error instanceof Error ? error.message : String(error)}` });
+        return;
+      }
       if (text.includes(projectRoot) || (home && text.includes(home))) {
         issues.push({ file, message: "contains local absolute project/home path" });
       }
@@ -168,7 +197,131 @@ async function runGenerator(label: string): Promise<void> {
   }
 }
 
-async function snapshotDeterministicContracts(): Promise<Map<string, string>> {
+async function listRecommendationFiles(): Promise<string[]> {
+  const absoluteRecommendationDir = resolve(projectRoot, recommendationsDir);
+  if (!existsSync(absoluteRecommendationDir)) {
+    issues.push({ file: recommendationsDir, message: "Expected recommendation data directory to exist" });
+    return [];
+  }
+
+  return (await listFiles(absoluteRecommendationDir, [".json"]))
+    .map((file) => relative(projectRoot, file))
+    .sort((left, right) => left.localeCompare(right, "en"));
+}
+
+async function readFilesAsText(files: string[]): Promise<Array<[string, string]>> {
+  return Promise.all(files.map(async (file) => [file, await readFile(file, "utf8")] as const));
+}
+
+function validateRecommendationCoverage(
+  pokemonIndex: unknown | null,
+  recommendations: Array<readonly [string, unknown | null]>,
+): void {
+  if (!isRecord(pokemonIndex) || !Array.isArray(pokemonIndex.pokemon)) {
+    return;
+  }
+
+  const expectedSlugs = new Set(
+    pokemonIndex.pokemon
+      .filter(isRecord)
+      .map((pokemon) => pokemon.slug)
+      .filter((slug): slug is string => typeof slug === "string"),
+  );
+  const actualSlugs = new Set<string>();
+
+  recommendations.forEach(([file, recommendation]) => {
+    if (!isRecord(recommendation) || typeof recommendation.pokemonSlug !== "string") {
+      return;
+    }
+    const expectedPath = `${recommendationsDir}/${recommendation.pokemonSlug}.json`;
+    if (file !== expectedPath) {
+      issues.push({ file, message: `Expected file path ${expectedPath} to match pokemonSlug` });
+    }
+    actualSlugs.add(recommendation.pokemonSlug);
+  });
+
+  if (actualSlugs.size !== expectedSlugs.size) {
+    issues.push({
+      file: recommendationsDir,
+      message: `Expected ${expectedSlugs.size} Pokemon recommendation files, got ${actualSlugs.size}`,
+    });
+  }
+  expectedSlugs.forEach((slug) => {
+    if (!actualSlugs.has(slug)) {
+      issues.push({ file: `${recommendationsDir}/${slug}.json`, message: "Missing recommendation file for Pokemon" });
+    }
+  });
+}
+
+async function validateRuntimeDataTree(root: string): Promise<string[]> {
+  const absoluteRoot = resolve(projectRoot, root);
+  if (!existsSync(absoluteRoot)) {
+    issues.push({ file: root, message: "Expected runtime data directory to exist" });
+    return [];
+  }
+
+  const [entries, allowlist] = await Promise.all([listTreeEntries(absoluteRoot), expectedRuntimeDataAllowlist(root)]);
+  const seenFiles = new Set<string>();
+  const seenDirectories = new Set<string>();
+
+  entries.forEach((entry) => {
+    const path = `${root}/${entry.path}`;
+    if (entry.isDirectory) {
+      seenDirectories.add(entry.path);
+      if (!allowlist.directories.has(entry.path)) {
+        issues.push({ file: path, message: "Unexpected runtime data directory would be copied or served" });
+      }
+      return;
+    }
+
+    seenFiles.add(entry.path);
+    if (!allowlist.files.has(entry.path)) {
+      issues.push({ file: path, message: "Unexpected runtime data file would be copied or served" });
+    }
+  });
+
+  allowlist.directories.forEach((directory) => {
+    if (!seenDirectories.has(directory)) {
+      issues.push({ file: `${root}/${directory}`, message: "Missing expected runtime data directory" });
+    }
+  });
+  allowlist.files.forEach((file) => {
+    if (!seenFiles.has(file)) {
+      issues.push({ file: `${root}/${file}`, message: "Missing expected runtime data file" });
+    }
+  });
+
+  return Array.from(seenFiles, (file) => `${root}/${file}`).sort((left, right) => left.localeCompare(right, "en"));
+}
+
+async function expectedRuntimeDataAllowlist(root: string): Promise<{ directories: Set<string>; files: Set<string> }> {
+  const files = new Set(["compact-items.json", "item-colors.json", "pokemon-index.json"]);
+  const directories = new Set(["recommendations"]);
+  let pokemonIndexText: string;
+
+  try {
+    pokemonIndexText = await readFile(`${root}/pokemon-index.json`, "utf8");
+  } catch (error) {
+    issues.push({ file: `${root}/pokemon-index.json`, message: `Unable to read Pokemon index for runtime allowlist: ${error instanceof Error ? error.message : String(error)}` });
+    return { directories, files };
+  }
+
+  const pokemonIndex = parseJson(pokemonIndexText, `${root}/pokemon-index.json`);
+  if (!isRecord(pokemonIndex) || !Array.isArray(pokemonIndex.pokemon)) {
+    return { directories, files };
+  }
+
+  pokemonIndex.pokemon.filter(isRecord).forEach((pokemon) => {
+    if (typeof pokemon.slug === "string") {
+      files.add(`recommendations/${pokemon.slug}.json`);
+    }
+  });
+
+  return { directories, files };
+}
+
+async function snapshotDeterministicContracts(runtimeFiles: string[]): Promise<Map<string, string>> {
+  const deterministicContractPaths = [...runtimeFiles, "src/data/schemas.ts"];
   const entries = await Promise.all(
     deterministicContractPaths.map(async (file) => {
       const text = await readFile(file, "utf8");
@@ -179,7 +332,8 @@ async function snapshotDeterministicContracts(): Promise<Map<string, string>> {
 }
 
 function compareSnapshots(first: Map<string, string>, second: Map<string, string>): void {
-  deterministicContractPaths.forEach((file) => {
+  const files = new Set([...first.keys(), ...second.keys()]);
+  files.forEach((file) => {
     if (first.get(file) !== second.get(file)) {
       issues.push({ file, message: "Deterministic data/schema contract changed across consecutive runs with the same inputs" });
     }
@@ -201,6 +355,10 @@ function parseJson(text: string, file: string): unknown | null {
   }
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 async function collectTextFiles(root: string, extensions: string[]): Promise<Map<string, string>> {
   const files = await listFiles(resolve(projectRoot, root), extensions);
   return readFiles(files);
@@ -209,6 +367,26 @@ async function collectTextFiles(root: string, extensions: string[]): Promise<Map
 async function readFiles(files: string[]): Promise<Map<string, string>> {
   const contents = await Promise.all(files.map(async (file) => [file, await readFile(file, "utf8")] as const));
   return new Map(contents);
+}
+
+type TreeEntry = {
+  path: string;
+  isDirectory: boolean;
+};
+
+async function listTreeEntries(root: string, prefix = ""): Promise<TreeEntry[]> {
+  const entries = await readdir(root, { withFileTypes: true });
+  const children = await Promise.all(
+    entries.map(async (entry) => {
+      const path = join(root, entry.name);
+      const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name;
+      if (entry.isDirectory()) {
+        return [{ path: entryPath, isDirectory: true }, ...(await listTreeEntries(path, entryPath))];
+      }
+      return [{ path: entryPath, isDirectory: false }];
+    }),
+  );
+  return children.flat();
 }
 
 async function listFiles(root: string, extensions: string[]): Promise<string[]> {

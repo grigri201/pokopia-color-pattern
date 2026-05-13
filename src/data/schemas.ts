@@ -1,11 +1,14 @@
 export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v1" as const;
 export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v1" as const;
 export const ITEM_COLORS_SCHEMA_VERSION = "item-colors.v1" as const;
+export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v1" as const;
 export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overrides.v1" as const;
 
 export type CompactItemColorSource = "extracted" | "override" | "fallback";
 export type PokemonColorSource = "extracted" | "override" | "fallback";
 export type PokemonPreferenceSource = "metadata" | "override";
+export type RecommendationHarmonyStatus = "not_required" | "passed";
+export type RecommendationHarmonyType = "analogous" | "complementary" | "splitComplementary" | "triadic" | "monochrome";
 
 export type CompactItemRecommendationFields = {
   isDyeable: boolean | null;
@@ -104,6 +107,31 @@ export type ItemColorsData = {
     fallbackCount: number;
   };
   items: ItemColorEntry[];
+};
+
+export type RecommendationEntry = {
+  itemSlug: string;
+  itemName: string;
+  itemZhName: string | null;
+  itemImagePath: string;
+  category: string | null;
+  matchedPreferenceTerms: string[];
+  isDyeable: boolean;
+  pokemonPrimaryColor: string;
+  itemPrimaryColor: string | null;
+  harmonyStatus: RecommendationHarmonyStatus;
+  harmonyType: RecommendationHarmonyType | null;
+  overrideSource: string | null;
+  rank: number;
+  pageIndex: number;
+};
+
+export type RecommendationsData = {
+  schemaVersion: typeof RECOMMENDATIONS_SCHEMA_VERSION;
+  pokemonSlug: string;
+  pageSize: 10;
+  totalPages: number;
+  recommendations: RecommendationEntry[];
 };
 
 export type PokemonMetadataOverrideEntry = {
@@ -438,6 +466,95 @@ export function validateItemColorsData(value: unknown): SchemaIssue[] {
   return issues;
 }
 
+export function validateRecommendationsData(value: unknown): SchemaIssue[] {
+  const issues: SchemaIssue[] = [];
+
+  if (!isRecord(value)) {
+    return [{ path: "$", message: "Expected recommendations data object" }];
+  }
+
+  requireLiteral(value, "schemaVersion", RECOMMENDATIONS_SCHEMA_VERSION, "$", issues);
+  requireSlug(value, "pokemonSlug", "$", issues);
+  requireLiteralNumber(value, "pageSize", 10, "$", issues);
+  requireNonNegativeInteger(value, "totalPages", "$", issues);
+
+  if (!Array.isArray(value.recommendations)) {
+    issues.push({ path: "$.recommendations", message: "Expected recommendations array" });
+    return issues;
+  }
+
+  const seenRanks = new Set<number>();
+  value.recommendations.forEach((entry, index) => {
+    const path = `$.recommendations[${index}]`;
+    if (!isRecord(entry)) {
+      issues.push({ path, message: "Expected recommendation object" });
+      return;
+    }
+
+    const slug = typeof entry.itemSlug === "string" ? entry.itemSlug : undefined;
+    requireSlug(entry, "itemSlug", path, issues);
+    requireString(entry, "itemName", path, issues, slug);
+    requireNullableString(entry, "itemZhName", path, issues, slug);
+    requireString(entry, "itemImagePath", path, issues, slug);
+    requireNullableString(entry, "category", path, issues, slug);
+    requireStringArray(entry, "matchedPreferenceTerms", path, issues, slug);
+    requireNonEmptyNormalizedStringArray(entry, "matchedPreferenceTerms", path, issues, slug);
+    requireBoolean(entry, "isDyeable", path, issues, slug);
+    requireHex(entry, "pokemonPrimaryColor", path, issues, slug);
+    requireNullableHex(entry, "itemPrimaryColor", path, issues, slug);
+    requireRecommendationHarmonyStatus(entry, "harmonyStatus", path, issues, slug);
+    requireNullableRecommendationHarmonyType(entry, "harmonyType", path, issues, slug);
+    requireNullableString(entry, "overrideSource", path, issues, slug);
+    requirePositiveInteger(entry, "rank", path, issues, slug);
+    requireNonNegativeInteger(entry, "pageIndex", path, issues, slug);
+
+    if (typeof entry.rank === "number" && Number.isInteger(entry.rank)) {
+      const expectedRank = index + 1;
+      if (entry.rank !== expectedRank) {
+        issues.push({ path: `${path}.rank`, message: `Expected rank ${expectedRank} to match recommendation array order`, slug });
+      }
+      if (seenRanks.has(entry.rank)) {
+        issues.push({ path: `${path}.rank`, message: "Duplicate recommendation rank", slug });
+      }
+      seenRanks.add(entry.rank);
+
+      const expectedPageIndex = Math.floor(index / 10);
+      if (typeof entry.pageIndex === "number" && entry.pageIndex !== expectedPageIndex) {
+        issues.push({
+          path: `${path}.pageIndex`,
+          message: `Expected zero-based pageIndex ${expectedPageIndex} for recommendation array index ${index}`,
+          slug,
+        });
+      }
+    }
+
+    if (entry.harmonyStatus === "not_required" && entry.harmonyType !== null) {
+      issues.push({ path: `${path}.harmonyType`, message: "Expected null harmonyType when harmony is not required", slug });
+    }
+    if (entry.harmonyStatus === "passed" && entry.harmonyType === null) {
+      issues.push({ path: `${path}.harmonyType`, message: "Expected harmonyType when harmony passed", slug });
+    }
+    if (entry.harmonyStatus === "passed" && entry.itemPrimaryColor === null) {
+      issues.push({ path: `${path}.itemPrimaryColor`, message: "Expected item primary color when harmony passed", slug });
+    }
+  });
+
+  const expectedTotalPages = Math.ceil(value.recommendations.length / 10);
+  if (typeof value.totalPages === "number" && value.totalPages !== expectedTotalPages) {
+    issues.push({
+      path: "$.totalPages",
+      message: `Expected totalPages ${value.totalPages} to match recommendation length ${value.recommendations.length}`,
+    });
+  }
+  for (let rank = 1; rank <= value.recommendations.length; rank += 1) {
+    if (!seenRanks.has(rank)) {
+      issues.push({ path: "$.recommendations", message: `Missing sequential recommendation rank ${rank}` });
+    }
+  }
+
+  return issues;
+}
+
 function isRecord(value: unknown): value is UnknownRecord {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -450,6 +567,18 @@ function requireLiteral(
   record: UnknownRecord,
   key: string,
   expected: string,
+  path: string,
+  issues: SchemaIssue[],
+): void {
+  if (record[key] !== expected) {
+    issue(path, key, `Expected ${expected}`, issues);
+  }
+}
+
+function requireLiteralNumber(
+  record: UnknownRecord,
+  key: string,
+  expected: number,
   path: string,
   issues: SchemaIssue[],
 ): void {
@@ -501,6 +630,30 @@ function requireNumber(
   }
 }
 
+function requirePositiveInteger(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  if (typeof record[key] !== "number" || !Number.isInteger(record[key]) || record[key] < 1) {
+    issue(path, key, "Expected positive integer", issues, slug);
+  }
+}
+
+function requireNonNegativeInteger(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  if (typeof record[key] !== "number" || !Number.isInteger(record[key]) || record[key] < 0) {
+    issue(path, key, "Expected non-negative integer", issues, slug);
+  }
+}
+
 function requireNullableNumber(
   record: UnknownRecord,
   key: string,
@@ -522,6 +675,18 @@ function requireNullableBoolean(
 ): void {
   if (record[key] !== null && typeof record[key] !== "boolean") {
     issue(path, key, "Expected boolean or null", issues, slug);
+  }
+}
+
+function requireBoolean(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  if (typeof record[key] !== "boolean") {
+    issue(path, key, "Expected boolean", issues, slug);
   }
 }
 
@@ -548,6 +713,39 @@ function requireColorSource(
   const value = record[key];
   if (typeof value !== "string" || !colorSources.has(value)) {
     issue(path, key, "Expected known color source", issues, slug);
+  }
+}
+
+function requireRecommendationHarmonyStatus(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (value !== "not_required" && value !== "passed") {
+    issue(path, key, "Expected known recommendation harmony status", issues, slug);
+  }
+}
+
+function requireNullableRecommendationHarmonyType(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (
+    value !== null &&
+    value !== "analogous" &&
+    value !== "complementary" &&
+    value !== "splitComplementary" &&
+    value !== "triadic" &&
+    value !== "monochrome"
+  ) {
+    issue(path, key, "Expected known recommendation harmony type or null", issues, slug);
   }
 }
 
@@ -649,6 +847,37 @@ function requireStringArray(
   }
 }
 
+function requireNonEmptyNormalizedStringArray(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (!Array.isArray(value)) {
+    return;
+  }
+  if (value.length === 0) {
+    issue(path, key, "Expected at least one matched preference term", issues, slug);
+    return;
+  }
+
+  const seenTerms = new Set<string>();
+  value.forEach((item, index) => {
+    if (typeof item !== "string") {
+      return;
+    }
+    if (item !== normalizePreferenceTerm(item)) {
+      issues.push({ path: `${path}.${key}[${index}]`, message: "Expected normalized preference term", slug });
+    }
+    if (seenTerms.has(item)) {
+      issues.push({ path: `${path}.${key}[${index}]`, message: "Duplicate preference term", slug });
+    }
+    seenTerms.add(item);
+  });
+}
+
 function requireNumberArray(
   record: UnknownRecord,
   key: string,
@@ -678,6 +907,10 @@ function requireNumberRecord(record: UnknownRecord, key: string, path: string, i
 
 function isHexColor(value: unknown): value is string {
   return typeof value === "string" && /^#[0-9A-F]{6}$/.test(value);
+}
+
+function normalizePreferenceTerm(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function areAllItemsRecords(items: unknown[]): items is Array<UnknownRecord & { tags: string[] }> {

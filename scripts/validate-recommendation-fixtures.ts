@@ -1,10 +1,21 @@
 import {
   applyHarmonyToCandidates,
   buildRecommendationResults,
+  rankRecommendationEntries,
   selectRecommendationCandidates,
   toPokemonPreferenceProfile,
   type RecommendationItemInput,
+  type RecommendationRankingInput,
 } from "../src/domain/recommendation.js";
+import { buildRecommendationDataSet } from "../src/domain/recommendation-data.js";
+import {
+  RECOMMENDATIONS_SCHEMA_VERSION,
+  validateRecommendationsData,
+  type CompactItem,
+  type ItemColorEntry,
+  type PokemonIndexEntry,
+  type RecommendationsData,
+} from "../src/data/schemas.js";
 import { getHarmonyColors } from "../docs/oklch_color.js";
 
 const pokemon = toPokemonPreferenceProfile({
@@ -152,7 +163,132 @@ if (invalidItemColor.rejected.find((item) => item.itemSlug === "wooden-lamp")?.r
   throw new Error("Expected invalid item primary color to reject harmony-required candidates");
 }
 
-console.log("Validated recommendation candidate preference and dyeable fixtures.");
+const rankedFixture: RecommendationRankingInput[] = [
+  {
+    itemSlug: "z-slug",
+    matchedPreferenceTerms: ["flower"],
+    isDyeable: true,
+    harmonyStatus: "not_required",
+    harmonyType: null,
+    overrideSource: null,
+  },
+  {
+    itemSlug: "override-item",
+    matchedPreferenceTerms: ["flower"],
+    isDyeable: false,
+    harmonyStatus: "passed",
+    harmonyType: "monochrome",
+    overrideSource: "fixture#override",
+  },
+  {
+    itemSlug: "multi-term",
+    matchedPreferenceTerms: ["flower", "garden"],
+    isDyeable: false,
+    harmonyStatus: "passed",
+    harmonyType: "analogous",
+    overrideSource: null,
+  },
+  {
+    itemSlug: "a-slug",
+    matchedPreferenceTerms: ["flower"],
+    isDyeable: true,
+    harmonyStatus: "not_required",
+    harmonyType: null,
+    overrideSource: null,
+  },
+  {
+    itemSlug: "complementary-item",
+    matchedPreferenceTerms: ["flower"],
+    isDyeable: false,
+    harmonyStatus: "passed",
+    harmonyType: "complementary",
+    overrideSource: null,
+  },
+];
+const rankedSlugs = rankRecommendationEntries(rankedFixture).map((entry) => entry.itemSlug);
+const expectedRankedSlugs = ["override-item", "multi-term", "a-slug", "z-slug", "complementary-item"];
+if (rankedSlugs.join(",") !== expectedRankedSlugs.join(",")) {
+  throw new Error(`Unexpected recommendation ranking order: ${rankedSlugs.join(",")}`);
+}
+
+const recommendationDataFixture: RecommendationsData = {
+  schemaVersion: RECOMMENDATIONS_SCHEMA_VERSION,
+  pokemonSlug: "fixture-mon",
+  pageSize: 10,
+  totalPages: 1,
+  recommendations: [
+    {
+      itemSlug: "flower-chair",
+      itemName: "Flower chair",
+      itemZhName: null,
+      itemImagePath: "/docs/pokopia_image_sources/item_portraits/flower-chair.png",
+      category: "Furniture",
+      matchedPreferenceTerms: ["flower"],
+      isDyeable: true,
+      pokemonPrimaryColor,
+      itemPrimaryColor: "#00FF00",
+      harmonyStatus: "not_required",
+      harmonyType: null,
+      overrideSource: null,
+      rank: 1,
+      pageIndex: 0,
+    },
+  ],
+};
+const schemaIssues = validateRecommendationsData(recommendationDataFixture);
+if (schemaIssues.length > 0) {
+  throw new Error(`Expected recommendation data fixture to pass schema: ${JSON.stringify(schemaIssues)}`);
+}
+
+const pokemonDataFixture: PokemonIndexEntry[] = [
+  {
+    slug: "fixture-mon",
+    sequence: "1",
+    name: "Fixture Mon",
+    zhName: null,
+    imagePath: "/docs/pokopia_image_sources/pokemon_portraits/fixture-mon.png",
+    primaryColor: pokemonPrimaryColor,
+    palette: [{ hex: pokemonPrimaryColor, percent: 100 }],
+    colorSource: "override",
+    fallbackReason: null,
+    overrideSource: "fixture#pokemon.fixture-mon",
+    pattern: [pokemonPrimaryColor],
+    preferenceTerms: ["flower", "garden"],
+    preferenceSource: "override",
+  },
+];
+const compactDataFixture: CompactItem[] = [
+  compactItemFixture("flower-chair", "Flower chair", true),
+  compactItemFixture("flower-garden-lamp", "Flower garden lamp", false, ["Garden"], ["decoration", "garden"]),
+  compactItemFixture("flower-vase", "Flower vase", false),
+];
+const itemColorDataFixture: ItemColorEntry[] = [
+  { slug: "flower-chair", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null },
+  { slug: "flower-garden-lamp", itemPrimaryColor: harmony.complementary, colorSource: "extracted", fallbackReason: null },
+  { slug: "flower-vase", itemPrimaryColor: harmony.analogous[0], colorSource: "extracted", fallbackReason: null },
+];
+const builtData = buildRecommendationDataSet(pokemonDataFixture, compactDataFixture, itemColorDataFixture);
+if (builtData.issues.length > 0) {
+  throw new Error(`Expected recommendation data builder fixture to have no issues: ${JSON.stringify(builtData.issues)}`);
+}
+const builtFixture = builtData.recommendations[0];
+const builtSchemaIssues = validateRecommendationsData(builtFixture);
+if (builtSchemaIssues.length > 0) {
+  throw new Error(`Expected built recommendation data fixture to pass schema: ${JSON.stringify(builtSchemaIssues)}`);
+}
+const firstBuiltEntry = builtFixture.recommendations[0];
+if (
+  !firstBuiltEntry ||
+  firstBuiltEntry.itemSlug !== "flower-garden-lamp" ||
+  firstBuiltEntry.rank !== 1 ||
+  firstBuiltEntry.pageIndex !== 0 ||
+  firstBuiltEntry.matchedPreferenceTerms.join(",") !== "flower,garden" ||
+  firstBuiltEntry.overrideSource !== null
+) {
+  throw new Error(`Unexpected built recommendation data entry: ${JSON.stringify(firstBuiltEntry)}`);
+}
+
+console.log("Validated recommendation candidate, harmony, ranking, and schema fixtures.");
 
 function assertCandidate(
   itemSlug: string,
@@ -168,4 +304,31 @@ function assertCandidate(
   if (candidate.matchedPreferenceTerms.join(",") !== expected.matchedPreferenceTerms.join(",")) {
     throw new Error(`Unexpected matched preference terms for ${itemSlug}: ${candidate.matchedPreferenceTerms.join(",")}`);
   }
+}
+
+function compactItemFixture(slug: string, name: string, isDyeable: boolean, tags: string[] = [], roleTags: string[] = ["decoration"]): CompactItem {
+  return {
+    slug,
+    id: null,
+    name,
+    nameZh: null,
+    category: "Decoration",
+    tags,
+    event: null,
+    sources: [],
+    habitatItemCategoryIds: [],
+    favoriteCategoryIds: [],
+    imagePath: `/docs/pokopia_image_sources/item_portraits/${slug}.png`,
+    sourceDataset: null,
+    sourceIndex: null,
+    sourceRow: 1,
+    recommendation: {
+      isDyeable,
+      itemPrimaryColor: null,
+      colorSource: null,
+      fallbackReason: null,
+      preferenceTerms: [],
+      roleTags,
+    },
+  };
 }

@@ -78,6 +78,16 @@ export type HarmonySelectionResult = {
   rejected: RejectedHarmonyCandidate[];
 };
 
+export type RecommendationRankingInput = {
+  itemSlug: string;
+  matchedPreferenceTerms: string[];
+  isDyeable: boolean;
+  harmonyStatus: "not_required" | "passed";
+  harmonyType: HarmonyType | null;
+  overrideSource: string | null;
+  roleFitScore?: number;
+};
+
 export function selectRecommendationCandidates(
   pokemon: PokemonPreferenceProfile,
   items: RecommendationItemInput[],
@@ -206,6 +216,21 @@ export function buildRecommendationResults(
   };
 }
 
+export function rankRecommendationEntries<T extends RecommendationRankingInput>(entries: T[]): T[] {
+  return entries.slice().sort(compareRecommendationRank);
+}
+
+export function compareRecommendationRank(left: RecommendationRankingInput, right: RecommendationRankingInput): number {
+  return (
+    overridePriority(left) - overridePriority(right) ||
+    right.matchedPreferenceTerms.length - left.matchedPreferenceTerms.length ||
+    dyeablePriority(left) - dyeablePriority(right) ||
+    harmonyPriority(left) - harmonyPriority(right) ||
+    (right.roleFitScore ?? 0) - (left.roleFitScore ?? 0) ||
+    left.itemSlug.localeCompare(right.itemSlug, "en")
+  );
+}
+
 function failedHarmonyCandidate(
   candidate: RecommendationCandidate,
   reason: RecommendationRejectionReason,
@@ -257,4 +282,33 @@ function includesTerm(searchText: string, term: string): boolean {
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function overridePriority(entry: RecommendationRankingInput): number {
+  return entry.overrideSource ? 0 : 1;
+}
+
+function dyeablePriority(entry: RecommendationRankingInput): number {
+  return entry.isDyeable ? 0 : 1;
+}
+
+function harmonyPriority(entry: RecommendationRankingInput): number {
+  if (entry.harmonyStatus === "not_required") {
+    return 0;
+  }
+
+  switch (entry.harmonyType) {
+    case "complementary":
+      return 1;
+    case "splitComplementary":
+      return 2;
+    case "analogous":
+      return 3;
+    case "triadic":
+      return 4;
+    case "monochrome":
+      return 5;
+    default:
+      return 6;
+  }
 }
