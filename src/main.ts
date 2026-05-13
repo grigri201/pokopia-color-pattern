@@ -1,21 +1,18 @@
 import "./styles.css";
+import { GeneratedDataError, loadGeneratedData } from "./data/client";
+import type { CompactItem, PokemonIndexEntry } from "./data/schemas";
 
-const POKEMON_MANIFEST = "docs/pokopia_image_sources/pokemon_portraits/manifest.csv";
-// Story 1.3 migrates runtime item loading from this full manifest to generated compact data.
-const ITEM_MANIFEST = "docs/pokopia_image_sources/item_portraits/manifest.csv";
 const DEFAULT_POKEMON = "ditto";
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
 const POKEMON_RANGES = ["all", "early", "late"] as const;
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
 type PokemonRange = (typeof POKEMON_RANGES)[number];
-type CsvRecord = Record<string, string>;
 type Rgb = { r: number; g: number; b: number };
 type Hsl = { h: number; s: number; l: number };
 type Cmyk = { c: number; m: number; y: number; k: number };
 type PaletteColor = { rgb: Rgb; hex: string; percent: number };
 type NormalizedPaletteColor = PaletteColor & { ratio: number };
-type WeightedColor = { rgb: Rgb; count: number; score: number };
 type PaletteTone = "NEUTRAL" | "ROSE" | "AMBER" | "GREEN" | "BLUE" | "VIOLET" | "MAGENTA";
 
 type Pokemon = {
@@ -24,12 +21,10 @@ type Pokemon = {
   zh: string;
   slug: string;
   image: string;
-  source: string;
-};
-
-type SelectedPokemon = Pokemon & {
   palette: PaletteColor[];
 };
+
+type SelectedPokemon = Pokemon;
 
 type PlaceableItem = {
   index: number;
@@ -49,7 +44,6 @@ type FurnitureSlot =
   | { state: "candidate"; label: string; item: ScoredItem }
   | { state: "reserved"; label: string };
 
-const paletteCache = new Map<string, PaletteColor[]>();
 const ITEM_FILTERS: Record<ItemFilter, (item: PlaceableItem) => boolean> = {
   全部: () => true,
   家具: (item) => item.category === "Furniture",
@@ -119,36 +113,9 @@ const els = {
 };
 
 async function boot(): Promise<void> {
-  const [pokemonCsv, itemCsv] = await Promise.all([
-    fetch(POKEMON_MANIFEST).then((res) => res.text()),
-    fetch(ITEM_MANIFEST).then((res) => res.text()),
-  ]);
-
-  state.pokemon = parseCsv(pokemonCsv)
-    .filter((row) => row.status === "ok" && row.kind === "pokemon")
-    .map((row) => ({
-      sequence: row.sequence,
-      name: row.name,
-      zh: row.name_zh_hans,
-      slug: slugify(row.name),
-      image: row.relative_path,
-      source: row.source,
-    }));
-
-  state.items = parseCsv(itemCsv)
-    .filter((row) => row.status === "ok" && row.kind === "placeable_item")
-    .map((row, index) => ({
-      index,
-      id: row.id,
-      name: row.name,
-      zh: row.name,
-      slug: row.slug,
-      category: row.category,
-      tags: parseJsonArray(row.tags),
-      event: row.event,
-      image: row.relative_path,
-      source: row.source,
-    }));
+  const generatedData = await loadGeneratedData();
+  state.pokemon = generatedData.pokemonIndex.pokemon.map(toPokemon);
+  state.items = generatedData.compactItems.items.map(toPlaceableItem);
 
   bindEvents();
   renderList();
@@ -160,7 +127,7 @@ async function boot(): Promise<void> {
     state.pokemon[0];
 
   if (!initial) {
-    throw new Error("No Pokemon portraits found in manifest");
+    throw new Error("No Pokemon entries found in generated data");
   }
 
   els.loading.classList.add("is-hidden");
@@ -275,8 +242,10 @@ async function selectPokemon(slug: string, updateHash = true): Promise<void> {
     return;
   }
 
-  const palette = await getPalette(pokemon);
-  const selected: SelectedPokemon = { ...pokemon, palette };
+  const selected: SelectedPokemon = {
+    ...pokemon,
+    palette: pokemon.palette.length ? pokemon.palette : [fallbackColor(pokemon.slug)],
+  };
   state.selected = selected;
 
   if (updateHash) {
@@ -287,17 +256,6 @@ async function selectPokemon(slug: string, updateHash = true): Promise<void> {
   renderStage(selected);
   renderInspector(selected);
   renderFloatingPokemon(selected);
-}
-
-async function getPalette(pokemon: Pokemon): Promise<PaletteColor[]> {
-  const cached = paletteCache.get(pokemon.slug);
-  if (cached) {
-    return cached;
-  }
-
-  const palette = await extractPalette(pokemon.image);
-  paletteCache.set(pokemon.slug, palette);
-  return palette;
 }
 
 function renderStage(pokemon: SelectedPokemon): void {
@@ -445,166 +403,12 @@ function renderFurniture(pokemon: SelectedPokemon): void {
     .join("");
 }
 
-async function extractPalette(src: string): Promise<PaletteColor[]> {
-  const image = await loadImage(src);
-  const size = 128;
-  const canvas = document.createElement("canvas");
-  const context = canvas.getContext("2d", { willReadFrequently: true });
-  if (!context) {
-    return [fallbackColor(src)];
-  }
-  canvas.width = size;
-  canvas.height = size;
-  context.clearRect(0, 0, size, size);
-
-  const scale = Math.min(size / image.naturalWidth, size / image.naturalHeight);
-  const width = Math.max(1, Math.round(image.naturalWidth * scale));
-  const height = Math.max(1, Math.round(image.naturalHeight * scale));
-  const x = Math.round((size - width) / 2);
-  const y = Math.round((size - height) / 2);
-  context.drawImage(image, x, y, width, height);
-
-  const { data } = context.getImageData(0, 0, size, size);
-  const buckets = new Map<string, WeightedColor>();
-  let visible = 0;
-
-  for (let index = 0; index < data.length; index += 4) {
-    const alpha = data[index + 3];
-    if (alpha < 42) {
-      continue;
-    }
-
-    const rgb: Rgb = {
-      r: data[index],
-      g: data[index + 1],
-      b: data[index + 2],
-    };
-
-    const hsl = rgbToHsl(rgb);
-    if (hsl.l > 0.96 && hsl.s < 0.1) {
-      continue;
-    }
-
-    visible += 1;
-    const quantized = quantize(rgb, 24);
-    const key = `${quantized.r},${quantized.g},${quantized.b}`;
-    const current = buckets.get(key) || {
-      rgb: quantized,
-      count: 0,
-      score: 0,
-    };
-
-    const saturationLift = 0.54 + hsl.s * 0.72;
-    const outlinePenalty = hsl.l < 0.12 ? 0.42 : 1;
-    current.count += 1;
-    current.score += saturationLift * outlinePenalty;
-    buckets.set(key, current);
-  }
-
-  const colors = Array.from(buckets.values())
-    .sort((left, right) => right.score - left.score)
-    .reduce<WeightedColor[]>((acc, color) => {
-      const close = acc.find((item) => colorDistance(item.rgb, color.rgb) < 30);
-      if (close) {
-        close.count += color.count;
-        close.score += color.score;
-        close.rgb = weightedRgb(close.rgb, color.rgb, close.count, color.count);
-      } else if (acc.length < 10) {
-        acc.push({ ...color });
-      }
-      return acc;
-    }, [])
-    .sort((left, right) => right.score - left.score)
-    .slice(0, 6)
-    .map((color) => ({
-      rgb: color.rgb,
-      hex: rgbToHex(color.rgb),
-      percent: visible ? (color.count / visible) * 100 : 0,
-    }));
-
-  return colors.length ? colors : [fallbackColor(src)];
-}
-
-function parseCsv(text: string): CsvRecord[] {
-  const rows: string[][] = [];
-  let row: string[] = [];
-  let cell = "";
-  let quoted = false;
-
-  for (let index = 0; index < text.length; index += 1) {
-    const char = text[index];
-    const next = text[index + 1];
-
-    if (quoted && char === '"' && next === '"') {
-      cell += '"';
-      index += 1;
-    } else if (char === '"') {
-      quoted = !quoted;
-    } else if (char === "," && !quoted) {
-      row.push(cell);
-      cell = "";
-    } else if ((char === "\n" || char === "\r") && !quoted) {
-      if (char === "\r" && next === "\n") {
-        index += 1;
-      }
-      row.push(cell);
-      if (row.some((value) => value.length)) {
-        rows.push(row);
-      }
-      row = [];
-      cell = "";
-    } else {
-      cell += char;
-    }
-  }
-
-  if (cell || row.length) {
-    row.push(cell);
-    rows.push(row);
-  }
-
-  const [headers = [], ...body] = rows;
-  return body.map((values) =>
-    headers.reduce<CsvRecord>((record, header, index) => {
-      record[header] = values[index] || "";
-      return record;
-    }, {}),
-  );
-}
-
-function loadImage(src: string): Promise<HTMLImageElement> {
-  return new Promise((resolve, reject) => {
-    const image = new Image();
-    image.decoding = "async";
-    image.onload = () => resolve(image);
-    image.onerror = reject;
-    image.src = src;
-  });
-}
-
 function slugify(value: unknown): string {
   return String(value || "")
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
-}
-
-function quantize(rgb: Rgb, step: number): Rgb {
-  return {
-    r: clamp(Math.round(rgb.r / step) * step, 0, 255),
-    g: clamp(Math.round(rgb.g / step) * step, 0, 255),
-    b: clamp(Math.round(rgb.b / step) * step, 0, 255),
-  };
-}
-
-function weightedRgb(left: Rgb, right: Rgb, leftCount: number, rightCount: number): Rgb {
-  const total = leftCount + rightCount;
-  return {
-    r: Math.round((left.r * leftCount + right.r * rightCount) / total),
-    g: Math.round((left.g * leftCount + right.g * rightCount) / total),
-    b: Math.round((left.b * leftCount + right.b * rightCount) / total),
-  };
 }
 
 function rgbToHex(rgb: Rgb): string {
@@ -707,15 +511,6 @@ function itemMetaLabel(item: PlaceableItem): string {
   return `${item.category}${tags}${event}`;
 }
 
-function parseJsonArray(value: string): string[] {
-  try {
-    const parsed = JSON.parse(value || "[]");
-    return Array.isArray(parsed) ? parsed.filter((item): item is string => typeof item === "string") : [];
-  } catch {
-    return [];
-  }
-}
-
 function seededScore(value: string): number {
   let hash = 2166136261;
   for (let index = 0; index < value.length; index += 1) {
@@ -753,10 +548,6 @@ function hslToRgb(hsl: Hsl): Rgb {
   };
 }
 
-function colorDistance(left: Rgb, right: Rgb): number {
-  return Math.hypot(left.r - right.r, left.g - right.g, left.b - right.b);
-}
-
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
@@ -770,7 +561,73 @@ function escapeHtml(value: unknown): string {
     .replace(/'/g, "&#039;");
 }
 
+function toPokemon(entry: PokemonIndexEntry): Pokemon {
+  const palette = entry.palette.length ? entry.palette : [{ hex: entry.primaryColor, percent: 100 }];
+
+  return {
+    sequence: entry.sequence,
+    name: entry.name,
+    zh: entry.zhName || entry.name,
+    slug: entry.slug,
+    image: entry.imagePath,
+    palette: palette.map((color) => ({
+      hex: color.hex,
+      rgb: hexToRgb(color.hex),
+      percent: color.percent,
+    })),
+  };
+}
+
+function toPlaceableItem(item: CompactItem, index: number): PlaceableItem {
+  return {
+    index: item.sourceIndex ?? index,
+    id: item.id || item.slug,
+    name: item.name,
+    zh: item.nameZh || item.name,
+    slug: item.slug,
+    category: item.category || "Other",
+    tags: item.tags,
+    event: item.event || "",
+    image: item.imagePath,
+    source: item.sourceDataset || "generated",
+  };
+}
+
+function hexToRgb(hex: string): Rgb {
+  const normalized = hex.replace(/^#/, "");
+  return {
+    r: Number.parseInt(normalized.slice(0, 2), 16),
+    g: Number.parseInt(normalized.slice(2, 4), 16),
+    b: Number.parseInt(normalized.slice(4, 6), 16),
+  };
+}
+
+function renderBootError(error: unknown): void {
+  const fileLabel = error instanceof GeneratedDataError ? `（${error.filePath}）` : "";
+  const message = error instanceof Error ? error.message : String(error);
+  const errorBox = document.createElement("div");
+  const title = document.createElement("strong");
+  const hint = document.createElement("span");
+  const detail = document.createElement("code");
+  const retry = document.createElement("button");
+
+  errorBox.className = "loading-error";
+  title.textContent = `无法读取 Pokopia 生成数据${fileLabel}`;
+  hint.textContent = "请重新运行 npm run generate:data 后刷新页面。";
+  detail.className = "error-detail";
+  detail.textContent = message;
+  retry.type = "button";
+  retry.textContent = "重新载入";
+  retry.addEventListener("click", () => location.reload());
+  errorBox.replaceChildren(title, hint, detail, retry);
+
+  els.app.classList.add("is-hidden");
+  els.drawerTrigger.classList.add("is-hidden");
+  els.loading.classList.remove("is-hidden");
+  els.loading.replaceChildren(errorBox);
+}
+
 boot().catch((error) => {
   console.error(error);
-  els.loading.textContent = "无法读取 Pokopia 数据";
+  renderBootError(error);
 });

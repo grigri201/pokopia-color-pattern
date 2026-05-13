@@ -395,6 +395,7 @@ function toCompactItem(
     nameZh: null,
     category,
     tags,
+    event: nullable(row.event),
     sources,
     habitatItemCategoryIds,
     favoriteCategoryIds,

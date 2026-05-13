@@ -1,6 +1,6 @@
 # Story 1.3: 通过 generated data 驱动 Pokemon 浏览
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,18 +16,26 @@ so that 页面首屏不再依赖完整 item manifest 作为运行时必需资源
 
 ## Tasks / Subtasks
 
-- [ ] 新增 generated data client (AC: 1, 3)
-  - [ ] 在 `src/data/client.ts` 或等价位置实现 `/data/pokemon-index.json`、`/data/compact-items.json` 加载。
-  - [ ] 通过 schema 或类型守卫验证 JSON shape，失败时返回可恢复错误状态。
-- [ ] 迁移 browser boot 数据来源 (AC: 1)
-  - [ ] 将 `src/main.ts` 中 `POKEMON_MANIFEST` 和 `ITEM_MANIFEST` 的首屏 CSV fetch 迁移为 generated JSON fetch。
-  - [ ] 保留当前 Pokemon 搜索、范围过滤、选中和 inspector 入口，不扩大为完整 UI 重写。
-- [ ] 配置 dev/build 的 `/data/**` 服务 (AC: 2)
-  - [ ] 更新 `vite.config.ts` 或等价脚本，让 dev server 能访问 `generated/data/**`。
-  - [ ] production build 时将 generated data 复制或输出到 `dist/data/**`。
-- [ ] 错误状态与可恢复路径 (AC: 3)
-  - [ ] 数据文件缺失、JSON parse 失败、schema 失败时展示具体文件名和可恢复提示。
-  - [ ] 不让页面停留在无限 loading 或空白 app shell。
+- [x] 新增 generated data client (AC: 1, 3)
+  - [x] 在 `src/data/client.ts` 或等价位置实现 `/data/pokemon-index.json`、`/data/compact-items.json` 加载。
+  - [x] 通过 schema 或类型守卫验证 JSON shape，失败时返回可恢复错误状态。
+- [x] 迁移 browser boot 数据来源 (AC: 1)
+  - [x] 将 `src/main.ts` 中 `POKEMON_MANIFEST` 和 `ITEM_MANIFEST` 的首屏 CSV fetch 迁移为 generated JSON fetch。
+  - [x] 保留当前 Pokemon 搜索、范围过滤、选中和 inspector 入口，不扩大为完整 UI 重写。
+- [x] 配置 dev/build 的 `/data/**` 服务 (AC: 2)
+  - [x] 更新 `vite.config.ts` 或等价脚本，让 dev server 能访问 `generated/data/**`。
+  - [x] production build 时将 generated data 复制或输出到 `dist/data/**`。
+- [x] 错误状态与可恢复路径 (AC: 3)
+  - [x] 数据文件缺失、JSON parse 失败、schema 失败时展示具体文件名和可恢复提示。
+  - [x] 不让页面停留在无限 loading 或空白 app shell。
+
+### Review Findings
+
+- [x] [Review][Patch] 非法 percent 编码会让 `/data/**` dev middleware 抛异常 [`vite.config.ts`]
+- [x] [Review][Patch] `generated/data` 下外部 symlink 会经 `/data/**` 暴露或落入错误 fallback [`vite.config.ts`]
+- [x] [Review][Patch] 空 Pokemon index 启动失败时没有归因到具体 generated data 文件 [`src/data/schemas.ts`]
+- [x] [Review][Patch] production build 可在缺失运行时 generated data 时静默成功 [`vite.config.ts`]
+- [x] [Review][Patch] item event 元数据被 generated data 映射无条件丢弃 [`src/data/schemas.ts`, `scripts/generate-data.ts`, `src/main.ts`]
 
 ## Dev Notes
 
@@ -56,10 +64,38 @@ so that 页面首屏不再依赖完整 item manifest 作为运行时必需资源
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run validate:data`
+- `npm run build`
+- `curl -I http://127.0.0.1:5175/data/pokemon-index.json`
+- `curl -s http://127.0.0.1:5175/data/compact-items.json | head -c 120`
+- `node -e '...'` 验证缺失 `generated/data/pokemon-index.json` 时 production build fail-fast
+- `curl -s -o /dev/null -w '%{http_code}' 'http://127.0.0.1:5176/data/%E0%A4%A'`
+- `node -e '...'` 验证 `/data/**` 拒绝指向外部文件的 symlink
+
 ### Completion Notes List
 
+- 新增浏览器端 generated data client，以 `/data/pokemon-index.json` 和 `/data/compact-items.json` 为唯一首屏数据边界，并复用 schema 校验错误。
+- `src/main.ts` 已停止首屏读取 Pokemon/item manifest CSV，改用 generated JSON 初始化 Pokemon 列表、色板和 item 展示数据。
+- Vite dev middleware 将 `/data/**` 映射到 `generated/data/**`，production build 复制同一目录到 `dist/data/**`。
+- 启动失败时 loading 区域展示失败文件和恢复提示，避免空白页或无限 loading。
+- Review 后补齐 `/data/**` 非法路径和 symlink 防护，production build 缺必需 generated data 直接失败。
+- Compact item data 保留 `event` 字段，运行时 item meta 不再丢失活动信息。
+
 ### File List
+
+- `src/data/client.ts`
+- `src/data/schemas.ts`
+- `src/main.ts`
+- `src/styles.css`
+- `scripts/generate-data.ts`
+- `vite.config.ts`
+- `generated/data/compact-items.json`
+- `_bmad-output/implementation-artifacts/1-3-通过-generated-data-驱动-pokemon-浏览.md`
+
+### Change Log
+
+- 2026-05-13: 迁移首屏运行时数据加载到 generated JSON，并增加 `/data/**` dev/build 服务。

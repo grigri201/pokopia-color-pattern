@@ -22,6 +22,7 @@ export type CompactItem = {
   nameZh: string | null;
   category: string | null;
   tags: string[];
+  event: string | null;
   sources: string[];
   habitatItemCategoryIds: number[];
   favoriteCategoryIds: number[];
@@ -215,6 +216,7 @@ function validateCompactItem(
   requireNullableString(item, "nameZh", path, issues, slug);
   requireNullableString(item, "category", path, issues, slug);
   requireStringArray(item, "tags", path, issues, slug);
+  requireNullableString(item, "event", path, issues, slug);
   requireStringArray(item, "sources", path, issues, slug);
   requireNumberArray(item, "habitatItemCategoryIds", path, issues, slug);
   requireNumberArray(item, "favoriteCategoryIds", path, issues, slug);
@@ -261,6 +263,10 @@ export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
   if (!Array.isArray(value.pokemon)) {
     issues.push({ path: "$.pokemon", message: "Expected pokemon array" });
     return issues;
+  }
+
+  if (value.pokemon.length === 0) {
+    issues.push({ path: "$.pokemon", message: "Expected at least one Pokemon" });
   }
 
   const slugs = new Set<string>();
