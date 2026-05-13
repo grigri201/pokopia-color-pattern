@@ -1,6 +1,6 @@
 # Story 3.4: 验证静态输出、hydrate parity 和 production build gate
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,19 +16,19 @@ so that 可分享页面不会在发布时退化。
 
 ## Tasks / Subtasks
 
-- [ ] 实现 build output validation (AC: 1, 2)
-  - [ ] 新增 `scripts/validate-build.ts`，检查 311 个 `dist/pokemon/{slug}/index.html` 存在。
-  - [ ] 检查每只 Pokemon 都有 `generated/data/recommendations/{slug}.json` 或 dist 对应推荐产物。
-  - [ ] 抽样检查 `ditto` 页面包含 title、图片、主色、色板、推荐摘要。
-- [ ] 校验静态页与 generated data slug 一致 (AC: 2)
-  - [ ] 从 generated Pokemon index 读取 slug 列表，避免手写数量。
-  - [ ] 检查静态 HTML 不包含默认 Pokemon 错配内容。
-- [ ] 添加 browser smoke test (AC: 3)
-  - [ ] 使用 Playwright 或架构批准的轻量 smoke，直接访问 `/pokemon/{slug}/`。
-  - [ ] 验证 hydrate 后显示路径 slug 的 Pokemon，搜索、切换、筛选、分页仍可用。
-- [ ] 完成 production build gate (AC: 1, 3)
-  - [ ] `npm run build` 或明确 release gate 执行 generate data、tests、typecheck、Vite build、SSG、validation、smoke。
-  - [ ] 任一校验失败时非零退出并打印可操作路径。
+- [x] 实现 build output validation (AC: 1, 2)
+  - [x] 新增 `scripts/validate-build.ts`，检查 311 个 `dist/pokemon/{slug}/index.html` 存在。
+  - [x] 检查每只 Pokemon 都有 `generated/data/recommendations/{slug}.json` 或 dist 对应推荐产物。
+  - [x] 抽样检查 `ditto` 页面包含 title、图片、主色、色板、推荐摘要。
+- [x] 校验静态页与 generated data slug 一致 (AC: 2)
+  - [x] 从 generated Pokemon index 读取 slug 列表，避免手写数量。
+  - [x] 检查静态 HTML 不包含默认 Pokemon 错配内容。
+- [x] 添加 browser smoke test (AC: 3)
+  - [x] 使用 Playwright 或架构批准的轻量 smoke，直接访问 `/pokemon/{slug}/`。
+  - [x] 验证 hydrate 后显示路径 slug 的 Pokemon，搜索、切换、筛选、分页仍可用。
+- [x] 完成 production build gate (AC: 1, 3)
+  - [x] `npm run build` 或明确 release gate 执行 generate data、tests、typecheck、Vite build、SSG、validation、smoke。
+  - [x] 任一校验失败时非零退出并打印可操作路径。
 
 ## Dev Notes
 
@@ -56,10 +56,34 @@ so that 可分享页面不会在发布时退化。
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm install --save-dev @playwright/test`
+- `npx playwright install chromium`
+- `npm run smoke:hydrate`
+- `npm run build`
+- `git diff --check`
+
 ### Completion Notes List
 
+- 添加 Playwright smoke 配置和 `tests/smoke/pokemon-page.spec.ts`，直接访问 `/pokemon/ditto/`，验证静态 SSG HTML 与真实 dist recommendation data hydrate 后 slug、标题、图片、主色、色板和推荐面板一致。
+- Smoke 另用精确 root-absolute fixture recommendation response 覆盖推荐分页，再验证筛选结果数量、搜索结果数量和切换到 `/pokemon/eevee/` 后状态与路径一致。
+- `npm run build` 现在串起 route/recommendation/build validation、typecheck、Vite build、SSG、dist validation 和 `smoke:hydrate`。
+- `.gitignore` 增加 Playwright 临时报告目录，避免失败产物进入版本库；`smoke:hydrate` 会先执行 `build:setup` 安装 Chromium。
+
+### Review Results
+
+- Acceptance review: 通过。确认 build gate 串联 validation、Vite build、SSG、dist validation 和 Playwright smoke；静态页/recommendation 数量均为 311。
+- Edge-case review: 修复本地 smoke 可能复用旧 preview server、mock 掩盖真实 hydrate parity、搜索/筛选断言过弱和 clean install 缺浏览器安装入口。
+- Blind review: 修复真实 recommendation data 路径未验证、clean install 下 Chromium 安装未脚本化、preview 端口复用风险和搜索/筛选行为未被实质锁定。
+
 ### File List
+
+- `package.json`
+- `package-lock.json`
+- `playwright.config.ts`
+- `tests/smoke/pokemon-page.spec.ts`
+- `.gitignore`
+- `_bmad-output/implementation-artifacts/3-4-验证静态输出-hydrate-parity-和-production-build-gate.md`

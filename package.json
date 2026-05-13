@@ -14,11 +14,14 @@
     "validate:routes": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-router-fixtures.js",
     "generate:ssg": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-ssg.js",
     "smoke:story-1-4": "npm run build:data-script && node .tmp/data-scripts/scripts/smoke-story-1-4.js",
+    "build:setup": "playwright install chromium",
+    "smoke:hydrate": "npm run build:setup && playwright test --config playwright.config.ts",
     "dev": "vite --host 127.0.0.1",
-    "build": "npm run validate:routes && npm run validate:recommendations && npm run validate:build && tsc --noEmit && vite build && npm run generate:ssg && npm run validate:dist",
+    "build": "npm run validate:routes && npm run validate:recommendations && npm run validate:build && tsc --noEmit && vite build && npm run generate:ssg && npm run validate:dist && npm run smoke:hydrate",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.60.0",
     "@types/node": "^24.10.1",
     "sharp": "^0.34.5",
     "typescript": "^5.9.3",
