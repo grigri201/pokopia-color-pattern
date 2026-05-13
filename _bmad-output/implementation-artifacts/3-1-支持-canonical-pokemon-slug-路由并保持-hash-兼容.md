@@ -1,6 +1,6 @@
 # Story 3.1: 支持 canonical `/pokemon/{slug}/` 路由并保持 hash 兼容
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,18 +16,18 @@ so that 直接访问、分享链接和现有 SPA 导航都能工作。
 
 ## Tasks / Subtasks
 
-- [ ] 实现共享 slug/route parser (AC: 1, 2, 3)
-  - [ ] 新增 `parsePokemonSlugFromLocation` 或等价函数，优先级为 pathname `/pokemon/{slug}/`，其次 hash，最后 `ditto`。
-  - [ ] 共享 slug normalize 逻辑，避免 pathname 和 hash 使用两套规则。
-- [ ] 调整 boot 初始选择逻辑 (AC: 1, 2)
-  - [ ] 应用启动时先解析 route slug，再选择 Pokemon 数据。
-  - [ ] 避免先渲染默认 Ditto 再替换为路径 Pokemon。
-- [ ] 保持 hash 导航兼容 (AC: 2)
-  - [ ] 现有 `hashchange` 行为继续可用。
-  - [ ] in-app 切换可以继续更新 hash，但不得覆盖 pathname slug 的初始优先级。
-- [ ] unknown slug 可恢复状态 (AC: 3)
-  - [ ] unknown path/hash slug 展示 not-found 或可恢复状态，提供返回 index/search 的路径。
-  - [ ] 不 fallback 到错误 Pokemon 且不崩溃 hydration。
+- [x] 实现共享 slug/route parser (AC: 1, 2, 3)
+  - [x] 新增 `parsePokemonSlugFromLocation` 或等价函数，优先级为 pathname `/pokemon/{slug}/`，其次 hash，最后 `ditto`。
+  - [x] 共享 slug normalize 逻辑，避免 pathname 和 hash 使用两套规则。
+- [x] 调整 boot 初始选择逻辑 (AC: 1, 2)
+  - [x] 应用启动时先解析 route slug，再选择 Pokemon 数据。
+  - [x] 避免先渲染默认 Ditto 再替换为路径 Pokemon。
+- [x] 保持 hash 导航兼容 (AC: 2)
+  - [x] 现有 `hashchange` 行为继续可用。
+  - [x] in-app 切换可以继续更新 hash，但不得覆盖 pathname slug 的初始优先级。
+- [x] unknown slug 可恢复状态 (AC: 3)
+  - [x] unknown path/hash slug 展示 not-found 或可恢复状态，提供返回 index/search 的路径。
+  - [x] 不 fallback 到错误 Pokemon 且不崩溃 hydration。
 
 ## Dev Notes
 
@@ -54,10 +54,50 @@ so that 直接访问、分享链接和现有 SPA 导航都能工作。
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run build:data-script`
+- `npx tsc --noEmit`
+- `npm run validate:routes`
+- `npm run build`
+- `git diff --check`
+- `npm run dev -- --port 5173`
+- `curl -fsS http://127.0.0.1:5173/pokemon/abra/`
+- `curl -fsS 'http://127.0.0.1:5173/#ditto'`
+- `curl -fsS http://127.0.0.1:5173/data/recommendations/abra.json`
+- `curl -fsS http://127.0.0.1:5173/pokemon/missing-mon/`
+- `curl -fsS 'http://127.0.0.1:5173/pokemon/%2Fditto/'`
+
 ### Completion Notes List
 
+- 新增 `src/app/router.ts`，集中处理 canonical pathname、legacy hash、默认 slug 和共享 normalize。
+- Boot 现在先解析 route，再选择 Pokemon；unknown slug 会进入 not-found 状态，不再静默 fallback 到第一个 Pokemon。
+- `hashchange` 保持兼容，客户端切换仍更新 hash；新增 route fixture 脚本并接入 `npm run build`。
+- Code review 后改为 canonical pathname 下切换 Pokemon 时同步更新 pathname，并严格限制 pathname slug 为 canonical kebab-case。
+
 ### File List
+
+- `src/app/router.ts`
+- `src/main.ts`
+- `scripts/validate-router-fixtures.ts`
+- `package.json`
+- `tsconfig.scripts.json`
+
+## Senior Developer Review (AI)
+
+### Review Outcome
+
+Approve after fixes.
+
+### Findings
+
+- [x] [P2] `src/main.ts` canonical 路径下切换 Pokemon 只更新 hash，会留下 `/pokemon/old/#new` 冲突 URL。已改为 canonical pathname 下同步替换为 `/pokemon/{slug}/`。
+- [x] [P2] `src/app/router.ts` 编码分隔符可被 normalize 成真实 slug。已将 pathname slug 改为严格 canonical kebab-case，宽松 normalize 只保留给 hash。
+
+### Review Agents
+
+- Blind Hunter: 发现 canonical pathname 与 hash 切换后的冲突 URL。
+- Edge Case Hunter: 发现冲突 URL 和编码分隔符问题。
+- Acceptance Auditor: AC1-AC3 通过，未发现必须修复问题。

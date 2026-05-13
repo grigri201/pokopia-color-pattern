@@ -1,9 +1,16 @@
 import "./styles.css";
 import { filterPokemon, isPokemonRange, pokemonAltText, type PokemonRange } from "./app/pokemon-ui.js";
+import {
+  DEFAULT_POKEMON_SLUG,
+  isPokemonCanonicalPathname,
+  normalizePokemonSlug,
+  parsePokemonSlugFromHash,
+  parsePokemonSlugFromLocation,
+  type PokemonRouteSource,
+} from "./app/router.js";
 import { GeneratedDataError, loadGeneratedData, loadRecommendationData } from "./data/client";
 import type { CompactItem, PokemonIndexEntry, RecommendationEntry, RecommendationsData } from "./data/schemas";
 
-const DEFAULT_POKEMON = "ditto";
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
@@ -123,20 +130,15 @@ async function boot(): Promise<void> {
   bindEvents();
   renderList();
 
-  const hashSlug = slugify(decodeURIComponent(location.hash.replace(/^#/, "")));
-  const initial =
-    state.pokemon.find((pokemon) => pokemon.slug === hashSlug) ||
-    state.pokemon.find((pokemon) => pokemon.slug === DEFAULT_POKEMON) ||
-    state.pokemon[0];
-
-  if (!initial) {
+  if (state.pokemon.length === 0) {
     throw new Error("No Pokemon entries found in generated data");
   }
 
+  const route = parsePokemonSlugFromLocation(location, DEFAULT_POKEMON_SLUG);
   els.loading.classList.add("is-hidden");
   els.app.classList.remove("is-hidden");
   els.drawerTrigger.classList.remove("is-hidden");
-  selectPokemon(initial.slug, false);
+  selectPokemon(route.slug, false, route.source);
 }
 
 function bindEvents(): void {
@@ -177,9 +179,9 @@ function bindEvents(): void {
   updateRangeButtons();
 
   window.addEventListener("hashchange", () => {
-    const slug = slugify(decodeURIComponent(location.hash.replace(/^#/, "")));
+    const slug = parsePokemonSlugFromHash(location.hash);
     if (slug && (!state.selected || slug !== state.selected.slug)) {
-      selectPokemon(slug, false);
+      selectPokemon(slug, false, "hash");
     }
   });
 }
@@ -244,10 +246,12 @@ function closeDrawer(): void {
   els.drawerTrigger.setAttribute("aria-expanded", "false");
 }
 
-function selectPokemon(slug: string, updateHash = true): void {
-  const pokemon = state.pokemon.find((item) => item.slug === slug) || state.pokemon[0];
+function selectPokemon(slug: string, updateHash = true, unknownSource: PokemonRouteSource = "hash"): boolean {
+  const normalizedSlug = normalizePokemonSlug(slug);
+  const pokemon = state.pokemon.find((item) => item.slug === normalizedSlug);
   if (!pokemon) {
-    return;
+    renderRouteNotFound(normalizedSlug || slug, unknownSource);
+    return false;
   }
 
   const selected: SelectedPokemon = {
@@ -266,7 +270,7 @@ function selectPokemon(slug: string, updateHash = true): void {
   };
 
   if (updateHash) {
-    history.replaceState(null, "", `#${pokemon.slug}`);
+    updatePokemonUrl(pokemon.slug);
   }
 
   renderList();
@@ -274,6 +278,78 @@ function selectPokemon(slug: string, updateHash = true): void {
   renderInspector(selected);
   renderFloatingPokemon(selected);
   void loadSelectedRecommendations(selected.slug, requestId);
+  return true;
+}
+
+function updatePokemonUrl(slug: string): void {
+  if (isPokemonCanonicalPathname(location.pathname)) {
+    history.replaceState(null, "", `/pokemon/${slug}/`);
+    return;
+  }
+  history.replaceState(null, "", `#${slug}`);
+}
+
+function renderRouteNotFound(slug: string, source: PokemonRouteSource): void {
+  const requestId = state.recommendations.requestId + 1;
+  const routeLabel = routeSourceLabel(slug, source);
+  const fallback = fallbackColor(`not-found-${slug}`);
+  state.selected = null;
+  state.recommendations = {
+    status: "idle",
+    slug: null,
+    data: null,
+    error: null,
+    pageIndex: 0,
+    requestId,
+  };
+
+  document.documentElement.style.setProperty("--field", fallback.hex);
+  document.documentElement.style.setProperty("--field-ink", readableInk(fallback.rgb));
+  document.documentElement.style.setProperty("--accent", fallback.hex);
+
+  renderList();
+  els.title.innerHTML = `找不到 Pokemon <em>${escapeHtml(slug || "unknown")}</em>`;
+  els.selectedPortrait.removeAttribute("src");
+  els.selectedPortrait.alt = "";
+  els.portraitNumber.textContent = "404";
+  els.hashLabel.textContent = routeLabel;
+  els.metricStrip.innerHTML = `
+    <div class="metric">
+      <span>ROUTE</span>
+      <strong>${escapeHtml(routeLabel)}</strong>
+    </div>
+    <div class="metric">
+      <span>STATUS</span>
+      <strong>NOT FOUND</strong>
+    </div>
+    <div class="metric">
+      <span>RECOVERY</span>
+      <strong>SEARCH</strong>
+    </div>
+  `;
+  els.paletteTotal.textContent = "0 colors";
+  els.swatchList.innerHTML = `
+    <div class="recommendation-state is-inline">
+      <span>这个 slug 不在当前 generated data 中。</span>
+    </div>
+  `;
+  els.patternTotal.textContent = "0 cells";
+  els.patternView.innerHTML = "";
+  els.itemSectionTitle.textContent = "推荐搭配";
+  renderRecommendationState(`未找到 ${routeLabel}。请打开搜索选择其他 Pokemon。`, "recommendation-state is-error", [
+    "switch-pokemon",
+  ]);
+  renderFloatingRouteNotFound(slug);
+}
+
+function routeSourceLabel(slug: string, source: PokemonRouteSource): string {
+  if (source === "pathname") {
+    return `/pokemon/${slug}/`;
+  }
+  if (source === "hash") {
+    return `#${slug}`;
+  }
+  return `default:${slug}`;
 }
 
 async function loadSelectedRecommendations(slug: string, requestId: number): Promise<void> {
@@ -349,6 +425,15 @@ function renderFloatingPokemon(pokemon: SelectedPokemon): void {
   els.floatName.textContent = `${pokemon.zh} / ${pokemon.name}`;
   els.floatMeta.innerHTML = `
     <span>No. ${pokemon.sequence}</span>
+  `;
+}
+
+function renderFloatingRouteNotFound(slug: string): void {
+  els.floatPortrait.removeAttribute("src");
+  els.floatPortrait.alt = "";
+  els.floatName.textContent = "未找到 Pokemon";
+  els.floatMeta.innerHTML = `
+    <span>${escapeHtml(slug || "unknown")}</span>
   `;
 }
 
@@ -690,14 +775,6 @@ function harmonyTypeLabel(type: RecommendationEntry["harmonyType"]): string {
     default:
       return "";
   }
-}
-
-function slugify(value: unknown): string {
-  return String(value || "")
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "");
 }
 
 function rgbToHex(rgb: Rgb): string {

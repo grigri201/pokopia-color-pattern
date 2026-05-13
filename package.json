@@ -11,9 +11,10 @@
     "validate:build": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-build.js",
     "validate:dist": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-build.js --dist",
     "validate:recommendations": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-recommendation-fixtures.js",
+    "validate:routes": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-router-fixtures.js",
     "smoke:story-1-4": "npm run build:data-script && node .tmp/data-scripts/scripts/smoke-story-1-4.js",
     "dev": "vite --host 127.0.0.1",
-    "build": "npm run validate:recommendations && npm run validate:build && tsc --noEmit && vite build && npm run validate:dist",
+    "build": "npm run validate:routes && npm run validate:recommendations && npm run validate:build && tsc --noEmit && vite build && npm run validate:dist",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {
