@@ -1,7 +1,15 @@
+import { evaluateOklchHarmony, type HarmonyType } from "./color-harmony.js";
+
 export type CandidateExclusionReason =
   | "pokemon_has_no_preference_terms"
   | "no_preference_match"
   | "unknown_dyeable_status";
+
+export type RecommendationRejectionReason =
+  | "harmony_failed"
+  | "missing_item_primary_color"
+  | "missing_pokemon_primary_color"
+  | "invalid_primary_color";
 
 export type RecommendationItemInput = {
   slug: string;
@@ -43,6 +51,31 @@ export type RecommendationCandidateResult = {
   pokemonSlug: string;
   candidates: RecommendationCandidate[];
   excluded: ExcludedRecommendationCandidate[];
+};
+
+export type ItemColorLookup = {
+  itemSlug: string;
+  itemPrimaryColor: string | null;
+};
+
+export type HarmonyRecommendation = RecommendationCandidate & {
+  harmonyStatus: "not_required" | "passed";
+  harmonyType: HarmonyType | null;
+  harmonySource: "dyeable" | "docs/oklch_color.ts";
+  itemPrimaryColor: string | null;
+};
+
+export type RejectedHarmonyCandidate = RecommendationCandidate & {
+  reason: RecommendationRejectionReason;
+  itemPrimaryColor: string | null;
+  harmonyStatus: "failed";
+  harmonyType: null;
+};
+
+export type HarmonySelectionResult = {
+  pokemonSlug: string;
+  recommendations: HarmonyRecommendation[];
+  rejected: RejectedHarmonyCandidate[];
 };
 
 export function selectRecommendationCandidates(
@@ -100,6 +133,95 @@ export function toPokemonPreferenceProfile(metadata: PokemonPreferenceMetadata):
     preferenceTerms: metadata.preferenceTerms,
     preferenceSource: metadata.preferenceSource ?? "none",
   };
+}
+
+export function applyHarmonyToCandidates(
+  pokemonSlug: string,
+  pokemonPrimaryColor: string | null,
+  candidates: RecommendationCandidate[],
+  itemColors: ItemColorLookup[],
+): HarmonySelectionResult {
+  const colorBySlug = new Map(itemColors.map((item) => [item.itemSlug, item.itemPrimaryColor]));
+  const recommendations: HarmonyRecommendation[] = [];
+  const rejected: RejectedHarmonyCandidate[] = [];
+
+  candidates.forEach((candidate) => {
+    const itemPrimaryColor = colorBySlug.get(candidate.itemSlug) ?? null;
+
+    if (!candidate.requiresHarmonyCheck) {
+      recommendations.push({
+        ...candidate,
+        harmonyStatus: "not_required",
+        harmonyType: null,
+        harmonySource: "dyeable",
+        itemPrimaryColor,
+      });
+      return;
+    }
+
+    if (!pokemonPrimaryColor) {
+      rejected.push(failedHarmonyCandidate(candidate, "missing_pokemon_primary_color", itemPrimaryColor));
+      return;
+    }
+
+    if (!itemPrimaryColor) {
+      rejected.push(failedHarmonyCandidate(candidate, "missing_item_primary_color", itemPrimaryColor));
+      return;
+    }
+
+    if (!isHexColor(pokemonPrimaryColor) || !isHexColor(itemPrimaryColor)) {
+      rejected.push(failedHarmonyCandidate(candidate, "invalid_primary_color", itemPrimaryColor));
+      return;
+    }
+
+    const harmony = evaluateOklchHarmony(pokemonPrimaryColor, itemPrimaryColor);
+    if (harmony.harmonyStatus === "passed" && harmony.harmonyType) {
+      recommendations.push({
+        ...candidate,
+        harmonyStatus: "passed",
+        harmonyType: harmony.harmonyType,
+        harmonySource: harmony.source,
+        itemPrimaryColor,
+      });
+    } else {
+      rejected.push(failedHarmonyCandidate(candidate, "harmony_failed", itemPrimaryColor));
+    }
+  });
+
+  return { pokemonSlug, recommendations, rejected };
+}
+
+export function buildRecommendationResults(
+  pokemon: PokemonPreferenceProfile,
+  pokemonPrimaryColor: string | null,
+  items: RecommendationItemInput[],
+  itemColors: ItemColorLookup[],
+): RecommendationCandidateResult & HarmonySelectionResult {
+  const candidateResult = selectRecommendationCandidates(pokemon, items);
+  const harmonyResult = applyHarmonyToCandidates(pokemon.slug, pokemonPrimaryColor, candidateResult.candidates, itemColors);
+
+  return {
+    ...candidateResult,
+    ...harmonyResult,
+  };
+}
+
+function failedHarmonyCandidate(
+  candidate: RecommendationCandidate,
+  reason: RecommendationRejectionReason,
+  itemPrimaryColor: string | null,
+): RejectedHarmonyCandidate {
+  return {
+    ...candidate,
+    reason,
+    itemPrimaryColor,
+    harmonyStatus: "failed",
+    harmonyType: null,
+  };
+}
+
+function isHexColor(value: string): boolean {
+  return /^#[0-9a-fA-F]{6}$/.test(value);
 }
 
 function matchPreferenceTerms(preferenceTerms: string[], item: RecommendationItemInput): string[] {

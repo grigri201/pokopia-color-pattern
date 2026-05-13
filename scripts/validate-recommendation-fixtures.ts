@@ -1,8 +1,11 @@
 import {
+  applyHarmonyToCandidates,
+  buildRecommendationResults,
   selectRecommendationCandidates,
   toPokemonPreferenceProfile,
   type RecommendationItemInput,
 } from "../src/domain/recommendation.js";
+import { getHarmonyColors } from "../docs/oklch_color.js";
 
 const pokemon = toPokemonPreferenceProfile({
   slug: "fixture-mon",
@@ -96,6 +99,57 @@ const substringResult = selectRecommendationCandidates(
 );
 if (substringResult.candidates.length > 0) {
   throw new Error("Expected preference term wood not to match substring in wooden-lamp");
+}
+
+const pokemonPrimaryColor = "#D05A6E";
+const harmony = getHarmonyColors(pokemonPrimaryColor);
+const harmonyResult = applyHarmonyToCandidates("fixture-mon", pokemonPrimaryColor, result.candidates, [
+  { itemSlug: "flower-chair", itemPrimaryColor: "#00FF00" },
+  { itemSlug: "wooden-lamp", itemPrimaryColor: harmony.complementary },
+]);
+const dyeableRecommendation = harmonyResult.recommendations.find((item) => item.itemSlug === "flower-chair");
+if (!dyeableRecommendation || dyeableRecommendation.harmonyStatus !== "not_required") {
+  throw new Error("Expected dyeable candidate to bypass OKLCH harmony filtering");
+}
+const nonDyeableRecommendation = harmonyResult.recommendations.find((item) => item.itemSlug === "wooden-lamp");
+if (
+  !nonDyeableRecommendation ||
+  nonDyeableRecommendation.harmonyStatus !== "passed" ||
+  nonDyeableRecommendation.harmonyType !== "complementary"
+) {
+  throw new Error("Expected non-dyeable harmonious candidate to pass with harmony fields");
+}
+
+const failedHarmony = applyHarmonyToCandidates("fixture-mon", pokemonPrimaryColor, result.candidates, [
+  { itemSlug: "flower-chair", itemPrimaryColor: "#00FF00" },
+  { itemSlug: "wooden-lamp", itemPrimaryColor: "#00FF00" },
+]);
+const rejectedHarmony = failedHarmony.rejected.find((item) => item.itemSlug === "wooden-lamp");
+if (!rejectedHarmony || rejectedHarmony.reason !== "harmony_failed") {
+  throw new Error("Expected non-dyeable non-harmonious candidate to be rejected with harmony_failed");
+}
+
+const combinedResult = buildRecommendationResults(pokemon, pokemonPrimaryColor, items, [
+  { itemSlug: "flower-chair", itemPrimaryColor: "#00FF00" },
+  { itemSlug: "wooden-lamp", itemPrimaryColor: "#00FF00" },
+  { itemSlug: "flower-mystery", itemPrimaryColor: "#00FF00" },
+]);
+if (combinedResult.recommendations.some((item) => item.itemSlug === "wooden-lamp")) {
+  throw new Error("Expected combined recommendation entrypoint to reject non-harmonious non-dyeable item");
+}
+
+const missingPokemonColor = applyHarmonyToCandidates("fixture-mon", null, result.candidates, [
+  { itemSlug: "wooden-lamp", itemPrimaryColor: harmony.complementary },
+]);
+if (missingPokemonColor.rejected.find((item) => item.itemSlug === "wooden-lamp")?.reason !== "missing_pokemon_primary_color") {
+  throw new Error("Expected missing Pokemon primary color to reject harmony-required candidates");
+}
+
+const invalidItemColor = applyHarmonyToCandidates("fixture-mon", pokemonPrimaryColor, result.candidates, [
+  { itemSlug: "wooden-lamp", itemPrimaryColor: "bad-color" },
+]);
+if (invalidItemColor.rejected.find((item) => item.itemSlug === "wooden-lamp")?.reason !== "invalid_primary_color") {
+  throw new Error("Expected invalid item primary color to reject harmony-required candidates");
 }
 
 console.log("Validated recommendation candidate preference and dyeable fixtures.");

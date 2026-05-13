@@ -38,6 +38,13 @@ export interface HarmonyColors {
   monochrome: readonly [HexColor, HexColor, HexColor];
 }
 
+export type HarmonyRelationType = "analogous" | "complementary" | "splitComplementary" | "triadic" | "monochrome";
+
+export interface HarmonyRelation {
+  status: "passed" | "failed";
+  type: HarmonyRelationType | null;
+}
+
 export interface PaletteRole {
   role: "base" | "background" | "supportingFurniture" | "accent" | "darkAnchor";
   color: HexColor;
@@ -192,6 +199,21 @@ export function getHarmonyColors(baseHex: string): HarmonyColors {
       tone(baseOklch, { chromaScale: 0.42, lightness: 0.74 }),
       tone(baseOklch, { chromaScale: 0.65, lightness: 0.36 }),
     ],
+  };
+}
+
+export function evaluateHarmonyRelation(baseHex: string, candidateHex: string): HarmonyRelation {
+  const candidate = hexToOklch(candidateHex);
+  const match = buildHarmonyTargets(baseHex).find((target) => {
+    if (normalizeHex(candidateHex) === target.hex) {
+      return true;
+    }
+    return matchesHarmonyTarget(candidate, target);
+  });
+
+  return {
+    status: match ? "passed" : "failed",
+    type: match?.type ?? null,
   };
 }
 
@@ -407,6 +429,41 @@ function tone(
   },
 ): HexColor {
   return withTone(base, options).hex;
+}
+
+function buildHarmonyTargets(baseHex: string): Array<{ type: HarmonyRelationType; hex: HexColor; oklch: Oklch }> {
+  const harmony = getHarmonyColors(baseHex);
+  return [
+    ...harmony.analogous.map((hex) => harmonyTarget("analogous", hex)),
+    harmonyTarget("complementary", harmony.complementary),
+    ...harmony.splitComplementary.map((hex) => harmonyTarget("splitComplementary", hex)),
+    ...harmony.triadic.map((hex) => harmonyTarget("triadic", hex)),
+    ...harmony.monochrome.map((hex) => harmonyTarget("monochrome", hex)),
+  ];
+}
+
+function harmonyTarget(
+  type: HarmonyRelationType,
+  hex: HexColor,
+): { type: HarmonyRelationType; hex: HexColor; oklch: Oklch } {
+  return { type, hex, oklch: hexToOklch(hex) };
+}
+
+function matchesHarmonyTarget(item: Oklch, target: { type: HarmonyRelationType; oklch: Oklch }): boolean {
+  const hueDelta = shortestHueDelta(item.h, target.oklch.h);
+  const lightnessDelta = Math.abs(item.l - target.oklch.l);
+  const chromaDelta = Math.abs(item.c - target.oklch.c);
+
+  if (target.type === "monochrome") {
+    return hueDelta <= 14 && lightnessDelta <= 0.46 && chromaDelta <= 0.18;
+  }
+
+  return hueDelta <= 18 && lightnessDelta <= 0.3 && chromaDelta <= 0.2;
+}
+
+function shortestHueDelta(left: number, right: number): number {
+  const delta = Math.abs(left - right) % 360;
+  return Math.min(delta, 360 - delta);
 }
 
 function normalizeOklch(oklch: Oklch): Oklch {
