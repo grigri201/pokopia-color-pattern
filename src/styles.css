@@ -1143,6 +1143,11 @@ body.drawer-open .selected-float {
   min-width: 0;
 }
 
+.static-summary {
+  max-width: 68ch;
+  margin: 0 0 16px;
+}
+
 .static-swatches span {
   flex: 0 0 auto;
   width: 38px;

@@ -13,7 +13,9 @@ const projectRoot = process.cwd();
 const distIndexPath = resolve(projectRoot, "dist/index.html");
 const pokemonIndexPath = resolve(projectRoot, "generated/data/pokemon-index.json");
 const recommendationsDir = resolve(projectRoot, "generated/data/recommendations");
+const ssgReportPath = resolve(projectRoot, "generated/reports/ssg-generation-summary.json");
 const expectedPokemonCount = 311;
+const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-color-pattern.local");
 
 const template = await readFile(distIndexPath, "utf8");
 const pokemonIndex = await readJson<PokemonIndexData>(pokemonIndexPath);
@@ -23,25 +25,79 @@ if (pokemonIndex.pokemon.length !== expectedPokemonCount) {
   throw new Error(`Expected ${expectedPokemonCount} Pokemon static pages, got ${pokemonIndex.pokemon.length}`);
 }
 
-await Promise.all(
+const generationResults = await Promise.all(
   pokemonIndex.pokemon.map(async (pokemon) => {
-    const recommendations = await readRecommendations(pokemon.slug);
-    const html = renderPokemonStaticPage(template, pokemon, recommendations);
+    const recommendationResult = await readRecommendations(pokemon.slug);
+    const html = renderPokemonStaticPage(template, pokemon, recommendationResult);
     const outputPath = resolve(projectRoot, "dist", "pokemon", pokemon.slug, "index.html");
     await mkdir(dirname(outputPath), { recursive: true });
     await writeFile(outputPath, html, "utf8");
+    return {
+      pokemonSlug: pokemon.slug,
+      outputPath: `dist/pokemon/${pokemon.slug}/index.html`,
+      recommendationCount: recommendationResult.data.recommendations.length,
+      fallback: recommendationResult.fallback,
+    };
   }),
 );
 
+await writeSsgReport(generationResults);
 console.log(`Generated ${pokemonIndex.pokemon.length} static Pokemon pages under dist/pokemon/{slug}/index.html.`);
 
-async function readRecommendations(slug: string): Promise<RecommendationsData> {
-  const data = await readJson<RecommendationsData>(resolve(recommendationsDir, `${slug}.json`));
+type RecommendationFallback = {
+  pokemonSlug: string;
+  fallbackType: "empty_recommendations" | "missing_recommendation_file";
+  reason: string;
+  recommendationCount: number;
+};
+
+type RecommendationReadResult = {
+  data: RecommendationsData;
+  fallback: RecommendationFallback | null;
+};
+
+type SsgGenerationResult = {
+  pokemonSlug: string;
+  outputPath: string;
+  recommendationCount: number;
+  fallback: RecommendationFallback | null;
+};
+
+async function readRecommendations(slug: string): Promise<RecommendationReadResult> {
+  const filePath = resolve(recommendationsDir, `${slug}.json`);
+  let data: RecommendationsData;
+  try {
+    data = await readJson<RecommendationsData>(filePath);
+  } catch (error) {
+    if (!isMissingFileError(error)) {
+      throw error;
+    }
+    return {
+      data: emptyRecommendations(slug),
+      fallback: {
+        pokemonSlug: slug,
+        fallbackType: "missing_recommendation_file",
+        reason: `generated/data/recommendations/${slug}.json was not available during SSG`,
+        recommendationCount: 0,
+      },
+    };
+  }
   assertNoSchemaIssues(`generated/data/recommendations/${slug}.json`, validateRecommendationsData(data));
   if (data.pokemonSlug !== slug) {
     throw new Error(`Recommendation slug mismatch for ${slug}: got ${data.pokemonSlug}`);
   }
-  return data;
+  return {
+    data,
+    fallback:
+      data.recommendations.length === 0
+        ? {
+            pokemonSlug: slug,
+            fallbackType: "empty_recommendations",
+            reason: "Recommendation data contains zero entries",
+            recommendationCount: 0,
+          }
+        : null,
+  };
 }
 
 async function readJson<T>(path: string): Promise<T> {
@@ -57,15 +113,17 @@ function assertNoSchemaIssues(file: string, issues: Array<{ path: string; messag
 function renderPokemonStaticPage(
   indexHtml: string,
   pokemon: PokemonIndexEntry,
-  recommendations: RecommendationsData,
+  recommendationResult: RecommendationReadResult,
 ): string {
   const primaryColor = pokemon.primaryColor;
+  assertRootAbsolutePath(pokemon.imagePath, `pokemon image for ${pokemon.slug}`);
   const fieldInk = readableInk(primaryColor);
   const staticMuted = readableMuted(primaryColor);
+  const recommendationSummary = buildRecommendationSummaryText(pokemon, recommendationResult);
   const pageTitle = `${displayPokemonName(pokemon)} | Pokopia Color Pattern`;
-  const staticBody = renderStaticBody(pokemon, recommendations);
+  const staticBody = renderStaticBody(pokemon, recommendationResult, recommendationSummary);
   const html = indexHtml
-    .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(pageTitle)}</title>`)
+    .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(pageTitle)}</title>\n    ${renderHeadMetadata(pageTitle, recommendationSummary.text, pokemon)}`)
     .replace(
       '<div id="loading" class="loading">Pokopia Color Pattern</div>',
       `<div id="loading" class="loading is-hidden">Pokopia Color Pattern</div><div id="staticPage" class="static-page-shell" style="--field:${escapeAttribute(primaryColor)}; --field-ink:${escapeAttribute(fieldInk)}; --accent:${escapeAttribute(primaryColor)}; --static-muted:${escapeAttribute(staticMuted)};">${staticBody}</div>`,
@@ -76,10 +134,37 @@ function renderPokemonStaticPage(
   return html;
 }
 
-function renderStaticBody(pokemon: PokemonIndexEntry, recommendations: RecommendationsData): string {
+type RecommendationSummaryText = {
+  status: "ready" | "empty" | "missing";
+  text: string;
+};
+
+function renderHeadMetadata(pageTitle: string, pageDescription: string, pokemon: PokemonIndexEntry): string {
+  const canonicalUrl = staticPageUrl(pokemon.slug);
+  const imageUrl = staticAssetUrl(pokemon.imagePath);
+  return [
+    `<link rel="canonical" href="${escapeAttribute(canonicalUrl)}" />`,
+    `<meta name="description" content="${escapeAttribute(pageDescription)}" />`,
+    `<meta property="og:type" content="website" />`,
+    `<meta property="og:title" content="${escapeAttribute(pageTitle)}" />`,
+    `<meta property="og:description" content="${escapeAttribute(pageDescription)}" />`,
+    `<meta property="og:image" content="${escapeAttribute(imageUrl)}" />`,
+    `<meta property="og:url" content="${escapeAttribute(canonicalUrl)}" />`,
+    `<meta name="twitter:card" content="summary" />`,
+    `<meta name="twitter:title" content="${escapeAttribute(pageTitle)}" />`,
+    `<meta name="twitter:description" content="${escapeAttribute(pageDescription)}" />`,
+    `<meta name="twitter:image" content="${escapeAttribute(imageUrl)}" />`,
+  ].join("\n    ");
+}
+
+function renderStaticBody(
+  pokemon: PokemonIndexEntry,
+  recommendationResult: RecommendationReadResult,
+  recommendationSummary: RecommendationSummaryText,
+): string {
   assertRootAbsolutePath(pokemon.imagePath, `pokemon image for ${pokemon.slug}`);
   const palette = pokemon.palette.length ? pokemon.palette : [{ hex: pokemon.primaryColor, percent: 100 }];
-  const recommendationSummary = renderRecommendationSummary(recommendations.recommendations.slice(0, 3));
+  const recommendationHtml = renderRecommendationSummary(recommendationResult.data.recommendations.slice(0, 3), recommendationSummary);
   return `
       <article class="static-page" data-static-pokemon="${escapeAttribute(pokemon.slug)}">
         <header class="static-hero">
@@ -103,15 +188,16 @@ function renderStaticBody(pokemon: PokemonIndexEntry, recommendations: Recommend
 
         <section class="static-section" aria-label="Recommendation summary">
           <h2>推荐摘要</h2>
-          ${recommendationSummary}
+          <p class="static-summary" data-recommendation-summary="${escapeAttribute(recommendationSummary.text)}" data-recommendation-status="${escapeAttribute(recommendationSummary.status)}" data-recommendation-count="${recommendationResult.data.recommendations.length}">${escapeHtml(recommendationSummary.text)}</p>
+          ${recommendationHtml}
         </section>
       </article>
   `;
 }
 
-function renderRecommendationSummary(entries: RecommendationEntry[]): string {
+function renderRecommendationSummary(entries: RecommendationEntry[], summary: RecommendationSummaryText): string {
   if (entries.length === 0) {
-    return `<p class="static-empty">当前数据和规则暂未产生推荐搭配。</p>`;
+    return `<p class="static-empty">${escapeHtml(recoveryText(summary.status))}</p>`;
   }
 
   entries.forEach((entry) => assertRootAbsolutePath(entry.itemImagePath, `recommendation image for ${entry.itemSlug}`));
@@ -134,8 +220,103 @@ function renderRecommendationSummary(entries: RecommendationEntry[]): string {
   `;
 }
 
+function buildRecommendationSummaryText(
+  pokemon: PokemonIndexEntry,
+  recommendationResult: RecommendationReadResult,
+): RecommendationSummaryText {
+  const displayName = displayPokemonName(pokemon);
+  const slugLabel = `#${pokemon.slug}`;
+  const entries = recommendationResult.data.recommendations.slice(0, 3);
+  if (entries.length > 0) {
+    const names = entries.map((entry) => entry.itemZhName || entry.itemName).join("、");
+    return {
+      status: "ready",
+      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}，推荐搭配：${names}。`,
+    };
+  }
+  if (recommendationResult.fallback?.fallbackType === "missing_recommendation_file") {
+    return {
+      status: "missing",
+      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前缺少推荐数据文件，静态页先展示色板与可恢复空推荐摘要。`,
+    };
+  }
+  return {
+    status: "empty",
+    text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前数据和规则暂未产生推荐搭配，可先查看色板。`,
+  };
+}
+
+async function writeSsgReport(results: SsgGenerationResult[]): Promise<void> {
+  const fallbacks = results
+    .flatMap((result) => (result.fallback ? [result.fallback] : []))
+    .sort((left, right) => left.pokemonSlug.localeCompare(right.pokemonSlug, "en"));
+  const report = {
+    schemaVersion: "ssg-generation-summary.v1",
+    summary: {
+      pokemonCount: pokemonIndex.pokemon.length,
+      pagesGenerated: results.length,
+      metadataCount: results.length,
+      siteUrl: siteOrigin,
+      fallbackCount: fallbacks.length,
+      emptyRecommendationCount: fallbacks.filter((fallback) => fallback.fallbackType === "empty_recommendations").length,
+      missingRecommendationFileCount: fallbacks.filter((fallback) => fallback.fallbackType === "missing_recommendation_file").length,
+    },
+    pages: results
+      .map((result) => ({
+        pokemonSlug: result.pokemonSlug,
+        outputPath: result.outputPath,
+        recommendationCount: result.recommendationCount,
+        fallbackType: result.fallback?.fallbackType ?? null,
+      }))
+      .sort((left, right) => left.pokemonSlug.localeCompare(right.pokemonSlug, "en")),
+    fallbacks,
+  };
+  await mkdir(dirname(ssgReportPath), { recursive: true });
+  await writeFile(ssgReportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
+}
+
+function emptyRecommendations(slug: string): RecommendationsData {
+  return {
+    schemaVersion: "recommendations.v2",
+    pokemonSlug: slug,
+    pageSize: 10,
+    totalPages: 0,
+    recommendations: [],
+  };
+}
+
+function recoveryText(status: RecommendationSummaryText["status"]): string {
+  if (status === "missing") {
+    return "推荐数据文件缺失；重新生成数据后此页会自动展示搭配候选。";
+  }
+  if (status === "empty") {
+    return "推荐数据为空；补充偏好词或 override 后此页会自动展示搭配候选。";
+  }
+  return "推荐摘要来自当前 Pokemon 的 generated recommendation data。";
+}
+
 function displayPokemonName(pokemon: PokemonIndexEntry): string {
   return pokemon.zhName ? `${pokemon.zhName} / ${pokemon.name}` : pokemon.name;
+}
+
+function isMissingFileError(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
+}
+
+function staticPageUrl(slug: string): string {
+  return `${siteOrigin}/pokemon/${slug}/`;
+}
+
+function staticAssetUrl(path: string): string {
+  return `${siteOrigin}${path}`;
+}
+
+function normalizeSiteOrigin(value: string): string {
+  const url = new URL(value);
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error(`POKOPIA_SITE_URL must use http or https, got ${value}`);
+  }
+  return url.origin;
 }
 
 function assertRootAbsolutePath(path: string, label: string): void {

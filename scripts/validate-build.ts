@@ -17,16 +17,55 @@ type ValidationIssue = {
   message: string;
 };
 
+type StaticPokemonEntry = {
+  slug: string;
+  sequence: string;
+  name: string;
+  zhName: string | null;
+  imagePath: string;
+  primaryColor: string;
+};
+
+type DistRecommendationReadResult = {
+  data: unknown | null;
+  missing: boolean;
+};
+
+type ExpectedSsgPageRecord = {
+  pokemonSlug: string;
+  outputPath: string;
+  recommendationCount: number;
+  fallbackType: "empty_recommendations" | "missing_recommendation_file" | null;
+};
+
+type ExpectedSsgFallbackRecord = {
+  pokemonSlug: string;
+  fallbackType: "empty_recommendations" | "missing_recommendation_file";
+  recommendationCount: number;
+};
+
+type RecommendationSummaryText = {
+  status: "ready" | "empty" | "missing";
+  text: string;
+};
+
+type StaticMetadataAccumulator = {
+  titles: Map<string, string[]>;
+  descriptions: Map<string, string[]>;
+};
+
 const compactItemsPath = "generated/data/compact-items.json";
 const itemColorsPath = "generated/data/item-colors.json";
 const pokemonIndexPath = "generated/data/pokemon-index.json";
 const recommendationsDir = "generated/data/recommendations";
 const recommendationDiagnosticsPath = "generated/reports/recommendation-diagnostics.json";
+const ssgGenerationSummaryPath = "generated/reports/ssg-generation-summary.json";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
 const compactGzipLimit = 50 * 1024;
 const recommendationGzipLimit = 5 * 1024;
 const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
+const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-color-pattern.local");
 const distOnly = process.argv.includes("--dist");
 const issues: ValidationIssue[] = [];
 
@@ -75,8 +114,9 @@ async function validateDistOutput(): Promise<void> {
     issues.push({ file: "dist", message: "Expected dist output to exist before dist validation" });
     return;
   }
-  const distDataFiles = await validateRuntimeDataTree("dist/data");
-  await validateStaticPokemonPages();
+  const ssgReport = await readSsgGenerationSummary();
+  const distDataFiles = await validateRuntimeDataTree("dist/data", missingRecommendationFilesFromReport(ssgReport));
+  await validateStaticPokemonPages(ssgReport);
   const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
     return (
@@ -94,7 +134,7 @@ async function validateDistOutput(): Promise<void> {
   await validateSensitiveRuntimeData([...bundleFiles.map((file) => relative(projectRoot, file)), ...distDataFiles]);
 }
 
-async function validateStaticPokemonPages(): Promise<void> {
+async function validateStaticPokemonPages(ssgReport: unknown | null): Promise<void> {
   const pokemonIndexFile = "dist/data/pokemon-index.json";
   let pokemonIndexText: string;
   try {
@@ -110,11 +150,12 @@ async function validateStaticPokemonPages(): Promise<void> {
     return;
   }
 
-  const expectedSlugs = pokemonIndex.pokemon
-    .filter(isRecord)
-    .map((pokemon) => pokemon.slug)
-    .filter((slug): slug is string => typeof slug === "string")
-    .sort((left, right) => left.localeCompare(right, "en"));
+  const pokemonEntries = pokemonIndex.pokemon
+    .map((pokemon, index) => toStaticPokemonEntry(pokemon, index, pokemonIndexFile))
+    .filter((pokemon): pokemon is StaticPokemonEntry => pokemon !== null)
+    .sort((left, right) => left.slug.localeCompare(right.slug, "en"));
+  const expectedSlugs = pokemonEntries.map((pokemon) => pokemon.slug);
+  const pokemonBySlug = new Map(pokemonEntries.map((pokemon) => [pokemon.slug, pokemon]));
 
   if (expectedSlugs.length !== expectedPokemonCount) {
     issues.push({ file: pokemonIndexFile, message: `Expected ${expectedPokemonCount} Pokemon slugs for static pages, got ${expectedSlugs.length}` });
@@ -147,9 +188,17 @@ async function validateStaticPokemonPages(): Promise<void> {
     }
   });
 
+  const metadataAccumulator: StaticMetadataAccumulator = { titles: new Map(), descriptions: new Map() };
+  const expectedPages: ExpectedSsgPageRecord[] = [];
+  const expectedFallbacks: ExpectedSsgFallbackRecord[] = [];
   await Promise.all(
     expectedSlugs.map(async (slug) => {
       const file = `dist/pokemon/${slug}/index.html`;
+      const pokemon = pokemonBySlug.get(slug);
+      if (!pokemon) {
+        issues.push({ file, message: `Missing Pokemon metadata for slug ${slug}` });
+        return;
+      }
       let text: string;
       try {
         text = await readFile(file, "utf8");
@@ -157,25 +206,472 @@ async function validateStaticPokemonPages(): Promise<void> {
         issues.push({ file, message: `Unable to read static Pokemon page: ${error instanceof Error ? error.message : String(error)}` });
         return;
       }
-      validateStaticPokemonPage(file, slug, text);
+      const recommendationResult = await readDistRecommendations(slug);
+      const summary = expectedRecommendationSummary(pokemon, recommendationResult);
+      validateStaticPokemonPage(file, pokemon, text, recommendationResult, summary, metadataAccumulator);
+      const fallbackType = expectedFallbackType(recommendationResult);
+      expectedPages.push({
+        pokemonSlug: slug,
+        outputPath: file,
+        recommendationCount: recommendationCount(recommendationResult),
+        fallbackType,
+      });
+      if (fallbackType) {
+        expectedFallbacks.push({
+          pokemonSlug: slug,
+          fallbackType,
+          recommendationCount: 0,
+        });
+      }
     }),
   );
+  validateUniqueStaticMetadata(metadataAccumulator);
+  validateSsgGenerationSummary(ssgReport, expectedSlugs, expectedPages, expectedFallbacks);
 }
 
-function validateStaticPokemonPage(file: string, slug: string, text: string): void {
+function toStaticPokemonEntry(value: unknown, index: number, file: string): StaticPokemonEntry | null {
+  if (!isRecord(value)) {
+    issues.push({ file, message: `Expected pokemon[${index}] object for static page validation` });
+    return null;
+  }
+  const slug = value.slug;
+  const sequence = value.sequence;
+  const name = value.name;
+  const zhName = value.zhName;
+  const imagePath = value.imagePath;
+  const primaryColor = value.primaryColor;
+  if (
+    typeof slug !== "string" ||
+    typeof sequence !== "string" ||
+    typeof name !== "string" ||
+    (zhName !== null && typeof zhName !== "string") ||
+    typeof imagePath !== "string" ||
+    typeof primaryColor !== "string"
+  ) {
+    issues.push({ file, message: `Expected pokemon[${index}] to include slug, sequence, name, zhName, imagePath, and primaryColor` });
+    return null;
+  }
+  return { slug, sequence, name, zhName, imagePath, primaryColor };
+}
+
+async function readDistRecommendations(slug: string): Promise<DistRecommendationReadResult> {
+  const file = `dist/data/recommendations/${slug}.json`;
+  let text: string;
+  try {
+    text = await readFile(file, "utf8");
+  } catch (error) {
+    if (isMissingFileError(error)) {
+      return { data: null, missing: true };
+    }
+    issues.push({ file, message: `Unable to read recommendation data for static page validation: ${error instanceof Error ? error.message : String(error)}` });
+    return { data: null, missing: false };
+  }
+  return { data: parseJson(text, file), missing: false };
+}
+
+function validateStaticPokemonPage(
+  file: string,
+  pokemon: StaticPokemonEntry,
+  text: string,
+  recommendationResult: DistRecommendationReadResult,
+  summary: RecommendationSummaryText,
+  metadataAccumulator: StaticMetadataAccumulator,
+): void {
   if (!text.includes('id="staticPage"')) {
     issues.push({ file, message: "Static Pokemon page is missing #staticPage no-JS content" });
   }
-  if (!text.includes(`data-static-pokemon="${slug}"`)) {
-    issues.push({ file, message: `Static Pokemon page does not identify slug ${slug}` });
+  if (!text.includes(`data-static-pokemon="${pokemon.slug}"`)) {
+    issues.push({ file, message: `Static Pokemon page does not identify slug ${pokemon.slug}` });
   }
   if (!text.includes("--field-ink:") || !text.includes("--static-muted:")) {
     issues.push({ file, message: "Static Pokemon page must include readable text color variables" });
   }
+  validateStaticMetadata(file, pokemon, text, summary, metadataAccumulator);
+  validateStaticRecommendationSummary(file, pokemon, text, recommendationResult, summary);
   if (!text.includes("主色与色板") || !text.includes("推荐摘要") || !/<img\b[^>]*class="static-portrait"/.test(text)) {
     issues.push({ file, message: "Static Pokemon page is missing required no-JS readable content" });
   }
   validateRootAbsoluteHtmlReferences(file, text);
+}
+
+function validateStaticMetadata(
+  file: string,
+  pokemon: StaticPokemonEntry,
+  text: string,
+  summary: RecommendationSummaryText,
+  accumulator: StaticMetadataAccumulator,
+): void {
+  const title = matchFirst(text, /<title>([^<]+)<\/title>/);
+  const description = matchFirst(text, /<meta name="description" content="([^"]*)" \/>/);
+  const renderedSummary = matchFirst(text, /data-recommendation-summary="([^"]*)"/);
+  const expectedTitle = escapeHtmlForValidation(`${displayPokemonName(pokemon)} | Pokopia Color Pattern`);
+  const expectedDescription = escapeHtmlForValidation(summary.text);
+  const expectedCanonicalUrl = staticPageUrl(pokemon.slug);
+  const expectedImageUrl = staticAssetUrl(pokemon);
+
+  if (!title) {
+    issues.push({ file, message: "Static Pokemon page must include a title" });
+  } else {
+    addMetadataValue(accumulator.titles, title, file);
+    if (title !== expectedTitle) {
+      issues.push({ file, message: `Title must match current Pokemon metadata: expected ${expectedTitle}, got ${title}` });
+    }
+  }
+  if (!description) {
+    issues.push({ file, message: "Static Pokemon page must include a description meta tag" });
+  } else {
+    addMetadataValue(accumulator.descriptions, description, file);
+    if (description !== expectedDescription) {
+      issues.push({ file, message: "Description metadata must match current Pokemon recommendation summary" });
+    }
+  }
+  if (description && renderedSummary && description !== renderedSummary) {
+    issues.push({ file, message: "Description metadata must match the rendered recommendation summary" });
+  }
+
+  const canonicalUrl = matchFirst(text, /<link rel="canonical" href="([^"]*)" \/>/);
+  const ogTitle = matchFirst(text, /<meta property="og:title" content="([^"]*)" \/>/);
+  const ogDescription = matchFirst(text, /<meta property="og:description" content="([^"]*)" \/>/);
+  const ogImage = matchFirst(text, /<meta property="og:image" content="([^"]*)" \/>/);
+  const ogUrl = matchFirst(text, /<meta property="og:url" content="([^"]*)" \/>/);
+  const twitterTitle = matchFirst(text, /<meta name="twitter:title" content="([^"]*)" \/>/);
+  const twitterDescription = matchFirst(text, /<meta name="twitter:description" content="([^"]*)" \/>/);
+  const twitterImage = matchFirst(text, /<meta name="twitter:image" content="([^"]*)" \/>/);
+  if (title && ogTitle !== title) {
+    issues.push({ file, message: "Open Graph title must match page title" });
+  }
+  if (title && twitterTitle !== title) {
+    issues.push({ file, message: "Twitter title must match page title" });
+  }
+  if (description && ogDescription !== description) {
+    issues.push({ file, message: "Open Graph description must match page description" });
+  }
+  if (description && twitterDescription !== description) {
+    issues.push({ file, message: "Twitter description must match page description" });
+  }
+  if (canonicalUrl !== expectedCanonicalUrl) {
+    issues.push({ file, message: `Canonical URL must be absolute and match current slug ${pokemon.slug}` });
+  }
+  if (ogUrl !== expectedCanonicalUrl) {
+    issues.push({ file, message: `Open Graph URL must be absolute and match current slug ${pokemon.slug}` });
+  }
+  if (ogImage !== expectedImageUrl) {
+    issues.push({ file, message: "Open Graph image must be an absolute URL for the current Pokemon image" });
+  }
+  if (twitterImage !== expectedImageUrl) {
+    issues.push({ file, message: "Twitter image must be an absolute URL for the current Pokemon image" });
+  }
+}
+
+function validateStaticRecommendationSummary(
+  file: string,
+  pokemon: StaticPokemonEntry,
+  text: string,
+  recommendationResult: DistRecommendationReadResult,
+  summary: RecommendationSummaryText,
+): void {
+  const summaryAttribute = matchFirst(text, /data-recommendation-summary="([^"]*)"/);
+  const expectedSummary = escapeHtmlForValidation(summary.text);
+  const expectedCount = recommendationCount(recommendationResult);
+  if (summaryAttribute !== expectedSummary) {
+    issues.push({ file, message: "Rendered recommendation summary must match current slug generated recommendation data" });
+  }
+  if (!text.includes(`data-recommendation-status="${summary.status}"`)) {
+    issues.push({ file, message: `Static page recommendation status must be ${summary.status}` });
+  }
+  if (!text.includes(`data-recommendation-count="${expectedCount}"`)) {
+    issues.push({ file, message: `Static page recommendation count must match generated data count ${expectedCount}` });
+  }
+  if (recommendationResult.missing) {
+    if (!text.includes("当前缺少推荐数据文件")) {
+      issues.push({ file, message: "Missing recommendation static page must render recoverable missing-data summary" });
+    }
+    return;
+  }
+  const recommendations = recommendationResult.data;
+  if (!isRecord(recommendations)) {
+    return;
+  }
+  if (recommendations.pokemonSlug !== pokemon.slug) {
+    issues.push({ file, message: `Static page recommendation data slug mismatch: expected ${pokemon.slug}, got ${String(recommendations.pokemonSlug)}` });
+  }
+  if (!Array.isArray(recommendations.recommendations)) {
+    issues.push({ file, message: "Recommendation data must include recommendations array for static page validation" });
+    return;
+  }
+  if (expectedCount === 0) {
+    if (!text.includes('data-recommendation-status="empty"') || !text.includes("当前数据和规则暂未产生推荐搭配")) {
+      issues.push({ file, message: "Empty recommendation static page must render recoverable empty summary" });
+    }
+    return;
+  }
+
+  if (!text.includes('data-recommendation-status="ready"')) {
+    issues.push({ file, message: "Non-empty recommendation static page must render ready summary status" });
+  }
+  const expectedNames = recommendations.recommendations.slice(0, 3).map((entry, index) => {
+    if (!isRecord(entry)) {
+      issues.push({ file, message: `Recommendation ${index} must be an object for static page validation` });
+      return null;
+    }
+    const name = typeof entry.itemZhName === "string" && entry.itemZhName ? entry.itemZhName : entry.itemName;
+    if (typeof name !== "string") {
+      issues.push({ file, message: `Recommendation ${index} must include item name for static page validation` });
+      return null;
+    }
+    return escapeHtmlForValidation(name);
+  });
+  const summaryText = summaryAttribute ?? "";
+  let lastIndex = -1;
+  expectedNames.forEach((name, index) => {
+    if (!name) {
+      return;
+    }
+    const nextIndex = summaryText.indexOf(name, lastIndex + 1);
+    if (nextIndex === -1) {
+      issues.push({ file, message: `Static summary is missing recommendation item ${index + 1} in generated-data order` });
+      return;
+    }
+    lastIndex = nextIndex;
+  });
+}
+
+function validateSsgGenerationSummary(
+  report: unknown | null,
+  expectedSlugs: string[],
+  expectedPages: ExpectedSsgPageRecord[],
+  expectedFallbacks: ExpectedSsgFallbackRecord[],
+): void {
+  if (!isRecord(report)) {
+    issues.push({ file: ssgGenerationSummaryPath, message: "Expected SSG generation summary object" });
+    return;
+  }
+  if (report.schemaVersion !== "ssg-generation-summary.v1") {
+    issues.push({ file: ssgGenerationSummaryPath, message: "Expected schemaVersion ssg-generation-summary.v1" });
+  }
+  const expectedSlugSet = new Set(expectedSlugs);
+  validateSsgReportSummary(report.summary, expectedSlugs.length, expectedFallbacks);
+  validateSsgReportPages(report.pages, expectedSlugSet, expectedPages);
+  validateSsgReportFallbacks(report.fallbacks, expectedSlugSet, expectedFallbacks);
+}
+
+function validateSsgReportSummary(summary: unknown, expectedCount: number, expectedFallbacks: ExpectedSsgFallbackRecord[]): void {
+  if (!isRecord(summary)) {
+    issues.push({ file: ssgGenerationSummaryPath, message: "Expected summary object" });
+    return;
+  }
+  const emptyFallbackCount = expectedFallbacks.filter((fallback) => fallback.fallbackType === "empty_recommendations").length;
+  const missingFallbackCount = expectedFallbacks.filter((fallback) => fallback.fallbackType === "missing_recommendation_file").length;
+  const expectedSummaryFields: Array<[string, number]> = [
+    ["pokemonCount", expectedCount],
+    ["pagesGenerated", expectedCount],
+    ["metadataCount", expectedCount],
+    ["fallbackCount", expectedFallbacks.length],
+    ["emptyRecommendationCount", emptyFallbackCount],
+    ["missingRecommendationFileCount", missingFallbackCount],
+  ];
+  expectedSummaryFields.forEach(([field, expected]) => {
+    if (summary[field] !== expected) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected summary.${field} ${expected}, got ${String(summary[field])}` });
+    }
+  });
+  if (summary.siteUrl !== siteOrigin) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Expected summary.siteUrl ${siteOrigin}, got ${String(summary.siteUrl)}` });
+  }
+}
+
+function validateSsgReportPages(pages: unknown, expectedSlugSet: Set<string>, expectedPages: ExpectedSsgPageRecord[]): void {
+  if (!Array.isArray(pages)) {
+    issues.push({ file: ssgGenerationSummaryPath, message: "Expected pages array" });
+    return;
+  }
+  if (pages.length !== expectedSlugSet.size) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Expected ${expectedSlugSet.size} page records, got ${pages.length}` });
+  }
+  const seen = new Set<string>();
+  const expectedPageBySlug = new Map(expectedPages.map((page) => [page.pokemonSlug, page]));
+  pages.forEach((page, index) => {
+    if (!isRecord(page) || typeof page.pokemonSlug !== "string") {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected pages[${index}] to include pokemonSlug` });
+      return;
+    }
+    if (!expectedSlugSet.has(page.pokemonSlug)) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Unexpected page slug ${page.pokemonSlug}` });
+    }
+    if (seen.has(page.pokemonSlug)) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Duplicate page slug ${page.pokemonSlug}` });
+    }
+    seen.add(page.pokemonSlug);
+    const expectedPage = expectedPageBySlug.get(page.pokemonSlug);
+    if (!expectedPage) {
+      return;
+    }
+    if (page.outputPath !== expectedPage.outputPath) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Unexpected outputPath for ${page.pokemonSlug}` });
+    }
+    if (page.recommendationCount !== expectedPage.recommendationCount) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected recommendationCount ${expectedPage.recommendationCount} for ${page.pokemonSlug}` });
+    }
+    if (page.fallbackType !== expectedPage.fallbackType) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected fallbackType ${String(expectedPage.fallbackType)} for ${page.pokemonSlug}` });
+    }
+  });
+}
+
+function validateSsgReportFallbacks(fallbacks: unknown, expectedSlugSet: Set<string>, expectedFallbacks: ExpectedSsgFallbackRecord[]): void {
+  if (!Array.isArray(fallbacks)) {
+    issues.push({ file: ssgGenerationSummaryPath, message: "Expected fallbacks array" });
+    return;
+  }
+  if (fallbacks.length !== expectedFallbacks.length) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Expected ${expectedFallbacks.length} fallback records, got ${fallbacks.length}` });
+  }
+  const expectedFallbackBySlug = new Map(expectedFallbacks.map((fallback) => [fallback.pokemonSlug, fallback]));
+  const fallbackSlugs = new Set<string>();
+  fallbacks.forEach((fallback, index) => {
+    if (!isRecord(fallback) || typeof fallback.pokemonSlug !== "string") {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected fallbacks[${index}] to include pokemonSlug` });
+      return;
+    }
+    if (!expectedSlugSet.has(fallback.pokemonSlug)) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Unexpected fallback slug ${fallback.pokemonSlug}` });
+    }
+    fallbackSlugs.add(fallback.pokemonSlug);
+    const expectedFallback = expectedFallbackBySlug.get(fallback.pokemonSlug);
+    if (!expectedFallback) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Unexpected fallback record for non-fallback slug ${fallback.pokemonSlug}` });
+      return;
+    }
+    if (fallback.fallbackType !== expectedFallback.fallbackType) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected fallback type ${expectedFallback.fallbackType} for ${fallback.pokemonSlug}` });
+    }
+    if (fallback.recommendationCount !== expectedFallback.recommendationCount) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected fallback recommendationCount ${expectedFallback.recommendationCount} for ${fallback.pokemonSlug}` });
+    }
+    if (typeof fallback.reason !== "string" || fallback.reason.length === 0) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Fallback reason missing for ${fallback.pokemonSlug}` });
+    }
+  });
+  expectedFallbackBySlug.forEach((_, slug) => {
+    if (!fallbackSlugs.has(slug)) {
+      issues.push({ file: ssgGenerationSummaryPath, message: `Expected fallback ${slug} is missing matching fallback record` });
+    }
+  });
+}
+
+async function readSsgGenerationSummary(): Promise<unknown | null> {
+  let text: string;
+  try {
+    text = await readFile(ssgGenerationSummaryPath, "utf8");
+  } catch (error) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Unable to read SSG generation summary: ${error instanceof Error ? error.message : String(error)}` });
+    return null;
+  }
+  const report = parseJson(text, ssgGenerationSummaryPath);
+  await validateSensitiveTextFiles([ssgGenerationSummaryPath], "SSG generation summary");
+  return report;
+}
+
+function missingRecommendationFilesFromReport(report: unknown | null): Set<string> {
+  const missingFiles = new Set<string>();
+  if (!isRecord(report) || !Array.isArray(report.fallbacks)) {
+    return missingFiles;
+  }
+  report.fallbacks.filter(isRecord).forEach((fallback) => {
+    if (fallback.fallbackType === "missing_recommendation_file" && typeof fallback.pokemonSlug === "string") {
+      missingFiles.add(`recommendations/${fallback.pokemonSlug}.json`);
+    }
+  });
+  return missingFiles;
+}
+
+function expectedRecommendationSummary(
+  pokemon: StaticPokemonEntry,
+  recommendationResult: DistRecommendationReadResult,
+): RecommendationSummaryText {
+  const displayName = displayPokemonName(pokemon);
+  const slugLabel = `#${pokemon.slug}`;
+  if (recommendationResult.missing) {
+    return {
+      status: "missing",
+      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前缺少推荐数据文件，静态页先展示色板与可恢复空推荐摘要。`,
+    };
+  }
+  const recommendations = recommendationResult.data;
+  if (isRecord(recommendations) && Array.isArray(recommendations.recommendations) && recommendations.recommendations.length > 0) {
+    const names = recommendations.recommendations
+      .slice(0, 3)
+      .map((entry) => (isRecord(entry) && typeof entry.itemZhName === "string" && entry.itemZhName ? entry.itemZhName : isRecord(entry) ? entry.itemName : null))
+      .filter((name): name is string => typeof name === "string")
+      .join("、");
+    return {
+      status: "ready",
+      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}，推荐搭配：${names}。`,
+    };
+  }
+  return {
+    status: "empty",
+    text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前数据和规则暂未产生推荐搭配，可先查看色板。`,
+  };
+}
+
+function recommendationCount(recommendationResult: DistRecommendationReadResult): number {
+  const recommendations = recommendationResult.data;
+  if (!isRecord(recommendations) || !Array.isArray(recommendations.recommendations)) {
+    return 0;
+  }
+  return recommendations.recommendations.length;
+}
+
+function expectedFallbackType(recommendationResult: DistRecommendationReadResult): ExpectedSsgPageRecord["fallbackType"] {
+  if (recommendationResult.missing) {
+    return "missing_recommendation_file";
+  }
+  return recommendationCount(recommendationResult) === 0 ? "empty_recommendations" : null;
+}
+
+function displayPokemonName(pokemon: StaticPokemonEntry): string {
+  return pokemon.zhName ? `${pokemon.zhName} / ${pokemon.name}` : pokemon.name;
+}
+
+function addMetadataValue(values: Map<string, string[]>, value: string, file: string): void {
+  const files = values.get(value) ?? [];
+  files.push(file);
+  values.set(value, files);
+}
+
+function validateUniqueStaticMetadata(accumulator: StaticMetadataAccumulator): void {
+  validateUniqueMetadataMap("title", accumulator.titles);
+  validateUniqueMetadataMap("description", accumulator.descriptions);
+}
+
+function validateUniqueMetadataMap(label: string, values: Map<string, string[]>): void {
+  values.forEach((files, value) => {
+    if (files.length > 1) {
+      issues.push({ file: files[0], message: `Static Pokemon page ${label} must be unique; duplicated by ${files.slice(1, 4).join(", ")} for ${value}` });
+    }
+  });
+}
+
+function staticPageUrl(slug: string): string {
+  return `${siteOrigin}/pokemon/${slug}/`;
+}
+
+function staticAssetUrl(pokemon: StaticPokemonEntry): string {
+  return `${siteOrigin}${pokemon.imagePath}`;
+}
+
+function matchFirst(text: string, pattern: RegExp): string | null {
+  return pattern.exec(text)?.[1] ?? null;
+}
+
+function escapeHtmlForValidation(value: unknown): string {
+  return String(value)
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
 }
 
 function validateRootAbsoluteHtmlReferences(file: string, text: string): void {
@@ -396,7 +892,7 @@ async function validateDiagnosticsReportFile(): Promise<void> {
   await validateSensitiveTextFiles([recommendationDiagnosticsPath], "diagnostics report");
 }
 
-async function validateRuntimeDataTree(root: string): Promise<string[]> {
+async function validateRuntimeDataTree(root: string, allowedMissingFiles: Set<string> = new Set()): Promise<string[]> {
   const absoluteRoot = resolve(projectRoot, root);
   if (!existsSync(absoluteRoot)) {
     issues.push({ file: root, message: "Expected runtime data directory to exist" });
@@ -429,7 +925,7 @@ async function validateRuntimeDataTree(root: string): Promise<string[]> {
     }
   });
   allowlist.files.forEach((file) => {
-    if (!seenFiles.has(file)) {
+    if (!seenFiles.has(file) && !allowedMissingFiles.has(file)) {
       issues.push({ file: `${root}/${file}`, message: "Missing expected runtime data file" });
     }
   });
@@ -500,6 +996,18 @@ function parseJson(text: string, file: string): unknown | null {
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
+function isMissingFileError(error: unknown): boolean {
+  return typeof error === "object" && error !== null && "code" in error && error.code === "ENOENT";
+}
+
+function normalizeSiteOrigin(value: string): string {
+  const url = new URL(value);
+  if (url.protocol !== "https:" && url.protocol !== "http:") {
+    throw new Error(`POKOPIA_SITE_URL must use http or https, got ${value}`);
+  }
+  return url.origin;
 }
 
 async function collectTextFiles(root: string, extensions: string[]): Promise<Map<string, string>> {
