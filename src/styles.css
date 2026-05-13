@@ -941,6 +941,12 @@ body.drawer-open .selected-float {
   padding: 16px;
 }
 
+.recommendation-state.is-inline {
+  min-height: 0;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+
 .recommendation-state span {
   min-width: 0;
   max-width: 100%;
@@ -960,6 +966,10 @@ body.drawer-open .selected-float {
   color: var(--ink);
   cursor: pointer;
   padding: 6px 12px;
+}
+
+.recommendation-retry + .recommendation-retry {
+  margin-left: 6px;
 }
 
 .recommendation-pagination {
@@ -1140,7 +1150,8 @@ body.drawer-open .selected-float {
   }
 
   .recommendation-card,
-  .recommendation-pagination {
+  .recommendation-pagination,
+  .recommendation-state.is-inline {
     grid-template-columns: 1fr;
   }
 

@@ -21,6 +21,7 @@ const compactItemsPath = "generated/data/compact-items.json";
 const itemColorsPath = "generated/data/item-colors.json";
 const pokemonIndexPath = "generated/data/pokemon-index.json";
 const recommendationsDir = "generated/data/recommendations";
+const recommendationDiagnosticsPath = "generated/reports/recommendation-diagnostics.json";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
 const compactGzipLimit = 50 * 1024;
 const recommendationGzipLimit = 5 * 1024;
@@ -48,6 +49,7 @@ async function validateGeneratedDataGate(): Promise<void> {
     return;
   }
   const firstRuntimeFiles = await validateRuntimeDataTree("generated/data");
+  await validateDiagnosticsReportFile();
   const firstSnapshot = await snapshotDeterministicContracts(firstRuntimeFiles);
 
   validateNoRuntimeManifestFetch(
@@ -62,6 +64,7 @@ async function validateGeneratedDataGate(): Promise<void> {
     return;
   }
   const secondRuntimeFiles = await validateRuntimeDataTree("generated/data");
+  await validateDiagnosticsReportFile();
   const secondSnapshot = await snapshotDeterministicContracts(secondRuntimeFiles);
   compareSnapshots(firstSnapshot, secondSnapshot);
 }
@@ -150,6 +153,10 @@ function validateNoRuntimeManifestFetch(sourceFiles: Map<string, string>, label:
 }
 
 async function validateSensitiveRuntimeData(files: string[]): Promise<void> {
+  await validateSensitiveTextFiles(files, "runtime data");
+}
+
+async function validateSensitiveTextFiles(files: string[], label: string): Promise<void> {
   const home = process.env.HOME;
   const patterns: Array<[RegExp, string]> = [
     [/\/Users\//, "contains macOS user path"],
@@ -168,7 +175,7 @@ async function validateSensitiveRuntimeData(files: string[]): Promise<void> {
       try {
         text = await readFile(file, "utf8");
       } catch (error) {
-        issues.push({ file, message: `Unable to read runtime data for sensitive scan: ${error instanceof Error ? error.message : String(error)}` });
+        issues.push({ file, message: `Unable to read ${label} for sensitive scan: ${error instanceof Error ? error.message : String(error)}` });
         return;
       }
       if (text.includes(projectRoot) || (home && text.includes(home))) {
@@ -253,6 +260,33 @@ function validateRecommendationCoverage(
   });
 }
 
+async function validateDiagnosticsReportFile(): Promise<void> {
+  if (!existsSync(resolve(projectRoot, recommendationDiagnosticsPath))) {
+    issues.push({ file: recommendationDiagnosticsPath, message: "Expected recommendation diagnostics report to exist" });
+    return;
+  }
+
+  const text = await readFile(recommendationDiagnosticsPath, "utf8");
+  const report = parseJson(text, recommendationDiagnosticsPath);
+  if (!isRecord(report)) {
+    issues.push({ file: recommendationDiagnosticsPath, message: "Expected diagnostics report object" });
+    return;
+  }
+  if (report.schemaVersion !== "recommendation-diagnostics.v1") {
+    issues.push({ file: recommendationDiagnosticsPath, message: "Expected schemaVersion recommendation-diagnostics.v1" });
+  }
+  if (!isRecord(report.summary)) {
+    issues.push({ file: recommendationDiagnosticsPath, message: "Expected summary object" });
+  }
+  if (!Array.isArray(report.pokemon)) {
+    issues.push({ file: recommendationDiagnosticsPath, message: "Expected pokemon diagnostics array" });
+  }
+  if (text.includes(projectRoot) || text.includes("/Users/")) {
+    issues.push({ file: recommendationDiagnosticsPath, message: "contains local absolute project/home path" });
+  }
+  await validateSensitiveTextFiles([recommendationDiagnosticsPath], "diagnostics report");
+}
+
 async function validateRuntimeDataTree(root: string): Promise<string[]> {
   const absoluteRoot = resolve(projectRoot, root);
   if (!existsSync(absoluteRoot)) {
@@ -321,7 +355,7 @@ async function expectedRuntimeDataAllowlist(root: string): Promise<{ directories
 }
 
 async function snapshotDeterministicContracts(runtimeFiles: string[]): Promise<Map<string, string>> {
-  const deterministicContractPaths = [...runtimeFiles, "src/data/schemas.ts"];
+  const deterministicContractPaths = [...runtimeFiles, recommendationDiagnosticsPath, "src/data/schemas.ts"];
   const entries = await Promise.all(
     deterministicContractPaths.map(async (file) => {
       const text = await readFile(file, "utf8");

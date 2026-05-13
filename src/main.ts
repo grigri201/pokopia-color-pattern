@@ -45,6 +45,7 @@ type RecommendationPanelState = {
   pageIndex: number;
   requestId: number;
 };
+type RecommendationRecoveryAction = "retry" | "switch-pokemon" | "reset-filter";
 
 const state: {
   pokemon: Pokemon[];
@@ -409,15 +410,17 @@ function renderRecommendations(): void {
 
   if (panel.status === "error") {
     renderRecommendationState(
-      `推荐搭配暂时不可用：${panel.error || "未知错误"}`,
+      `推荐搭配暂时不可用：${panel.error || "未知错误"}。可以重新读取，或切换 Pokemon 继续浏览。`,
       "recommendation-state is-error",
-      "retry",
+      ["retry", "switch-pokemon"],
     );
     return;
   }
 
   if (!panel.data) {
-    renderRecommendationState("推荐搭配暂时不可用", "recommendation-state is-error");
+    renderRecommendationState("推荐搭配暂时不可用，可以切换 Pokemon 继续浏览。", "recommendation-state is-error", [
+      "switch-pokemon",
+    ]);
     return;
   }
 
@@ -432,9 +435,13 @@ function renderRecommendations(): void {
   if (filtered.length === 0) {
     const message =
       panel.data.recommendations.length === 0
-        ? "当前 Pokemon 暂无推荐搭配数据"
-        : "当前筛选下没有推荐搭配";
-    renderRecommendationState(message, "recommendation-state");
+        ? "当前数据和规则暂未产生推荐搭配。可以切换 Pokemon，或稍后补充偏好词与 override 后重新生成数据。"
+        : "当前筛选下没有推荐搭配。可以显示全部推荐或切换 Pokemon。";
+    renderRecommendationState(
+      message,
+      "recommendation-state",
+      panel.data.recommendations.length === 0 ? ["switch-pokemon"] : ["reset-filter", "switch-pokemon"],
+    );
     return;
   }
 
@@ -445,41 +452,90 @@ function renderRecommendations(): void {
       <span>${escapeHtml(selected.zh)} 的匹配度较高道具</span>
       <strong>${start + 1}-${start + pageItems.length} / ${filtered.length}</strong>
     </div>
+    ${renderSparseRecommendationNotice(panel.data.recommendations.length)}
     <div class="recommendation-list">
       ${pageItems.map(renderRecommendationCard).join("")}
     </div>
     ${renderRecommendationPagination(pageIndex, totalPages)}
   `;
+  bindRecommendationRecoveryActions();
   bindRecommendationPagination(totalPages);
 }
 
-function renderRecommendationState(message: string, className: string, action?: "retry"): void {
+function renderSparseRecommendationNotice(recommendationCount: number): string {
+  if (recommendationCount >= 3) {
+    return "";
+  }
+
+  return `
+    <div class="recommendation-state is-inline" role="status">
+      <span>当前规则只产生 ${recommendationCount} 个推荐搭配；结果基于现有数据和规则，可切换 Pokemon 继续比较。</span>
+      ${renderRecommendationAction("switch-pokemon")}
+    </div>
+  `;
+}
+
+function renderRecommendationState(
+  message: string,
+  className: string,
+  actions: RecommendationRecoveryAction[] = [],
+): void {
   els.furnitureGrid.innerHTML = `
     <div class="${className}" role="status">
       <span>${escapeHtml(message)}</span>
-      ${
-        action === "retry"
-          ? '<button class="recommendation-retry" type="button" data-recommendation-retry>重新读取</button>'
-          : ""
-      }
+      ${actions.map(renderRecommendationAction).join("")}
     </div>
   `;
+  bindRecommendationRecoveryActions();
+}
 
-  els.furnitureGrid.querySelector<HTMLButtonElement>("[data-recommendation-retry]")?.addEventListener("click", () => {
-    if (state.selected) {
-      const requestId = state.recommendations.requestId + 1;
-      state.recommendations = {
-        status: "loading",
-        slug: state.selected.slug,
-        data: null,
-        error: null,
-        pageIndex: 0,
-        requestId,
-      };
-      renderRecommendations();
-      void loadSelectedRecommendations(state.selected.slug, requestId);
-    }
+function renderRecommendationAction(action: RecommendationRecoveryAction): string {
+  switch (action) {
+    case "retry":
+      return '<button class="recommendation-retry" type="button" data-recommendation-action="retry">重新读取</button>';
+    case "switch-pokemon":
+      return '<button class="recommendation-retry" type="button" data-recommendation-action="switch-pokemon">切换 Pokemon</button>';
+    case "reset-filter":
+      return '<button class="recommendation-retry" type="button" data-recommendation-action="reset-filter">显示全部推荐</button>';
+  }
+}
+
+function bindRecommendationRecoveryActions(): void {
+  els.furnitureGrid.querySelectorAll<HTMLButtonElement>("[data-recommendation-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      switch (button.dataset.recommendationAction) {
+        case "retry":
+          retryRecommendations();
+          break;
+        case "switch-pokemon":
+          openDrawer();
+          break;
+        case "reset-filter":
+          state.itemCategory = "全部";
+          state.recommendations.pageIndex = 0;
+          els.itemFilter.value = "全部";
+          renderRecommendations();
+          break;
+      }
+    });
   });
+}
+
+function retryRecommendations(): void {
+  if (!state.selected) {
+    return;
+  }
+  const requestId = state.recommendations.requestId + 1;
+  state.recommendations = {
+    status: "loading",
+    slug: state.selected.slug,
+    data: null,
+    error: null,
+    pageIndex: 0,
+    requestId,
+  };
+  renderRecommendations();
+  void loadSelectedRecommendations(state.selected.slug, requestId);
 }
 
 function renderRecommendationCard(entry: RecommendationEntry): string {

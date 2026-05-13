@@ -260,18 +260,41 @@ const pokemonDataFixture: PokemonIndexEntry[] = [
 const compactDataFixture: CompactItem[] = [
   compactItemFixture("flower-chair", "Flower chair", true),
   compactItemFixture("flower-garden-lamp", "Flower garden lamp", false, ["Garden"], ["decoration", "garden"]),
+  compactItemFixture("flower-bad-stone", "Flower bad stone", false),
   compactItemFixture("flower-vase", "Flower vase", false),
   compactItemFixture("manual-rock", "Manual rock", false),
 ];
 const itemColorDataFixture: ItemColorEntry[] = [
   { slug: "flower-chair", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null },
   { slug: "flower-garden-lamp", itemPrimaryColor: harmony.complementary, colorSource: "extracted", fallbackReason: null },
+  { slug: "flower-bad-stone", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null },
   { slug: "flower-vase", itemPrimaryColor: harmony.analogous[0], colorSource: "extracted", fallbackReason: null },
   { slug: "manual-rock", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null },
 ];
 const builtData = buildRecommendationDataSet(pokemonDataFixture, compactDataFixture, itemColorDataFixture);
 if (builtData.issues.length > 0) {
   throw new Error(`Expected recommendation data builder fixture to have no issues: ${JSON.stringify(builtData.issues)}`);
+}
+if (builtData.diagnostics.schemaVersion !== "recommendation-diagnostics.v1") {
+  throw new Error(`fixture-mon diagnostics report branch failed: ${JSON.stringify(builtData.diagnostics)}`);
+}
+const builtDiagnostics = builtData.diagnostics.pokemon.find((entry) => entry.pokemonSlug === "fixture-mon");
+if (
+  !builtDiagnostics ||
+  builtDiagnostics.status !== "ready" ||
+  builtDiagnostics.recommendationCount !== builtData.recommendations[0].recommendations.length ||
+  builtDiagnostics.exclusionReasonCounts.no_preference_match === undefined ||
+  builtDiagnostics.harmonyRejectionReasonCounts.harmony_failed === undefined
+) {
+  throw new Error(`fixture-mon diagnostics counts branch failed: ${JSON.stringify(builtDiagnostics)}`);
+}
+if (
+  builtData.diagnostics.summary.readyCount !== 1 ||
+  builtData.diagnostics.summary.emptyCount !== 0 ||
+  builtData.diagnostics.summary.sparseCount !== 0 ||
+  builtData.diagnostics.summary.totalRecommendations !== builtData.recommendations[0].recommendations.length
+) {
+  throw new Error(`fixture-mon diagnostics summary branch failed: ${JSON.stringify(builtData.diagnostics.summary)}`);
 }
 const builtFixture = builtData.recommendations[0];
 const builtSchemaIssues = validateRecommendationsData(builtFixture);
@@ -399,6 +422,49 @@ const untrackedOverrideStatusIssues = validateRecommendationsData({
 });
 if (!untrackedOverrideStatusIssues.some((issue) => issue.path === "$.recommendations[0].overrideSource")) {
   throw new Error(`Expected override harmony status to require overrideSource: ${JSON.stringify(untrackedOverrideStatusIssues)}`);
+}
+
+const sparseRecommendationData = buildRecommendationDataSet(
+  [
+    {
+      ...pokemonDataFixture[0],
+      slug: "sparse-mon",
+      preferenceTerms: ["flower"],
+    },
+  ],
+  [compactItemFixture("flower-chair", "Flower chair", true)],
+  [{ slug: "flower-chair", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null }],
+);
+const sparseDiagnostics = sparseRecommendationData.diagnostics.pokemon[0];
+if (
+  sparseRecommendationData.recommendations[0].recommendations.length !== 1 ||
+  sparseDiagnostics?.status !== "sparse" ||
+  sparseDiagnostics.recommendationCount !== 1 ||
+  sparseRecommendationData.diagnostics.summary.sparseCount !== 1
+) {
+  throw new Error(`sparse-mon fallback diagnostics branch failed: ${JSON.stringify(sparseRecommendationData.diagnostics)}`);
+}
+
+const emptyRecommendationData = buildRecommendationDataSet(
+  [
+    {
+      ...pokemonDataFixture[0],
+      slug: "empty-mon",
+      preferenceTerms: [],
+      preferenceSource: null,
+    },
+  ],
+  [compactItemFixture("flower-chair", "Flower chair", true)],
+  [{ slug: "flower-chair", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null }],
+);
+const emptyDiagnostics = emptyRecommendationData.diagnostics.pokemon[0];
+if (
+  emptyRecommendationData.recommendations[0].recommendations.length !== 0 ||
+  emptyDiagnostics?.status !== "empty" ||
+  emptyDiagnostics.exclusionReasonCounts.pokemon_has_no_preference_terms !== 1 ||
+  emptyRecommendationData.diagnostics.summary.emptyCount !== 1
+) {
+  throw new Error(`empty-mon fallback diagnostics branch failed: ${JSON.stringify(emptyRecommendationData.diagnostics)}`);
 }
 
 console.log("Validated recommendation candidate, harmony, ranking, and schema fixtures.");

@@ -21,7 +21,7 @@ import {
   validatePokemonMetadataOverridesData,
   validateRecommendationsData,
 } from "../src/data/schemas.js";
-import { buildRecommendationDataSet } from "../src/domain/recommendation-data.js";
+import { buildRecommendationDataSet, type RecommendationDiagnosticsReport } from "../src/domain/recommendation-data.js";
 import { resolvePokemonMetadataOverrideFields } from "../src/domain/pokemon-metadata.js";
 import { DEFAULT_FALLBACK_COLOR, extractImagePalette } from "./lib/image-colors.js";
 import { parseCsv, type CsvRow } from "./lib/csv.js";
@@ -55,6 +55,7 @@ const compactItemsOutputPath = "generated/data/compact-items.json";
 const itemColorsOutputPath = "generated/data/item-colors.json";
 const pokemonIndexOutputPath = "generated/data/pokemon-index.json";
 const recommendationsOutputDir = "generated/data/recommendations";
+const recommendationDiagnosticsOutputPath = "generated/reports/recommendation-diagnostics.json";
 
 const maxCompactItemsGzipBytes = 50 * 1024;
 const maxItemColorsGzipBytes = 25 * 1024;
@@ -73,6 +74,7 @@ const absoluteCompactItemsOutputPath = resolve(projectRoot, compactItemsOutputPa
 const absoluteItemColorsOutputPath = resolve(projectRoot, itemColorsOutputPath);
 const absolutePokemonIndexOutputPath = resolve(projectRoot, pokemonIndexOutputPath);
 const absoluteRecommendationsOutputDir = resolve(projectRoot, recommendationsOutputDir);
+const absoluteRecommendationDiagnosticsOutputPath = resolve(projectRoot, recommendationDiagnosticsOutputPath);
 const localItemImageRoot = resolve(projectRoot, "docs/pokopia_image_sources/item_portraits");
 const localPokemonImageRoot = resolve(projectRoot, "docs/pokopia_image_sources/pokemon_portraits");
 
@@ -98,9 +100,12 @@ async function generateData(): Promise<void> {
   const compactItems = buildCompactItems(manifestCsv, placeableCsv, placeableJsonText, issues);
   const itemColors = await buildItemColors(compactItems.items, issues);
   const pokemonIndex = await buildPokemonIndex(pokemonCsv, overrides, issues);
-  const recommendations = buildRecommendations(pokemonIndex, compactItems, itemColors, overrides, issues);
+  const recommendationBuild = buildRecommendations(pokemonIndex, compactItems, itemColors, overrides, issues);
+  const recommendations = recommendationBuild.recommendations;
+  const recommendationDiagnostics = recommendationBuild.diagnostics;
 
   validateAllData(compactItems, itemColors, pokemonIndex, overrides, recommendations, issues);
+  validateRecommendationDiagnostics(recommendationDiagnostics, recommendations, issues);
 
   if (issues.length > 0) {
     printIssues("Data generation failed", issues);
@@ -113,6 +118,7 @@ async function generateData(): Promise<void> {
     writeJsonFile(absoluteCompactItemsOutputPath, compactItems),
     writeJsonFile(absoluteItemColorsOutputPath, itemColors),
     writeJsonFile(absolutePokemonIndexOutputPath, pokemonIndex),
+    writeJsonFile(absoluteRecommendationDiagnosticsOutputPath, recommendationDiagnostics),
     ...recommendations.map((data) => writeJsonFile(resolve(absoluteRecommendationsOutputDir, `${data.pokemonSlug}.json`), data)),
   ]);
 
@@ -124,15 +130,19 @@ async function generateData(): Promise<void> {
   console.log(
     `Generated ${recommendations.length} Pokemon recommendation files under ${recommendationsOutputDir} (largest ${largestRecommendation.gzipBytes} gzip bytes: ${largestRecommendation.pokemonSlug}).`,
   );
+  console.log(
+    `Generated ${recommendationDiagnosticsOutputPath} (${recommendationDiagnostics.summary.emptyCount} empty, ${recommendationDiagnostics.summary.sparseCount} sparse).`,
+  );
 }
 
 async function validateExistingOutputs(): Promise<void> {
   const issues: GenerationIssue[] = [];
-  const [compactText, itemColorsText, pokemonIndexText, overrideText, recommendationFiles] = await Promise.all([
+  const [compactText, itemColorsText, pokemonIndexText, overrideText, recommendationDiagnosticsText, recommendationFiles] = await Promise.all([
     readFile(absoluteCompactItemsOutputPath, "utf8"),
     readFile(absoluteItemColorsOutputPath, "utf8"),
     readFile(absolutePokemonIndexOutputPath, "utf8"),
     readFile(absolutePokemonOverridePath, "utf8"),
+    readFile(absoluteRecommendationDiagnosticsOutputPath, "utf8"),
     readRecommendationOutputFiles(issues),
   ]);
 
@@ -140,10 +150,12 @@ async function validateExistingOutputs(): Promise<void> {
   const itemColors = parseJsonValue(itemColorsText, itemColorsOutputPath, issues);
   const pokemonIndex = parseJsonValue(pokemonIndexText, pokemonIndexOutputPath, issues);
   const overrides = parseJsonValue(overrideText, pokemonOverridePath, issues);
+  const recommendationDiagnostics = parseJsonValue(recommendationDiagnosticsText, recommendationDiagnosticsOutputPath, issues);
   const recommendations = recommendationFiles.map((file) => parseJsonValue(file.text, file.path, issues));
   validateRecommendationOutputPaths(recommendationFiles, recommendations, issues);
 
   validateAllData(compactItems, itemColors, pokemonIndex, overrides, recommendations, issues);
+  validateRecommendationDiagnostics(recommendationDiagnostics, recommendations, issues);
 
   if (issues.length > 0) {
     printIssues("Data validation failed", issues);
@@ -355,7 +367,7 @@ function buildRecommendations(
   itemColors: ItemColorsData,
   overrides: PokemonMetadataOverridesData,
   issues: GenerationIssue[],
-): RecommendationsData[] {
+): { recommendations: RecommendationsData[]; diagnostics: RecommendationDiagnosticsReport } {
   const result = buildRecommendationDataSet(pokemonIndex.pokemon, compactItems.items, itemColors.items, {
     overrides: overrides.pokemon,
     overridePath: pokemonOverridePath,
@@ -368,7 +380,7 @@ function buildRecommendations(
       message: issue.message,
     });
   });
-  return result.recommendations;
+  return { recommendations: result.recommendations, diagnostics: result.diagnostics };
 }
 
 function validateAllData(
@@ -416,6 +428,139 @@ function validateAllData(
     validateNoPrivatePaths(pokemonIndexOutputPath, pokemonIndex, issues);
     (recommendations as RecommendationsData[]).forEach((recommendation) => {
       validateNoPrivatePaths(recommendationsOutputPath(recommendation.pokemonSlug), recommendation, issues);
+    });
+  }
+}
+
+function validateRecommendationDiagnostics(report: unknown, recommendations: unknown[], issues: GenerationIssue[]): void {
+  if (!isRecord(report)) {
+    issues.push({ file: recommendationDiagnosticsOutputPath, field: "$", message: "Expected recommendation diagnostics report object" });
+    return;
+  }
+
+  if (report.schemaVersion !== "recommendation-diagnostics.v1") {
+    issues.push({ file: recommendationDiagnosticsOutputPath, field: "$.schemaVersion", message: "Expected recommendation-diagnostics.v1" });
+  }
+  if (!isRecord(report.summary)) {
+    issues.push({ file: recommendationDiagnosticsOutputPath, field: "$.summary", message: "Expected diagnostics summary object" });
+  }
+  if (!Array.isArray(report.pokemon)) {
+    issues.push({ file: recommendationDiagnosticsOutputPath, field: "$.pokemon", message: "Expected diagnostics Pokemon array" });
+    return;
+  }
+
+  const recommendationCountBySlug = new Map<string, number>();
+  recommendations.forEach((data) => {
+    if (isRecord(data) && typeof data.pokemonSlug === "string" && Array.isArray(data.recommendations)) {
+      recommendationCountBySlug.set(data.pokemonSlug, data.recommendations.length);
+    }
+  });
+
+  const seenSlugs = new Set<string>();
+  let emptyCount = 0;
+  let sparseCount = 0;
+  let readyCount = 0;
+  let totalRecommendations = 0;
+
+  report.pokemon.forEach((entry, index) => {
+    const path = `$.pokemon[${index}]`;
+    if (!isRecord(entry)) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, field: path, message: "Expected Pokemon diagnostics object" });
+      return;
+    }
+
+    const slug = typeof entry.pokemonSlug === "string" ? entry.pokemonSlug : "";
+    if (!slug) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, field: `${path}.pokemonSlug`, message: "Expected Pokemon slug" });
+      return;
+    }
+    if (seenSlugs.has(slug)) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, slug, field: `${path}.pokemonSlug`, message: "Duplicate Pokemon diagnostics slug" });
+    }
+    seenSlugs.add(slug);
+
+    const recommendationCount = typeof entry.recommendationCount === "number" ? entry.recommendationCount : -1;
+    const expectedRecommendationCount = recommendationCountBySlug.get(slug);
+    if (expectedRecommendationCount === undefined) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, slug, field: `${path}.pokemonSlug`, message: "Diagnostics slug has no recommendation file" });
+    } else if (recommendationCount !== expectedRecommendationCount) {
+      issues.push({
+        file: recommendationDiagnosticsOutputPath,
+        slug,
+        field: `${path}.recommendationCount`,
+        message: `Expected recommendationCount ${recommendationCount} to match recommendation file count ${expectedRecommendationCount}`,
+      });
+    }
+
+    const expectedStatus = diagnosticsStatusForCount(recommendationCount);
+    if (entry.status !== expectedStatus) {
+      issues.push({
+        file: recommendationDiagnosticsOutputPath,
+        slug,
+        field: `${path}.status`,
+        message: `Expected diagnostics status ${expectedStatus}`,
+      });
+    }
+
+    if (!isRecord(entry.exclusionReasonCounts)) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, slug, field: `${path}.exclusionReasonCounts`, message: "Expected exclusion reason counts" });
+    }
+    if (!isRecord(entry.harmonyRejectionReasonCounts)) {
+      issues.push({
+        file: recommendationDiagnosticsOutputPath,
+        slug,
+        field: `${path}.harmonyRejectionReasonCounts`,
+        message: "Expected harmony rejection reason counts",
+      });
+    }
+    if (!Array.isArray(entry.sampleExcluded)) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, slug, field: `${path}.sampleExcluded`, message: "Expected sample excluded array" });
+    }
+    if (!Array.isArray(entry.sampleRejected)) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, slug, field: `${path}.sampleRejected`, message: "Expected sample rejected array" });
+    }
+
+    totalRecommendations += Math.max(0, recommendationCount);
+    if (entry.status === "empty") emptyCount += 1;
+    if (entry.status === "sparse") sparseCount += 1;
+    if (entry.status === "ready") readyCount += 1;
+  });
+
+  recommendationCountBySlug.forEach((_count, slug) => {
+    if (!seenSlugs.has(slug)) {
+      issues.push({ file: recommendationDiagnosticsOutputPath, slug, field: "$.pokemon", message: "Missing diagnostics entry for Pokemon" });
+    }
+  });
+
+  if (isRecord(report.summary)) {
+    compareSummaryNumber(report.summary, "pokemonCount", report.pokemon.length, issues);
+    compareSummaryNumber(report.summary, "emptyCount", emptyCount, issues);
+    compareSummaryNumber(report.summary, "sparseCount", sparseCount, issues);
+    compareSummaryNumber(report.summary, "readyCount", readyCount, issues);
+    compareSummaryNumber(report.summary, "totalRecommendations", totalRecommendations, issues);
+  }
+
+  validateNoPrivatePaths(recommendationDiagnosticsOutputPath, report, issues);
+}
+
+function diagnosticsStatusForCount(count: number): "empty" | "sparse" | "ready" {
+  if (count === 0) {
+    return "empty";
+  }
+  return count < 3 ? "sparse" : "ready";
+}
+
+function compareSummaryNumber(
+  summary: Record<string, unknown>,
+  key: string,
+  expected: number,
+  issues: GenerationIssue[],
+): void {
+  if (summary[key] !== expected) {
+    issues.push({
+      file: recommendationDiagnosticsOutputPath,
+      field: `$.summary.${key}`,
+      message: `Expected ${key} ${summary[key]} to equal ${expected}`,
     });
   }
 }

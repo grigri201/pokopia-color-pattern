@@ -1,6 +1,6 @@
 # Story 2.6: 提供推荐空状态、fixture tests 和排查诊断
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,20 +16,20 @@ so that 推荐质量问题可以复现和修复。
 
 ## Tasks / Subtasks
 
-- [ ] 实现推荐空状态和 fallback 状态 (AC: 1)
-  - [ ] 自动推荐为空或少于 3 个 item 时，UI 展示可恢复状态。
-  - [ ] 文案避免“最佳”承诺，说明推荐基于当前数据和规则。
-  - [ ] fallback 状态保留返回搜索/切换 Pokemon 的路径。
-- [ ] 完整 fixture test 覆盖 (AC: 2)
-  - [ ] 覆盖偏好词命中、可染色 item、不可染色 item、OKLCH pass/fail。
-  - [ ] 覆盖 override append 和 override replace。
-  - [ ] 失败信息包含 Pokemon slug、item slug 和规则分支。
-- [ ] 生成诊断字段和报告 (AC: 3)
-  - [ ] 推荐条目保留 matched terms、isDyeable、Pokemon/item primary color、harmony、rank、pageIndex。
-  - [ ] 对被排除候选或 fallback 输出生成报告，便于排查。
-- [ ] 接入 build/validation 命令 (AC: 2, 3)
-  - [ ] fixture tests 接入 `package.json` 命令。
-  - [ ] 推荐 schema/fixture 失败时非零退出。
+- [x] 实现推荐空状态和 fallback 状态 (AC: 1)
+  - [x] 自动推荐为空或少于 3 个 item 时，UI 展示可恢复状态。
+  - [x] 文案避免“最佳”承诺，说明推荐基于当前数据和规则。
+  - [x] fallback 状态保留返回搜索/切换 Pokemon 的路径。
+- [x] 完整 fixture test 覆盖 (AC: 2)
+  - [x] 覆盖偏好词命中、可染色 item、不可染色 item、OKLCH pass/fail。
+  - [x] 覆盖 override append 和 override replace。
+  - [x] 失败信息包含 Pokemon slug、item slug 和规则分支。
+- [x] 生成诊断字段和报告 (AC: 3)
+  - [x] 推荐条目保留 matched terms、isDyeable、Pokemon/item primary color、harmony、rank、pageIndex。
+  - [x] 对被排除候选或 fallback 输出生成报告，便于排查。
+- [x] 接入 build/validation 命令 (AC: 2, 3)
+  - [x] fixture tests 接入 `package.json` 命令。
+  - [x] 推荐 schema/fixture 失败时非零退出。
 
 ## Dev Notes
 
@@ -55,10 +55,53 @@ so that 推荐质量问题可以复现和修复。
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run build:data-script`
+- `npx tsc --noEmit`
+- `npm run validate:recommendations`
+- `npm run generate:data`
+- `npm run validate:data`
+- `npm run validate:build`
+- `npm run build`
+- `git diff --check`
+- `npm run dev -- --port 5173`
+- `curl -fsS http://127.0.0.1:5173/`
+- `curl -fsS http://127.0.0.1:5173/data/recommendations/abra.json`
+- `curl -s -o /tmp/pokopia-data-report.txt -w '%{http_code}' http://127.0.0.1:5173/data/recommendation-diagnostics.json`
+
 ### Completion Notes List
 
+- 推荐 UI 的空状态和稀疏状态现在提供可恢复路径，可切换 Pokemon 或重置筛选，文案只说明基于当前数据和规则。
+- 新增 `recommendation-diagnostics.v1` 报告，输出每只 Pokemon 的 empty/sparse/ready 状态、排除原因、和谐拒绝原因和样例条目。
+- `validate-build` 校验诊断报告存在、结构、敏感路径和确定性；fixture tests 增加 empty/sparse diagnostics 分支。
+- Code review 后补充 ready diagnostics summary 断言，并让 diagnostics report 复用 runtime data 的敏感内容扫描。
+
 ### File List
+
+- `src/main.ts`
+- `src/styles.css`
+- `src/domain/recommendation-data.ts`
+- `scripts/generate-data.ts`
+- `scripts/validate-build.ts`
+- `scripts/validate-recommendation-fixtures.ts`
+- `generated/reports/recommendation-diagnostics.json`
+
+## Senior Developer Review (AI)
+
+### Review Outcome
+
+Approve after fixes.
+
+### Findings
+
+- [x] [P3] `scripts/validate-recommendation-fixtures.ts` ready diagnostics summary 没有直接断言。已补充 ready/empty/sparse/totalRecommendations summary 断言。
+- [x] [P3] `scripts/validate-build.ts` diagnostics report 敏感内容扫描弱于 runtime data。已抽出统一敏感文本扫描并应用到 diagnostics report。
+
+### Review Agents
+
+- Blind Hunter: 未发现阻断问题；提出 diagnostics report 敏感扫描增强建议。
+- Edge Case Hunter: 未发现阻断问题；提出 ready summary fixture 断言增强建议。
+- Acceptance Auditor: AC1-AC3 通过，未发现必须修复问题。

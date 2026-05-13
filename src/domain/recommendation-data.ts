@@ -19,6 +19,7 @@ import {
 } from "./recommendation.js";
 
 export const RECOMMENDATION_PAGE_SIZE = 10 as const;
+export const RECOMMENDATION_DIAGNOSTICS_SCHEMA_VERSION = "recommendation-diagnostics.v1" as const;
 
 export type RecommendationDataBuildIssue = {
   file?: string;
@@ -33,6 +34,52 @@ export type RecommendationDataSetOptions = {
   overridePath?: string;
 };
 
+export type RecommendationDiagnosticsStatus = "empty" | "sparse" | "ready";
+
+export type RecommendationDiagnosticsReport = {
+  schemaVersion: typeof RECOMMENDATION_DIAGNOSTICS_SCHEMA_VERSION;
+  summary: {
+    pokemonCount: number;
+    emptyCount: number;
+    sparseCount: number;
+    readyCount: number;
+    totalRecommendations: number;
+  };
+  pokemon: RecommendationPokemonDiagnostics[];
+};
+
+export type RecommendationPokemonDiagnostics = {
+  pokemonSlug: string;
+  status: RecommendationDiagnosticsStatus;
+  recommendationCount: number;
+  automaticRecommendationCount: number;
+  overrideRecommendationCount: number;
+  candidateCount: number;
+  excludedCount: number;
+  harmonyRejectedCount: number;
+  pokemonPrimaryColor: string;
+  preferenceTerms: string[];
+  preferenceSource: PokemonIndexEntry["preferenceSource"];
+  recommendedItemsOverrideMode: PokemonRecommendedItemsOverride["mode"] | null;
+  exclusionReasonCounts: Record<string, number>;
+  harmonyRejectionReasonCounts: Record<string, number>;
+  sampleExcluded: Array<{
+    itemSlug: string;
+    reason: string;
+    preferenceTerms: string[];
+  }>;
+  sampleRejected: Array<{
+    itemSlug: string;
+    reason: string;
+    matchedPreferenceTerms: string[];
+    isDyeable: boolean;
+    pokemonPrimaryColor: string;
+    itemPrimaryColor: string | null;
+    harmonyStatus: "failed";
+    harmonyType: null;
+  }>;
+};
+
 type RecommendationEntryDraft = Omit<RecommendationEntry, "rank" | "pageIndex"> &
   RecommendationRankingInput & {
     roleFitScore: number;
@@ -44,7 +91,7 @@ export function buildRecommendationDataSet(
   compactItems: CompactItem[],
   itemColors: ItemColorEntry[],
   options: RecommendationDataSetOptions = {},
-): { recommendations: RecommendationsData[]; issues: RecommendationDataBuildIssue[] } {
+): { recommendations: RecommendationsData[]; diagnostics: RecommendationDiagnosticsReport; issues: RecommendationDataBuildIssue[] } {
   const compactBySlug = new Map(compactItems.map((item) => [item.slug, item]));
   const itemColorBySlug = new Map(itemColors.map((item) => [item.slug, item.itemPrimaryColor]));
   const itemColorLookup: ItemColorLookup[] = itemColors.map((item) => ({
@@ -61,6 +108,7 @@ export function buildRecommendationDataSet(
     isDyeable: item.recommendation.isDyeable,
   }));
   const issues: RecommendationDataBuildIssue[] = [];
+  const diagnostics: RecommendationPokemonDiagnostics[] = [];
 
   const recommendations = pokemon.map((pokemonEntry): RecommendationsData => {
     const result = buildRecommendationResults(
@@ -124,6 +172,39 @@ export function buildRecommendationDataSet(
       rank: index + 1,
       pageIndex: Math.floor(index / RECOMMENDATION_PAGE_SIZE),
     }));
+    const status = recommendationDiagnosticsStatus(recommendations.length);
+
+    diagnostics.push({
+      pokemonSlug: pokemonEntry.slug,
+      status,
+      recommendationCount: recommendations.length,
+      automaticRecommendationCount: automaticDrafts.length,
+      overrideRecommendationCount: overrideDrafts.length,
+      candidateCount: result.candidates.length,
+      excludedCount: result.excluded.length,
+      harmonyRejectedCount: result.rejected.length,
+      pokemonPrimaryColor: pokemonEntry.primaryColor,
+      preferenceTerms: pokemonEntry.preferenceTerms,
+      preferenceSource: pokemonEntry.preferenceSource,
+      recommendedItemsOverrideMode: recommendationOverride?.mode ?? null,
+      exclusionReasonCounts: countReasons(result.excluded),
+      harmonyRejectionReasonCounts: countReasons(result.rejected),
+      sampleExcluded: result.excluded.slice(0, 5).map((entry) => ({
+        itemSlug: entry.itemSlug,
+        reason: entry.reason,
+        preferenceTerms: entry.preferenceTerms,
+      })),
+      sampleRejected: result.rejected.slice(0, 5).map((entry) => ({
+        itemSlug: entry.itemSlug,
+        reason: entry.reason,
+        matchedPreferenceTerms: entry.matchedPreferenceTerms,
+        isDyeable: entry.isDyeable,
+        pokemonPrimaryColor: pokemonEntry.primaryColor,
+        itemPrimaryColor: entry.itemPrimaryColor,
+        harmonyStatus: entry.harmonyStatus,
+        harmonyType: entry.harmonyType,
+      })),
+    });
 
     return {
       schemaVersion: RECOMMENDATIONS_SCHEMA_VERSION,
@@ -134,7 +215,34 @@ export function buildRecommendationDataSet(
     };
   });
 
-  return { recommendations, issues };
+  return {
+    recommendations,
+    diagnostics: {
+      schemaVersion: RECOMMENDATION_DIAGNOSTICS_SCHEMA_VERSION,
+      summary: {
+        pokemonCount: diagnostics.length,
+        emptyCount: diagnostics.filter((entry) => entry.status === "empty").length,
+        sparseCount: diagnostics.filter((entry) => entry.status === "sparse").length,
+        readyCount: diagnostics.filter((entry) => entry.status === "ready").length,
+        totalRecommendations: diagnostics.reduce((sum, entry) => sum + entry.recommendationCount, 0),
+      },
+      pokemon: diagnostics,
+    },
+    issues,
+  };
+}
+
+function recommendationDiagnosticsStatus(recommendationCount: number): RecommendationDiagnosticsStatus {
+  if (recommendationCount === 0) {
+    return "empty";
+  }
+  return recommendationCount < 3 ? "sparse" : "ready";
+}
+
+function countReasons<T extends { reason: string }>(entries: T[]): Record<string, number> {
+  const counts = new Map<string, number>();
+  entries.forEach((entry) => counts.set(entry.reason, (counts.get(entry.reason) ?? 0) + 1));
+  return Object.fromEntries(Array.from(counts.entries()).sort(([left], [right]) => left.localeCompare(right, "en")));
 }
 
 function buildOverrideRecommendationDrafts(
