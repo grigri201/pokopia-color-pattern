@@ -1,6 +1,7 @@
 import "./styles.css";
 
 const POKEMON_MANIFEST = "docs/pokopia_image_sources/pokemon_portraits/manifest.csv";
+// Story 1.3 migrates runtime item loading from this full manifest to generated compact data.
 const ITEM_MANIFEST = "docs/pokopia_image_sources/item_portraits/manifest.csv";
 const DEFAULT_POKEMON = "ditto";
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;

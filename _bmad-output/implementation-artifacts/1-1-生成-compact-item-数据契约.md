@@ -1,6 +1,6 @@
 # Story 1.1: 生成 compact item 数据契约
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -16,20 +16,35 @@ so that 前端和后续推荐逻辑可以使用稳定小体积数据，而不读
 
 ## Tasks / Subtasks
 
-- [ ] 建立 compact item 数据契约与类型 (AC: 1, 2)
-  - [ ] 在 `src/data/schemas.ts` 或等价位置定义 `CompactItem`、顶层 `schemaVersion` 和校验函数。
-  - [ ] 字段使用 camelCase；必须包含 item slug、英文名/中文名、category、tags、image path、source traceability、推荐基础字段和可染色占位字段。
-  - [ ] 对缺失但有语义的字段使用 `null`，不要省略字段造成消费者分支不明确。
-- [ ] 实现 build-time compact item 生成入口 (AC: 1, 3)
-  - [ ] 新增 `scripts/generate-data.ts` 和必要的 `scripts/lib/csv.ts`、`scripts/lib/write-json.ts`。
-  - [ ] 从 `docs/pokopia_image_sources/item_portraits/manifest.csv`、`pokopiadex_placeable_items.csv/json` 读取原始数据，只读处理，不写回 `docs/pokopia_image_sources/**`。
-  - [ ] 输出 `generated/data/compact-items.json`，排序以稳定 slug 或 source index 为 tie-breaker。
-- [ ] 增加结构校验与命令 (AC: 2)
-  - [ ] 在 `package.json` 添加生成/校验脚本，例如 `generate` 或 `validate:data`，命名需与后续 story build gate 兼容。
-  - [ ] 校验失败时打印具体文件路径、字段名和 item slug/source row。
-- [ ] 防止首屏继续依赖重 manifest (AC: 1)
-  - [ ] 标记 `src/main.ts` 中现有 `ITEM_MANIFEST` 读取为后续 Story 1.3 的迁移目标，不在本故事中扩大 UI 重构。
-  - [ ] 确认 compact 数据字段足以支持当前 item inspector 和后续推荐 UI。
+- [x] 建立 compact item 数据契约与类型 (AC: 1, 2)
+  - [x] 在 `src/data/schemas.ts` 或等价位置定义 `CompactItem`、顶层 `schemaVersion` 和校验函数。
+  - [x] 字段使用 camelCase；必须包含 item slug、英文名/中文名、category、tags、image path、source traceability、推荐基础字段和可染色占位字段。
+  - [x] 对缺失但有语义的字段使用 `null`，不要省略字段造成消费者分支不明确。
+- [x] 实现 build-time compact item 生成入口 (AC: 1, 3)
+  - [x] 新增 `scripts/generate-data.ts` 和必要的 `scripts/lib/csv.ts`、`scripts/lib/write-json.ts`。
+  - [x] 从 `docs/pokopia_image_sources/item_portraits/manifest.csv`、`pokopiadex_placeable_items.csv/json` 读取原始数据，只读处理，不写回 `docs/pokopia_image_sources/**`。
+  - [x] 输出 `generated/data/compact-items.json`，排序以稳定 slug 或 source index 为 tie-breaker。
+- [x] 增加结构校验与命令 (AC: 2)
+  - [x] 在 `package.json` 添加生成/校验脚本，例如 `generate` 或 `validate:data`，命名需与后续 story build gate 兼容。
+  - [x] 校验失败时打印具体文件路径、字段名和 item slug/source row。
+- [x] 防止首屏继续依赖重 manifest (AC: 1)
+  - [x] 标记 `src/main.ts` 中现有 `ITEM_MANIFEST` 读取为后续 Story 1.3 的迁移目标，不在本故事中扩大 UI 重构。
+  - [x] 确认 compact 数据字段足以支持当前 item inspector 和后续推荐 UI。
+
+### Review Findings
+
+- [x] [Review][Patch] `validate:data` 必须复用生成阶段的 gzip、图片路径和文件存在校验。
+- [x] [Review][Patch] summary category/tag counts 必须与 items 重新计算结果一致。
+- [x] [Review][Patch] JSON parse 失败必须输出文件路径和字段上下文，不应只抛 stack。
+- [x] [Review][Patch] placeable CSV/JSON 重复 slug 必须报错，不能静默覆盖。
+- [x] [Review][Patch] category/id fallback 必须先 trim，再选择第一个非空来源。
+- [x] [Review][Patch] source sequence 非数字必须报错，不能静默变成 `null`。
+- [x] [Review][Patch] required field 错误需要带 slug/source row 上下文。
+- [x] [Review][Patch] CSV 未闭合 quote 必须报错。
+- [x] [Review][Patch] gzip 校验必须使用实际 pretty JSON 输出体积。
+- [x] [Review][Patch] image path 必须限制在 item portrait root 下，防止路径逃逸。
+- [x] [Review][Patch] 数据脚本不依赖 Node experimental TypeScript stripping，先用 `tsc` 编译到 `.tmp` 再执行。
+- [x] [Review][Patch] `sources` 字段必须结构化解析并保留在 compact source traceability 中。
 
 ## Dev Notes
 
@@ -59,10 +74,32 @@ so that 前端和后续推荐逻辑可以使用稳定小体积数据，而不读
 
 ### Agent Model Used
 
-TBD
+GPT-5 Codex
 
 ### Debug Log References
 
+- `npm run generate:data`
+- `npm run validate:data`
+- `npm run build`
+
 ### Completion Notes List
 
+- 新增 compact item schema/type/validator，顶层 `schemaVersion` 固定为 `compact-items.v1`。
+- 新增 Node ESM 数据生成入口，读取完整 1,219 个 in-collection item manifest，并输出 `generated/data/compact-items.json`。
+- compact item 保留结构化 `sources` 数组、source dataset/index/row，并校验 summary 与 items 一致。
+- compact image path 使用 root-absolute `/docs/...`，避免后续 `/pokemon/{slug}/` 嵌套路由相对路径失效。
+- 生成脚本校验 schema、图片文件存在、路径边界、gzip 小于 50KB，并用文件/字段/slug/row 输出错误上下文。
+- `src/main.ts` 的完整 item manifest fetch 保留给 Story 1.3 迁移，本故事未扩大 UI 重构。
+
 ### File List
+
+- `.gitignore`
+- `package.json`
+- `tsconfig.json`
+- `tsconfig.scripts.json`
+- `src/main.ts`
+- `src/data/schemas.ts`
+- `scripts/generate-data.ts`
+- `scripts/lib/csv.ts`
+- `scripts/lib/write-json.ts`
+- `generated/data/compact-items.json`
