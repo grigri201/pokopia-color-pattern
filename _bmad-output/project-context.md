@@ -31,7 +31,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - TypeScript 版本以 lockfile 为准：`typescript` 5.9.3。
 - Vite 版本以 lockfile 为准：`vite` 7.3.3；`package.json` 中是 `^7.1.12` 范围。
 - Node 类型版本以 lockfile 为准：`@types/node` 24.12.4。
-- 构建命令是 `npm run build`，它是 production gate；具体链路以 `package.json` 为准。
+- 构建命令是 `npm run build`，它是部署产物 gate；具体链路以 `package.json` 为准，且不得依赖 Playwright 或浏览器安装。
 - 开发服务器命令是 `npm run dev`，固定 `vite --host 127.0.0.1`。
 - Correct-course 后的目标边界：`vite.config.ts` 不得把完整 `docs/pokopia_image_sources/**` 复制到 `dist`；production 只分发 allowlist runtime data 和 `/assets/runtime/**` 图片资产。
 
@@ -60,7 +60,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 ### Testing Rules
 
-- 当前仓库没有 Vitest/Jest/Playwright 配置；现有最低 gate 是 `npm run build`。
+- Playwright 浏览器 smoke 已存在，但部署环境不一定支持浏览器安装；`npm run build` 只包含部署必需的生成、类型检查、SSG 和 dist 校验。
 - 引入测试工具时保持轻量，并把命令接入 `package.json`；不要留下只能手动运行的隐式 gate。
 - 推荐引擎必须用 fixture 覆盖偏好词命中、可染色 item、不可染色 item 和 OKLCH 和谐分支。
 - Pokemon metadata override 必须测试主色、色板、pattern、搭配道具追加和搭配道具替换模式。
@@ -68,7 +68,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - 构建断言必须验证全部 311 个 Pokemon 都有 `/pokemon/{slug}/` 静态页，且固定样本页包含标题、图片、主色、色板和推荐摘要。
 - 体积校验必须覆盖 compact runtime item data gzip 小于 50KB、单个 Pokemon 推荐数据 gzip 小于 5KB、`dist/data/recommendations/**` raw 小于 12 MiB / gzip 小于 800 KiB、runtime images 小于 15 MiB、`dist` logical size 小于 40 MiB。
 - `validate:dist` 必须 fail fast：只要 `dist/docs/pokopia_image_sources/**` 存在、runtime JSON/HTML/JS/CSS 指向 `/docs/pokopia_image_sources/**`、或 runtime asset manifest 缺失引用文件，就返回非零。
-- 浏览器 smoke test 至少覆盖直接访问一个静态 Pokemon 页并完成 hydrate 的路径。
+- 浏览器 smoke test 至少覆盖直接访问一个静态 Pokemon 页并完成 hydrate 的路径；在支持 Playwright 的本地/CI 环境用 `npm run smoke:hydrate` 或 `npm run verify:release` 单独运行。
 
 ### Code Quality & Style Rules
 
@@ -88,7 +88,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - 开始实现前先看 `_bmad-output/planning-artifacts/prd.md`；它是当前 brownfield 改造范围和验收约束的源头。
 - 对 BMAD 工作流优先使用仓库本地 `.agents/skills/*`，不要假设全局 cached skill 路径一定适用。
 - 若需要隔离较大改动，可按 `AGENTS.md` 指示新建 git worktree；普通文档或单点修改可在当前工作区处理。
-- 提交前至少运行 `npm run build`；涉及生成数据时还要运行对应生成和校验命令。
+- 提交前至少运行 `npm run build`；涉及生成数据时还要运行对应生成和校验命令。支持 Playwright 的环境可额外运行 `npm run smoke:hydrate` 或 `npm run verify:release`。
 - 涉及 runtime asset boundary 时，额外检查 `find dist -path '*docs/pokopia_image_sources*'` 为空，并确认 `rg -n "/docs/pokopia_image_sources" dist` 无生产引用。
 - 数据/静态产物改动后运行 `git diff --check`，避免 generated CSV/Markdown 中的尾随空白。
 - 提交范围要明确区分源码、生成数据、BMAD 输出和个人配置；不要把 `_bmad/config.user.toml` 当作项目变更提交。
