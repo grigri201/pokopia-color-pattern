@@ -13,7 +13,9 @@ import type { CompactItem, PokemonIndexEntry, RecommendationEntry, Recommendatio
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
 const LOCALES = ["zh", "en"] as const;
 const DEFAULT_LOCALE: Locale = "en";
-const LOCALE_STORAGE_KEY = "pokopia-color-pattern.locale";
+const SITE_NAME = "Pokopia Decor Dex";
+const SITE_SEO_TITLE = "Pokopia Decor Dex - Color Palettes and Item Matches";
+const LOCALE_STORAGE_KEY = "pokopia-decor-dex.locale";
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
 type Locale = (typeof LOCALES)[number];
@@ -408,7 +410,7 @@ function setLocale(locale: Locale): void {
 function renderLocaleChrome(): void {
   const labels = text();
   document.documentElement.lang = labels.htmlLang;
-  document.title = "Pokopia Color Pattern";
+  document.title = SITE_SEO_TITLE;
   els.drawerBackdrop.setAttribute("aria-label", labels.closeDrawer);
   els.drawerClose.setAttribute("aria-label", labels.closeDrawer);
   els.languageToggle.textContent = labels.languageToggle;
@@ -650,6 +652,7 @@ function renderRouteNotFound(slug: string, source: PokemonRouteSource): void {
   document.documentElement.style.setProperty("--field", fallback.hex);
   document.documentElement.style.setProperty("--field-ink", readableInk(fallback.rgb));
   document.documentElement.style.setProperty("--accent", fallback.hex);
+  document.title = `${labels.notFoundPokemon} | ${SITE_NAME}`;
 
   renderList();
   els.title.innerHTML = `${escapeHtml(labels.notFoundPokemon)} <em>${escapeHtml(slug || "unknown")}</em>`;
@@ -737,6 +740,7 @@ function renderStage(pokemon: SelectedPokemon): void {
   document.documentElement.style.setProperty("--field", primary.hex);
   document.documentElement.style.setProperty("--field-ink", textColor);
   document.documentElement.style.setProperty("--accent", primary.hex);
+  document.title = `${pokemonDisplayName(pokemon)} | ${SITE_NAME}`;
 
   els.title.innerHTML = pokemonTitleHtml(pokemon);
   els.selectedPortrait.src = pokemon.image;

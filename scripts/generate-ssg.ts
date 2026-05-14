@@ -20,7 +20,9 @@ const pokemonIndexPath = resolve(projectRoot, "generated/data/pokemon-index.json
 const recommendationsDir = resolve(projectRoot, "generated/data/recommendations");
 const ssgReportPath = resolve(projectRoot, "generated/reports/ssg-generation-summary.json");
 const expectedPokemonCount = 311;
-const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-color-pattern.local");
+const siteName = "Pokopia Decor Dex";
+const siteTagline = "A Pokopia dex for colors, decor, and item matches.";
+const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-decor-dex.tinytoolshelf.com");
 
 const template = await readFile(distIndexPath, "utf8");
 const compactItems = await readJson<CompactItemsData>(compactItemsPath);
@@ -128,15 +130,18 @@ function renderPokemonStaticPage(
   const fieldInk = readableInk(primaryColor);
   const staticMuted = readableMuted(primaryColor);
   const recommendationSummary = buildRecommendationSummaryText(pokemon, recommendationResult);
-  const pageTitle = `${displayPokemonName(pokemon)} | Pokopia Color Pattern`;
+  const pageTitle = `${displayPokemonName(pokemon)} | ${siteName}`;
   const staticBody = renderStaticBody(pokemon, recommendationResult, recommendationSummary);
   const html = indexHtml
-    .replace(/<title>.*?<\/title>/, `<title>${escapeHtml(pageTitle)}</title>\n    ${renderHeadMetadata(pageTitle, recommendationSummary.text, pokemon)}`)
     .replace(
-      '<div id="loading" class="loading">Pokopia Color Pattern</div>',
-      `<div id="loading" class="loading is-hidden">Pokopia Color Pattern</div><div id="staticPage" class="static-page-shell" style="--field:${escapeAttribute(primaryColor)}; --field-ink:${escapeAttribute(fieldInk)}; --accent:${escapeAttribute(primaryColor)}; --static-muted:${escapeAttribute(staticMuted)};">${staticBody}</div>`,
+      /<title>.*?<\/title>\s*<meta name="description" content=".*?" \/>/,
+      `<title>${escapeHtml(pageTitle)}</title>\n    ${renderHeadMetadata(pageTitle, recommendationSummary.text, pokemon)}`,
+    )
+    .replace(
+      '<div id="loading" class="loading">Pokopia Decor Dex</div>',
+      `<div id="loading" class="loading is-hidden">Pokopia Decor Dex</div><div id="staticPage" class="static-page-shell" style="--field:${escapeAttribute(primaryColor)}; --field-ink:${escapeAttribute(fieldInk)}; --accent:${escapeAttribute(primaryColor)}; --static-muted:${escapeAttribute(staticMuted)};">${staticBody}</div>`,
     );
-  if (!html.includes('id="staticPage"') || html.includes('<div id="loading" class="loading">Pokopia Color Pattern</div>')) {
+  if (!html.includes('id="staticPage"') || html.includes(siteTagline)) {
     throw new Error(`Unable to inject static page content for ${pokemon.slug}; dist/index.html template changed`);
   }
   return html;
@@ -154,6 +159,7 @@ function renderHeadMetadata(pageTitle: string, pageDescription: string, pokemon:
     `<link rel="canonical" href="${escapeAttribute(canonicalUrl)}" />`,
     `<meta name="description" content="${escapeAttribute(pageDescription)}" />`,
     `<meta property="og:type" content="website" />`,
+    `<meta property="og:site_name" content="${escapeAttribute(siteName)}" />`,
     `<meta property="og:title" content="${escapeAttribute(pageTitle)}" />`,
     `<meta property="og:description" content="${escapeAttribute(pageDescription)}" />`,
     `<meta property="og:image" content="${escapeAttribute(imageUrl)}" />`,
@@ -176,7 +182,7 @@ function renderStaticBody(
   return `
       <article class="static-page" data-static-pokemon="${escapeAttribute(pokemon.slug)}">
         <header class="static-hero">
-          <p class="kicker">Pokopia / Static Pokemon Page</p>
+          <p class="kicker">Pokopia Decor Dex / Static Page</p>
           <h1>${escapeHtml(pokemon.zhName || pokemon.name)} <em>${escapeHtml(pokemon.name)}</em></h1>
           <p class="static-number">No. ${escapeHtml(pokemon.sequence)} · #${escapeHtml(pokemon.slug)}</p>
           <img class="static-portrait" src="${escapeAttribute(pokemon.imagePath)}" alt="${escapeAttribute(displayPokemonName(pokemon))}" />

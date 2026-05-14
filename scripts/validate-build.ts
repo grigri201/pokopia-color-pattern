@@ -90,7 +90,7 @@ const runtimePokemonMaxEdge = 420;
 const runtimeItemMaxEdge = 240;
 const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
-const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-color-pattern.local");
+const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-decor-dex.tinytoolshelf.com");
 const distOnly = process.argv.includes("--dist");
 const recommendationsOnly = process.argv.includes("--recommendations");
 const issues: ValidationIssue[] = [];
@@ -582,7 +582,7 @@ function validateStaticMetadata(
   const title = matchFirst(text, /<title>([^<]+)<\/title>/);
   const description = matchFirst(text, /<meta name="description" content="([^"]*)" \/>/);
   const renderedSummary = matchFirst(text, /data-recommendation-summary="([^"]*)"/);
-  const expectedTitle = escapeHtmlForValidation(`${displayPokemonName(pokemon)} | Pokopia Color Pattern`);
+  const expectedTitle = escapeHtmlForValidation(`${displayPokemonName(pokemon)} | Pokopia Decor Dex`);
   const expectedDescription = escapeHtmlForValidation(summary.text);
   const expectedCanonicalUrl = staticPageUrl(pokemon.slug);
   const expectedImageUrl = staticAssetUrl(pokemon);

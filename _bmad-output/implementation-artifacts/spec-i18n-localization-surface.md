@@ -61,11 +61,11 @@ context:
 ## 待确认翻译清单
 
 **A. 产品与区域标题**
-- `Pokopia Color Pattern`
-- `Pokopia / Color Index`
-- `Pocket Palette`
+- `Pokopia Decor Dex`
+- `Pokopia / Decor Dex`
+- `Pokopia Decor Dex - Color Palettes and Item Matches`
 - `宝可梦头像色板、比例与家具搭配候选。`
-- `Pokopia / Static Pokemon Page`
+- `Pokopia Decor Dex / Static Page`
 - `Item Match`
 - `搭配道具`
 

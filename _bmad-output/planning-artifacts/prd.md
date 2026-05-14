@@ -45,14 +45,16 @@ editHistory:
     changes: 'Approved correct-course update for runtime asset boundary, raw source exclusion, dist size budgets, and deployment validation.'
 ---
 
-# Product Requirements Document - pokopia-color-pattern
+# Product Requirements Document - Pokopia Decor Dex
 
 **Author:** Grigri
 **Date:** 2026-05-12
 
 ## Executive Summary
 
-Pokopia Color Pattern 将从单页色板浏览器升级为“颜色驱动的 Pokemon item 推荐目录”。用户进入某只 Pokemon 的页面后，应能快速看到该 Pokemon 的主色、色板、可搭配物品，并获得具有审美感的浏览体验。当前 SPA 已具备基础展示能力，但 item manifest 体积、运行时推荐计算、hash-only 路由限制了首屏性能、快速访问和分享体验。
+Pokopia Decor Dex 将从单页色板浏览器升级为面向 Pokopia 的“图鉴 + 色彩 + 装饰搭配”目录。用户进入某只 Pokopia Pokemon 的页面后，应能快速看到该 Pokemon 的主色、色板、可搭配物品，并获得具有审美感的浏览体验。当前 SPA 已具备基础展示能力，但 item manifest 体积、运行时推荐计算、hash-only 路由限制了首屏性能、快速访问和分享体验。
+
+公开品牌名为 **Pokopia Decor Dex**。SEO title 使用 **Pokopia Decor Dex - Color Palettes and Item Matches**。Tagline 使用 **A Pokopia dex for colors, decor, and item matches.** 该命名强调产品是 Pokopia 相关图鉴，而不是泛 Pokemon 图鉴；同时保留色彩与装饰搭配两个核心内容。
 
 本 PRD 定义四个 brownfield 改造方向：精简 item manifest 作为数据契约与性能债务治理；将 Pokemon-item 推荐改为构建期预计算；生成 `/pokemon/{slug}/` 静态详情页并在加载后 hydrate 为现有 SPA 交互体验；建立 runtime asset boundary，确保部署产物只包含运行时实际需要的压缩图片和数据。目标是让用户能更快打开、分享、访问某只 Pokemon 的搭配页，并获得稳定、可解释、可部署的推荐结果。
 
@@ -145,7 +147,7 @@ Hybrid SSG 让每只 Pokemon 拥有可分享、可快速访问的静态详情页
 
 ### Long-Term Direction
 
-- 将 Pokopia Color Pattern 发展成可浏览、可分享、可解释的 Pokemon 室内/物品搭配目录。
+- 将 Pokopia Decor Dex 发展成可浏览、可分享、可解释的 Pokopia 室内/物品搭配目录。
 - 支持更丰富的搭配场景，例如整套空间方案、主题风格、用户收藏和导出。
 
 ## User Journeys
@@ -260,7 +262,7 @@ Hybrid SSG 让每只 Pokemon 拥有可分享、可快速访问的静态详情页
 
 ### Project-Type Overview
 
-Pokopia Color Pattern 是一个 brownfield Web 应用，当前由 Vite + TypeScript 构建，主要体验为 SPA。目标架构是 Hybrid SSG：构建期生成 `/pokemon/{slug}/` 静态详情页，页面加载后 hydrate 为现有 SPA 体验。该项目不定义移动原生能力、CLI 产品面或外部 API。
+Pokopia Decor Dex 是一个 brownfield Web 应用，当前由 Vite + TypeScript 构建，主要体验为 SPA。目标架构是 Hybrid SSG：构建期生成 `/pokemon/{slug}/` 静态详情页，页面加载后 hydrate 为现有 SPA 体验。该项目不定义移动原生能力、CLI 产品面或外部 API。
 
 ### Technical Architecture Considerations
 
