@@ -981,6 +981,18 @@ body.drawer-open .selected-float {
   margin-left: 6px;
 }
 
+.recommendation-state .recommendation-retry[data-recommendation-action="reset-filter"] {
+  min-height: 0;
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  padding: 0;
+}
+
+.recommendation-state .recommendation-retry[data-recommendation-action="reset-filter"]:hover {
+  color: var(--ink);
+}
+
 .recommendation-pagination {
   display: grid;
   grid-template-columns: minmax(88px, auto) 1fr minmax(88px, auto);

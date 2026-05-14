@@ -1,6 +1,7 @@
 export const POKEMON_RANGES = ["all", "early", "late"] as const;
 
 export type PokemonRange = (typeof POKEMON_RANGES)[number];
+export type PokemonDisplayLocale = "zh" | "en";
 
 export type PokemonSearchRecord = {
   sequence: string;
@@ -31,6 +32,12 @@ export function filterPokemon<T extends PokemonSearchRecord>(
   });
 }
 
-export function pokemonAltText(pokemon: Pick<PokemonSearchRecord, "zh" | "name">): string {
+export function pokemonAltText(
+  pokemon: Pick<PokemonSearchRecord, "zh" | "name">,
+  locale: PokemonDisplayLocale = "zh",
+): string {
+  if (locale === "en") {
+    return pokemon.name;
+  }
   return `${pokemon.zh} ${pokemon.name}`.trim();
 }

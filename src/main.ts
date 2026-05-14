@@ -12,7 +12,7 @@ import type { CompactItem, PokemonIndexEntry, RecommendationEntry, Recommendatio
 
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
 const LOCALES = ["zh", "en"] as const;
-const DEFAULT_LOCALE: Locale = "zh";
+const DEFAULT_LOCALE: Locale = "en";
 const LOCALE_STORAGE_KEY = "pokopia-color-pattern.locale";
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
@@ -106,10 +106,33 @@ function isLocale(value: string | null): value is Locale {
 function readInitialLocale(): Locale {
   try {
     const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
-    return isLocale(stored) ? stored : DEFAULT_LOCALE;
+    if (isLocale(stored)) {
+      return stored;
+    }
   } catch {
+    // Storage can be unavailable in private contexts; fall back to the browser locale.
+  }
+  return readBrowserLocale();
+}
+
+function readBrowserLocale(): Locale {
+  if (typeof navigator === "undefined") {
     return DEFAULT_LOCALE;
   }
+
+  const languageTags = [...navigator.languages, navigator.language].filter(Boolean);
+  for (const languageTag of languageTags) {
+    const locale = localeFromLanguageTag(languageTag);
+    if (locale) {
+      return locale;
+    }
+  }
+  return DEFAULT_LOCALE;
+}
+
+function localeFromLanguageTag(languageTag: string): Locale | null {
+  const primarySubtag = languageTag.trim().toLowerCase().split(/[-_]/)[0] ?? "";
+  return isLocale(primarySubtag) ? primarySubtag : null;
 }
 
 const ITEM_FILTER_LABELS: Record<Locale, Record<ItemFilter, string>> = {
@@ -156,7 +179,7 @@ const TEXT = {
     recommendationsUnavailable: "推荐搭配暂时不可用，可以切换 Pokemon 继续浏览。",
     recommendationError: (error: string) => `推荐搭配暂时不可用：${error || "未知错误"}。可以重新读取，或切换 Pokemon 继续浏览。`,
     emptyRecommendations: "当前数据和规则暂未产生推荐搭配。可以切换 Pokemon，或稍后补充 override 后重新生成数据。",
-    emptyFilter: "当前筛选下没有推荐搭配。可以显示全部推荐或切换 Pokemon。",
+    emptyFilter: "当前筛选下没有推荐搭配。可以显示全部推荐。",
     sparseRecommendations: (count: number) => `当前规则只产生 ${count} 个推荐搭配；结果基于现有数据和规则，可切换 Pokemon 继续比较。`,
     retry: "重新读取",
     switchPokemon: "切换 Pokemon",
@@ -191,7 +214,7 @@ const TEXT = {
     htmlLang: "en",
     currentPokemon: "Current Pokemon",
     closeDrawer: "Close search drawer",
-    languageToggle: "中文",
+    languageToggle: "Chinese",
     languageAria: "Switch to Chinese",
     searchPlaceholder: "Search",
     searchAria: "Search by Pokemon name, English name, or number",
@@ -211,7 +234,7 @@ const TEXT = {
     recommendationsUnavailable: "Recommendations are unavailable. Switch Pokemon to keep browsing.",
     recommendationError: (error: string) => `Recommendations are unavailable: ${error || "unknown error"}. Retry or switch Pokemon to keep browsing.`,
     emptyRecommendations: "No recommendations were generated from the current data and rules. Switch Pokemon or regenerate after adding overrides.",
-    emptyFilter: "No recommendations match this filter. Show all recommendations or switch Pokemon.",
+    emptyFilter: "No recommendations match this filter. Show all recommendations.",
     sparseRecommendations: (count: number) => `Only ${count} recommendations were generated. Results are based on current data and rules.`,
     retry: "Retry",
     switchPokemon: "Switch Pokemon",
@@ -510,24 +533,26 @@ function renderList(): void {
 
   els.resultCount.textContent = String(filtered.length).padStart(3, "0");
   els.pokemonList.innerHTML = filtered
-    .map(
-      (pokemon) => `
+    .map((pokemon) => {
+      const primaryName = pokemonPrimaryDisplayName(pokemon);
+      const secondaryName = pokemonSecondaryDisplayName(pokemon);
+      return `
         <li>
           <button class="pokemon-item${state.selected?.slug === pokemon.slug ? " is-active" : ""}"
             type="button"
             data-slug="${pokemon.slug}"
             aria-current="${state.selected?.slug === pokemon.slug ? "true" : "false"}"
-            aria-label="${escapeHtml(pokemonAltText(pokemon))}">
+            aria-label="${escapeHtml(pokemonAltText(pokemon, state.locale))}">
             <img class="thumb" src="${pokemon.image}" alt="" loading="lazy" />
             <span class="pokemon-name">
-              <strong>${escapeHtml(pokemon.zh)}</strong>
-              <span>${escapeHtml(pokemon.name)}</span>
+              <strong>${escapeHtml(primaryName)}</strong>
+              <span>${escapeHtml(secondaryName)}</span>
             </span>
             <span class="seq">${pokemon.sequence}</span>
           </button>
         </li>
-      `,
-    )
+      `;
+    })
     .join("");
 
   els.pokemonList.querySelectorAll<HTMLButtonElement>("[data-slug]").forEach((button) => {
@@ -710,9 +735,9 @@ function renderStage(pokemon: SelectedPokemon): void {
   document.documentElement.style.setProperty("--field-ink", textColor);
   document.documentElement.style.setProperty("--accent", primary.hex);
 
-  els.title.innerHTML = `${escapeHtml(pokemon.zh)} <em>${escapeHtml(pokemon.name)}</em>`;
+  els.title.innerHTML = pokemonTitleHtml(pokemon);
   els.selectedPortrait.src = pokemon.image;
-  els.selectedPortrait.alt = pokemonAltText(pokemon);
+  els.selectedPortrait.alt = pokemonAltText(pokemon, state.locale);
   els.portraitNumber.textContent = pokemon.sequence;
 
   const metricData: Array<[string, string]> = [
@@ -736,7 +761,7 @@ function renderStage(pokemon: SelectedPokemon): void {
 function renderFloatingPokemon(pokemon: SelectedPokemon): void {
   els.floatPortrait.src = pokemon.image;
   els.floatPortrait.alt = "";
-  els.floatName.textContent = `${pokemon.zh} / ${pokemon.name}`;
+  els.floatName.textContent = pokemonDisplayName(pokemon);
   els.floatMeta.innerHTML = `
     <span>No. ${pokemon.sequence}</span>
   `;
@@ -841,7 +866,7 @@ function renderRecommendations(): void {
     renderRecommendationState(
       message,
       "recommendation-state",
-      panel.data.recommendations.length === 0 ? ["switch-pokemon"] : ["reset-filter", "switch-pokemon"],
+      panel.data.recommendations.length === 0 ? ["switch-pokemon"] : ["reset-filter"],
     );
     return;
   }
@@ -1034,6 +1059,10 @@ function bindRecommendationPagination(totalPages: number): void {
 }
 
 function recommendationMatchesFilter(entry: RecommendationEntry): boolean {
+  if (isSeedRecommendation(entry)) {
+    return false;
+  }
+
   if (state.itemCategory === "全部") {
     return true;
   }
@@ -1055,11 +1084,48 @@ function recommendationMatchesFilter(entry: RecommendationEntry): boolean {
   }
 }
 
-function recommendationDisplayName(entry: RecommendationEntry): string {
-  if (state.locale === "zh") {
-    return entry.itemZhName || entry.itemName;
+function isSeedRecommendation(entry: RecommendationEntry): boolean {
+  const item = state.itemBySlug.get(entry.itemSlug);
+  const zhName = entry.itemZhName || item?.zh || "";
+  if (zhName.endsWith("种子")) {
+    return true;
   }
-  return entry.itemName;
+
+  const englishName = (entry.itemName || item?.name || "").toLowerCase();
+  return /(?:^|[-\s])seeds?$/.test(englishName);
+}
+
+function recommendationDisplayName(entry: RecommendationEntry): string {
+  const item = state.itemBySlug.get(entry.itemSlug);
+  if (state.locale === "zh") {
+    return entry.itemZhName || item?.zh || entry.itemName || item?.name || entry.itemSlug;
+  }
+  return entry.itemName || item?.name || entry.itemSlug;
+}
+
+function pokemonPrimaryDisplayName(pokemon: Pokemon): string {
+  return state.locale === "zh" ? pokemon.zh : pokemon.name;
+}
+
+function pokemonSecondaryDisplayName(pokemon: Pokemon): string {
+  if (state.locale === "zh") {
+    return pokemon.name;
+  }
+  return pokemon.slug;
+}
+
+function pokemonDisplayName(pokemon: Pokemon): string {
+  if (state.locale === "zh" && pokemon.zh !== pokemon.name) {
+    return `${pokemon.zh} / ${pokemon.name}`;
+  }
+  return pokemon.name;
+}
+
+function pokemonTitleHtml(pokemon: Pokemon): string {
+  if (state.locale === "zh" && pokemon.zh !== pokemon.name) {
+    return `${escapeHtml(pokemon.zh)} <em>${escapeHtml(pokemon.name)}</em>`;
+  }
+  return escapeHtml(pokemon.name);
 }
 
 function rgbToHex(rgb: Rgb): string {
@@ -1193,7 +1259,8 @@ function errorMessage(error: unknown): string {
 }
 
 function renderBootError(error: unknown): void {
-  const fileLabel = error instanceof GeneratedDataError ? `（${error.filePath}）` : "";
+  const labels = text();
+  const fileLabel = error instanceof GeneratedDataError ? ` (${error.filePath})` : "";
   const message = error instanceof Error ? error.message : String(error);
   const errorBox = document.createElement("div");
   const title = document.createElement("strong");
@@ -1202,12 +1269,12 @@ function renderBootError(error: unknown): void {
   const retry = document.createElement("button");
 
   errorBox.className = "loading-error";
-  title.textContent = `无法读取 Pokopia 生成数据${fileLabel}`;
-  hint.textContent = "请重新运行 npm run generate:data 后刷新页面。";
+  title.textContent = labels.bootErrorTitle(fileLabel);
+  hint.textContent = labels.bootErrorHint;
   detail.className = "error-detail";
   detail.textContent = message;
   retry.type = "button";
-  retry.textContent = "重新载入";
+  retry.textContent = labels.reload;
   retry.addEventListener("click", () => location.reload());
   errorBox.replaceChildren(title, hint, detail, retry);
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hans">
+<html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -16,7 +16,7 @@
       aria-expanded="false">
       <img id="floatPortrait" class="float-thumb" alt="" />
       <span class="float-copy">
-        <strong id="floatName">当前宝可梦</strong>
+        <strong id="floatName">Current Pokemon</strong>
         <span id="floatMeta" class="float-meta">
           <span>No. 000</span>
         </span>
@@ -44,7 +44,7 @@
       id="drawerBackdrop"
       class="drawer-backdrop"
       type="button"
-      aria-label="关闭搜索抽屉"></button>
+      aria-label="Close search drawer"></button>
     <main id="app" class="app-shell is-hidden">
       <aside id="pokemonDrawer" class="rail" data-od-id="pokemon-index" aria-hidden="true">
         <header class="brand-block">
@@ -52,7 +52,7 @@
             <div class="kicker">Pokopia / Color Index</div>
             <h1 class="brand-title">Pocket <em>Palette</em></h1>
           </div>
-          <button id="drawerClose" class="drawer-close" type="button" aria-label="关闭搜索抽屉">×</button>
+          <button id="drawerClose" class="drawer-close" type="button" aria-label="Close search drawer">×</button>
         </header>
 
         <div class="search-block">
@@ -60,13 +60,13 @@
             <input
               id="searchInput"
               type="search"
-              placeholder="搜索"
+              placeholder="Search"
               autocomplete="off"
-              aria-label="搜索 Pokemon 名称、英文名或编号" />
+              aria-label="Search by Pokemon name, English name, or number" />
             <span id="resultCount" aria-live="polite">000</span>
           </label>
           <div class="filter-row" aria-label="Pokemon list range">
-            <button class="is-active" type="button" data-range="all" aria-pressed="true">全部</button>
+            <button class="is-active" type="button" data-range="all" aria-pressed="true">All</button>
             <button type="button" data-range="early" aria-pressed="false">001-120</button>
             <button type="button" data-range="late" aria-pressed="false">121+</button>
           </div>
@@ -82,12 +82,12 @@
       <section class="stage" data-od-id="selected-pokemon">
         <div class="stage-inner">
           <div class="topline">
-            <button id="languageToggle" class="hash-pill" type="button" aria-label="切换到英文">English</button>
+            <button id="languageToggle" class="hash-pill" type="button" aria-label="Switch to Chinese">Chinese</button>
           </div>
 
           <div class="hero-grid">
             <div>
-              <h2 id="pokemonTitle" class="stage-title">百变怪 <em>Ditto</em></h2>
+              <h2 id="pokemonTitle" class="stage-title">Ditto</h2>
               <div class="stage-subtitle">
                 <div id="metricStrip" class="metric-strip" aria-label="Primary color values"></div>
               </div>
@@ -103,16 +103,16 @@
             <div class="analysis-grid">
               <section class="analysis-card">
                 <div class="section-label">
-                  <h2 id="paletteTitle">色板</h2>
-                  <span id="paletteTotal" class="tiny-label">0 种颜色</span>
+                  <h2 id="paletteTitle">Swatches</h2>
+                  <span id="paletteTotal" class="tiny-label">0 colors</span>
                 </div>
                 <div id="swatchList" class="swatch-list"></div>
               </section>
 
               <section class="analysis-card">
                 <div class="section-label">
-                  <h2 id="patternTitle">图案</h2>
-                  <span id="patternTotal" class="tiny-label">40 格</span>
+                  <h2 id="patternTitle">Pattern</h2>
+                  <span id="patternTotal" class="tiny-label">40 cells</span>
                 </div>
                 <div id="patternView" class="pattern-view" aria-label="Color pattern cells"></div>
               </section>
@@ -124,21 +124,21 @@
       <aside class="inspector" data-od-id="palette-inspector">
         <header class="panel-head">
           <div>
-            <h2 id="panelTitle" class="panel-title">搭配道具</h2>
+            <h2 id="panelTitle" class="panel-title">Item Match</h2>
           </div>
         </header>
 
         <div class="panel-scroll">
           <section>
             <div class="section-label">
-              <h2 id="itemSectionTitle">推荐搭配 · 全部</h2>
-              <select id="itemFilter" class="item-filter" aria-label="筛选搭配道具类型">
-                <option value="全部">全部</option>
-                <option value="家具">家具</option>
-                <option value="装饰">装饰</option>
-                <option value="玩具">玩具</option>
-                <option value="地块">地块</option>
-                <option value="食物">食物</option>
+              <h2 id="itemSectionTitle">Recommendations · All</h2>
+              <select id="itemFilter" class="item-filter" aria-label="Filter item type">
+                <option value="全部">All</option>
+                <option value="家具">Furniture</option>
+                <option value="装饰">Decor</option>
+                <option value="玩具">Toys</option>
+                <option value="地块">Blocks</option>
+                <option value="食物">Food</option>
               </select>
             </div>
             <div id="furnitureGrid" class="furniture-grid"></div>

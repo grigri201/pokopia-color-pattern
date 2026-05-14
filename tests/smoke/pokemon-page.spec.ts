@@ -1,5 +1,5 @@
 import { readFileSync } from "node:fs";
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
 
 type CompactItem = {
   slug: string;
@@ -17,6 +17,8 @@ type CompactItem = {
 type CompactItemsData = {
   items: CompactItem[];
 };
+
+test.use({ locale: "zh-CN" });
 
 test("direct Pokemon static page hydrates against real dist data", async ({ page }) => {
   const staticResponse = await page.request.get("/pokemon/ditto/");
@@ -52,6 +54,36 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   await expect(page.locator(".recommendation-card").first()).toBeVisible();
 });
 
+test.describe("English browser locale", () => {
+  test.use({ locale: "en-US" });
+
+  test("uses English by default and keeps visible UI free of Chinese text", async ({ page }) => {
+    await page.goto("/pokemon/ditto/");
+
+    await expect(page.locator("#app")).toBeVisible();
+    await expect(page.locator("#staticPage")).toHaveCount(0);
+    await expect(page.locator("#languageToggle")).toHaveText("Chinese");
+    await expect(page.locator("#pokemonTitle")).toHaveText("Ditto");
+    await expect(page.locator("#selectedPortrait")).toHaveAttribute("alt", "Ditto");
+    await expect(page.locator("#floatName")).toHaveText("Ditto");
+    await expect(page.locator("#paletteTitle")).toHaveText("Swatches");
+    await expect(page.locator("#panelTitle")).toHaveText("Item Match");
+    await expect(page.locator("#itemSectionTitle")).toHaveText("Recommendations · All");
+    await expect(page.locator(".recommendation-card").first()).toContainText("Matched terms");
+
+    const recommendationNames = await page.locator(".recommendation-card h3").allTextContents();
+    recommendationNames.forEach((name) => expect(name).not.toMatch(/[\u3400-\u9fff]/));
+
+    await page.locator("#drawerTrigger").click();
+    const dittoButton = page.locator("#pokemonList [data-slug='ditto']");
+    await expect(dittoButton).toHaveAttribute("aria-label", "Ditto");
+    await expect(dittoButton.locator("strong")).toHaveText("Ditto");
+
+    const visibleText = await page.locator("body").innerText();
+    expect(visibleText).not.toMatch(/[\u3400-\u9fff]/);
+  });
+});
+
 test("legacy hash route canonicalizes to Pokemon pathname", async ({ page }) => {
   await page.goto("/#abra");
 
@@ -59,6 +91,16 @@ test("legacy hash route canonicalizes to Pokemon pathname", async ({ page }) => 
   await expect(page.locator("#app")).toBeVisible();
   await expect(page.locator("#pokemonTitle")).toContainText("Abra");
   await expect(page.locator("#languageToggle")).toHaveText("English");
+});
+
+test("food filter empty state keeps only show all action", async ({ page }) => {
+  await page.goto("/pokemon/drifloon/");
+
+  await page.locator("#itemFilter").selectOption("食物");
+  await expect(page.locator("#itemSectionTitle")).toHaveText("推荐搭配 · 食物");
+  await expect(page.locator(".recommendation-state")).toContainText("当前筛选下没有推荐搭配");
+  await expect(page.locator('[data-recommendation-action="reset-filter"]')).toHaveCount(1);
+  await expect(page.locator('[data-recommendation-action="switch-pokemon"]')).toHaveCount(0);
 });
 
 test("hydrated Pokemon page keeps pagination, filters, search, and switching usable", async ({ page }) => {
@@ -84,9 +126,11 @@ test("hydrated Pokemon page keeps pagination, filters, search, and switching usa
   expect(interceptedFixture).toBe(true);
   await expect(page.locator(".recommendation-summary")).toContainText("1-10 / 12");
   await expect(page.locator(".recommendation-card")).toHaveCount(10);
+  await expectVisibleRecommendationNamesToExcludeSeeds(page);
   await page.getByRole("button", { name: "下一页推荐搭配" }).click();
   await expect(page.locator(".recommendation-summary")).toContainText("11-12 / 12");
   await expect(page.locator(".recommendation-card")).toHaveCount(2);
+  await expectVisibleRecommendationNamesToExcludeSeeds(page);
   await page.getByRole("button", { name: "上一页推荐搭配" }).click();
   await expect(page.locator(".recommendation-summary")).toContainText("1-10 / 12");
 
@@ -94,6 +138,10 @@ test("hydrated Pokemon page keeps pagination, filters, search, and switching usa
   await expect(page.locator("#itemSectionTitle")).toHaveText("推荐搭配 · 家具");
   await expect(page.locator(".recommendation-summary")).toContainText("1-2 / 2");
   await expect(page.locator(".recommendation-card")).toHaveCount(2);
+  await page.locator("#itemFilter").selectOption("地块");
+  await expect(page.locator(".recommendation-state")).toContainText("当前筛选下没有推荐搭配");
+  await expect(page.locator('[data-recommendation-action="reset-filter"]')).toHaveCount(1);
+  await expect(page.locator('[data-recommendation-action="switch-pokemon"]')).toHaveCount(0);
   await page.locator("#itemFilter").selectOption("全部");
   await expect(page.locator("#itemSectionTitle")).toHaveText("推荐搭配 · 全部");
   await expect(page.locator(".recommendation-summary")).toContainText("1-10 / 12");
@@ -125,9 +173,10 @@ test("hydrated Pokemon page keeps pagination, filters, search, and switching usa
 
 function buildRecommendationFixture(pokemonSlug: string): unknown {
   const data = JSON.parse(readFileSync("dist/data/compact-items.json", "utf8")) as CompactItemsData;
+  const seedItem = data.items.find((item) => item.nameZh?.endsWith("种子") || /(?:^|[-\s])seeds?$/i.test(item.name));
   const foodItems = data.items.filter((item) => item.category === "Food").slice(0, 10);
   const furnitureItems = data.items.filter((item) => item.category === "Furniture").slice(0, 2);
-  const items = [...foodItems, ...furnitureItems];
+  const items = [seedItem, ...foodItems, ...furnitureItems].filter((item): item is CompactItem => Boolean(item));
   return {
     schemaVersion: "recommendations.v3",
     pokemonSlug,
@@ -151,4 +200,9 @@ function buildRecommendationFixture(pokemonSlug: string): unknown {
       pageIndex: Math.floor(index / 10),
     })),
   };
+}
+
+async function expectVisibleRecommendationNamesToExcludeSeeds(page: Page): Promise<void> {
+  const names = await page.locator(".recommendation-card h3").allTextContents();
+  names.forEach((name) => expect(name).not.toMatch(/种子|seed/i));
 }
