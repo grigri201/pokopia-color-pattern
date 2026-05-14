@@ -1,6 +1,6 @@
 # Story 4.2: 生成优化后的 runtime image assets
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -18,20 +18,25 @@ so that deployment size 降低时不牺牲核心视觉体验。
 
 ## Tasks / Subtasks
 
-- [ ] 实现 runtime image generation (AC: 1, 2, 3)
-  - [ ] 使用现有 `sharp` 在 Node build script 中读取 source image。
-  - [ ] Pokemon 输出最大边长 420px，item 输出最大边长 240px。
-  - [ ] 默认输出 WebP quality 82 或等价设置。
-- [ ] 严格使用 allowlist (AC: 1)
-  - [ ] 只处理 manifest 中被 runtime 需要的 Pokemon/item source image。
-  - [ ] 不把未引用 raw source image 带入 `dist/assets/runtime/**`。
-- [ ] 记录并校验 asset metadata (AC: 4)
-  - [ ] manifest 记录 runtime path、byte size、content type、width/height。
-  - [ ] `validate:dist` 检查每个 manifest 引用文件存在。
-  - [ ] `validate:dist` 检查 runtime image 总体积和单文件 budget。
-- [ ] 覆盖格式边界 (AC: 5)
-  - [ ] 验证透明背景图片保持主体可见。
-  - [ ] 验证 WebP-behind-PNG 或扩展名不可信 source 仍能生成。
+- [x] 实现 runtime image generation (AC: 1, 2, 3)
+  - [x] 使用现有 `sharp` 在 Node build script 中读取 source image。
+  - [x] Pokemon 输出最大边长 420px，item 输出最大边长 240px。
+  - [x] 默认输出 WebP quality 82 或等价设置。
+- [x] 严格使用 allowlist (AC: 1)
+  - [x] 只处理 manifest 中被 runtime 需要的 Pokemon/item source image。
+  - [x] 不把未引用 raw source image 带入 `dist/assets/runtime/**`。
+- [x] 记录并校验 asset metadata (AC: 4)
+  - [x] manifest 记录 runtime path、byte size、content type、width/height。
+  - [x] `validate:dist` 检查每个 manifest 引用文件存在。
+  - [x] `validate:dist` 检查 runtime image 总体积和单文件 budget。
+- [x] 覆盖格式边界 (AC: 5)
+  - [x] 验证透明背景图片保持主体可见。
+  - [x] 验证 WebP-behind-PNG 或扩展名不可信 source 仍能生成。
+- [x] 修复 code review findings (AC: 1, 4)
+  - [x] `validate:dist` 使用实际 `dist/assets/runtime/**` 文件大小和 `sharp` metadata 校验预算，而不是只信任 manifest 字段。
+  - [x] generator 和 schema 明确锁定 runtime 输出为 `.webp`。
+  - [x] generator 对重复 `runtimePath`、单文件预算和总量预算 fail-fast。
+  - [x] `validate:dist` 双向校验 manifest 与 runtime data/HTML 引用集合。
 
 ## Dev Notes
 
@@ -55,20 +60,48 @@ so that deployment size 降低时不牺牲核心视觉体验。
 
 ### Agent Model Used
 
-TBD
+GPT-5.5
 
 ### Debug Log References
 
-- TBD
+- `npm run build:data-script`
+- `npm run generate:data`
+- `npm run generate:assets`
+- `npm run validate:data`
+- `npm run build`
 
 ### Completion Notes List
 
-- TBD
+- `scripts/generate-runtime-assets.ts` 使用 `sharp` 将 runtime allowlist 图片输出为 WebP quality 82，Pokemon 最大边 420px，item 最大边 240px。
+- runtime data 图片路径统一改为 `.webp`，manifest 记录 `byteSize`、`contentType`、`width`、`height`。
+- `validate:dist` 读取实际 dist 图片文件大小和 metadata，校验 runtime image 总量小于 15MiB、Pokemon 单文件小于 64KiB、item 单文件小于 32KiB，并检查尺寸上限和引用存在。
+- generator 现在会在重复 `runtimePath`、单文件预算超限或总量预算超限时直接失败。
+- runtime asset source report、runtime manifest、runtime data schema 均要求 `.webp` runtime path。
+- 当前生成结果：1530 assets，总计 12,791,106 bytes；最大 Pokemon 33,366 bytes / 420px，最大 item 18,902 bytes / 240px。
 
 ### Review Results
 
-- TBD
+- Code review completed in multi-agent mode.
+- Blind Hunter finding: `validate:dist` 原先信任 manifest 自报 `byteSize`/dimensions；已改为检查实际 dist 文件和 `sharp` metadata。
+- Blind Hunter finding: schema/source report 仍接受任意图片扩展；已收紧为 `.webp`。
+- Edge Case Hunter finding: generator 缺少重复 `runtimePath` 防护和预算 fail-fast；已补齐。
+- Edge Case Hunter finding: `validate:dist` 只校验引用在 manifest 中存在，未校验 manifest 资产都被 runtime 输出引用；已补齐反向校验。
+- Acceptance Auditor result: no blocking findings.
 
 ### File List
 
-- TBD
+- `scripts/generate-data.ts`
+- `scripts/generate-runtime-assets.ts`
+- `scripts/validate-build.ts`
+- `scripts/validate-recommendation-fixtures.ts`
+- `src/data/schemas.ts`
+- `tests/smoke/pokemon-page.spec.ts`
+- `generated/data/compact-items.json`
+- `generated/data/pokemon-index.json`
+- `generated/data/recommendations/*.json`
+- `generated/reports/runtime-asset-sources.json`
+
+### Change Log
+
+- 2026-05-14: Implemented optimized runtime image asset generation for Story 4.2.
+- 2026-05-14: Addressed multi-agent code review findings and marked Story 4.2 done.

@@ -1,9 +1,10 @@
 import { createHash } from "node:crypto";
 import { existsSync } from "node:fs";
-import { readFile, readdir } from "node:fs/promises";
+import { readFile, readdir, stat } from "node:fs/promises";
 import { extname, join, relative, resolve } from "node:path";
 import { spawnSync } from "node:child_process";
 import { gzipSync } from "node:zlib";
+import sharp from "sharp";
 import {
   validateCompactItemsData,
   validateItemColorsData,
@@ -66,6 +67,11 @@ const runtimeAssetManifestPath = "dist/assets/runtime/asset-manifest.json";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
 const compactGzipLimit = 70 * 1024;
 const recommendationGzipLimit = 12 * 1024;
+const runtimeImageTotalLimit = 15 * 1024 * 1024;
+const runtimePokemonImageLimit = 64 * 1024;
+const runtimeItemImageLimit = 32 * 1024;
+const runtimePokemonMaxEdge = 420;
+const runtimeItemMaxEdge = 240;
 const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
 const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-color-pattern.local");
@@ -122,7 +128,7 @@ async function validateDistOutput(): Promise<void> {
   await validateNoForbiddenDistOutput();
   const ssgReport = await readSsgGenerationSummary();
   const distDataFiles = await validateRuntimeDataTree("dist/data", missingRecommendationFilesFromReport(ssgReport));
-  await validateRuntimeAssetManifest();
+  const runtimeAssetPaths = await validateRuntimeAssetManifest();
   await validateStaticPokemonPages(ssgReport);
   const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
@@ -133,12 +139,16 @@ async function validateDistOutput(): Promise<void> {
       outputPath.startsWith("dist/pokemon/")
     );
   });
-  const bundleFiles = files.filter((file) => {
+  const referenceFiles = files.filter((file) => relative(projectRoot, file) !== runtimeAssetManifestPath);
+  const bundleFiles = referenceFiles.filter((file) => {
     const extension = extname(file);
     return extension === ".html" || extension === ".css" || extension === ".js";
   });
   validateNoRuntimeManifestFetch(await readFiles(bundleFiles), "dist runtime bundle");
-  validateNoDocsSourceReferences(await readFiles(files), "dist runtime output");
+  const referenceFileTexts = await readFiles(referenceFiles);
+  validateNoDocsSourceReferences(referenceFileTexts, "dist runtime output");
+  const referencedRuntimeAssetPaths = validateRuntimeAssetReferences(referenceFileTexts, runtimeAssetPaths);
+  validateManifestRuntimeAssetsAreReferenced(runtimeAssetPaths, referencedRuntimeAssetPaths);
   await validateSensitiveRuntimeData([...bundleFiles.map((file) => relative(projectRoot, file)), ...distDataFiles]);
 }
 
@@ -250,13 +260,13 @@ async function validateNoForbiddenDistOutput(): Promise<void> {
   });
 }
 
-async function validateRuntimeAssetManifest(): Promise<void> {
+async function validateRuntimeAssetManifest(): Promise<Set<string>> {
   let text: string;
   try {
     text = await readFile(runtimeAssetManifestPath, "utf8");
   } catch (error) {
     issues.push({ file: runtimeAssetManifestPath, message: `Unable to read runtime asset manifest: ${error instanceof Error ? error.message : String(error)}` });
-    return;
+    return new Set();
   }
 
   const manifest = parseJson(text, runtimeAssetManifestPath);
@@ -264,19 +274,27 @@ async function validateRuntimeAssetManifest(): Promise<void> {
     addSchemaIssues(runtimeAssetManifestPath, validateRuntimeAssetManifestData(manifest));
   }
   if (!isRecord(manifest) || !Array.isArray(manifest.assets)) {
-    return;
+    return new Set();
   }
 
   const seenRuntimePaths = new Set<string>();
-  manifest.assets.filter(isRecord).forEach((asset, index) => {
+  let totalRuntimeImageBytes = 0;
+  for (const [index, asset] of manifest.assets.entries()) {
+    if (!isRecord(asset)) {
+      continue;
+    }
     const runtimePath = asset.runtimePath;
     const contentType = asset.contentType;
+    const sourceCategory = asset.sourceCategory;
+    const width = asset.width;
+    const height = asset.height;
+    const byteSize = asset.byteSize;
     if (typeof runtimePath !== "string") {
-      return;
+      continue;
     }
     if (!runtimePath.startsWith("/assets/runtime/")) {
       issues.push({ file: runtimeAssetManifestPath, message: `Asset ${index} must use /assets/runtime/** path` });
-      return;
+      continue;
     }
     if (seenRuntimePaths.has(runtimePath)) {
       issues.push({ file: runtimeAssetManifestPath, message: `Duplicate runtime asset path ${runtimePath}` });
@@ -290,11 +308,50 @@ async function validateRuntimeAssetManifest(): Promise<void> {
         issues.push({ file: runtimeAssetManifestPath, message: `Runtime asset extension must match ${contentType}: ${runtimePath}` });
       }
     }
+    if (contentType !== "image/webp" || !runtimePath.endsWith(".webp")) {
+      issues.push({ file: runtimeAssetManifestPath, message: `Runtime asset must be optimized WebP: ${runtimePath}` });
+    }
     const filePath = resolve(projectRoot, "dist", runtimePath.replace(/^\//, ""));
     if (!existsSync(filePath)) {
       issues.push({ file: runtimeAssetManifestPath, message: `Runtime asset file is missing: ${runtimePath}` });
+      continue;
     }
-  });
+    let actualStat: Awaited<ReturnType<typeof stat>>;
+    let metadata: sharp.Metadata;
+    try {
+      [actualStat, metadata] = await Promise.all([stat(filePath), sharp(filePath).metadata()]);
+    } catch (error) {
+      issues.push({ file: runtimeAssetManifestPath, message: `Unable to inspect runtime asset ${runtimePath}: ${error instanceof Error ? error.message : String(error)}` });
+      continue;
+    }
+    totalRuntimeImageBytes += actualStat.size;
+    if (metadata.format !== "webp") {
+      issues.push({ file: runtimeAssetManifestPath, message: `Runtime asset file must be WebP: ${runtimePath}` });
+    }
+    const byteLimit = sourceCategory === "pokemon" ? runtimePokemonImageLimit : sourceCategory === "item" ? runtimeItemImageLimit : null;
+    if (byteLimit !== null && actualStat.size >= byteLimit) {
+      issues.push({ file: runtimeAssetManifestPath, message: `${runtimePath} exceeds ${byteLimit} byte budget: ${actualStat.size}` });
+    }
+    if (typeof byteSize === "number" && actualStat.size !== byteSize) {
+      issues.push({ file: runtimeAssetManifestPath, message: `${runtimePath} byteSize metadata ${byteSize} does not match actual file size ${actualStat.size}` });
+    }
+    const actualWidth = metadata.width ?? null;
+    const actualHeight = metadata.height ?? null;
+    if (typeof actualWidth !== "number" || typeof actualHeight !== "number") {
+      issues.push({ file: runtimeAssetManifestPath, message: `Unable to read runtime asset dimensions: ${runtimePath}` });
+    } else {
+      const edgeLimit = sourceCategory === "pokemon" ? runtimePokemonMaxEdge : sourceCategory === "item" ? runtimeItemMaxEdge : null;
+      if (edgeLimit !== null && Math.max(actualWidth, actualHeight) > edgeLimit) {
+        issues.push({ file: runtimeAssetManifestPath, message: `${runtimePath} exceeds ${edgeLimit}px edge budget: ${actualWidth}x${actualHeight}` });
+      }
+    }
+    if (typeof width === "number" && actualWidth !== width) {
+      issues.push({ file: runtimeAssetManifestPath, message: `${runtimePath} width metadata ${width} does not match actual width ${String(actualWidth)}` });
+    }
+    if (typeof height === "number" && actualHeight !== height) {
+      issues.push({ file: runtimeAssetManifestPath, message: `${runtimePath} height metadata ${height} does not match actual height ${String(actualHeight)}` });
+    }
+  }
 
   const actualRuntimeFiles = await listFiles(resolve(projectRoot, "dist/assets/runtime"), [".webp", ".png", ".jpg", ".jpeg", ".gif"]);
   actualRuntimeFiles.forEach((file) => {
@@ -303,6 +360,22 @@ async function validateRuntimeAssetManifest(): Promise<void> {
       issues.push({ file: relative(projectRoot, file), message: "Runtime asset file is not declared in asset-manifest.json" });
     }
   });
+  const summary = manifest.summary;
+  if (isRecord(summary) && typeof summary.totalBytes === "number" && summary.totalBytes !== totalRuntimeImageBytes) {
+    issues.push({
+      file: runtimeAssetManifestPath,
+      message: `Runtime image total metadata ${summary.totalBytes} does not match actual file total ${totalRuntimeImageBytes}`,
+    });
+  }
+  if (totalRuntimeImageBytes >= runtimeImageTotalLimit) {
+    issues.push({
+      file: runtimeAssetManifestPath,
+      message: `Runtime image total exceeds ${runtimeImageTotalLimit} byte budget: ${totalRuntimeImageBytes}`,
+    });
+  } else {
+    console.log(`Validated runtime image total ${totalRuntimeImageBytes}/${runtimeImageTotalLimit} bytes.`);
+  }
+  return seenRuntimePaths;
 }
 
 function runtimeExtensionForContentType(contentType: string): string | null {
@@ -863,6 +936,41 @@ function validateNoDocsSourceReferences(sourceFiles: Map<string, string>, label:
   });
 }
 
+function validateRuntimeAssetReferences(sourceFiles: Map<string, string>, runtimeAssetPaths: Set<string>): Set<string> {
+  const referencedRuntimeAssetPaths = new Set<string>();
+  const runtimePathPattern = /\/assets\/runtime\/[a-zA-Z0-9/_\-.]+/g;
+  sourceFiles.forEach((text, file) => {
+    for (const match of text.matchAll(runtimePathPattern)) {
+      const runtimePath = match[0];
+      if (runtimePath === "/assets/runtime/asset-manifest.json") {
+        continue;
+      }
+      referencedRuntimeAssetPaths.add(runtimePath);
+      if (!runtimeAssetPaths.has(runtimePath)) {
+        issues.push({
+          file: relative(projectRoot, file),
+          message: `Runtime asset reference is not declared in asset-manifest.json: ${runtimePath}`,
+        });
+      }
+    }
+  });
+  return referencedRuntimeAssetPaths;
+}
+
+function validateManifestRuntimeAssetsAreReferenced(
+  runtimeAssetPaths: Set<string>,
+  referencedRuntimeAssetPaths: Set<string>,
+): void {
+  runtimeAssetPaths.forEach((runtimePath) => {
+    if (!referencedRuntimeAssetPaths.has(runtimePath)) {
+      issues.push({
+        file: runtimeAssetManifestPath,
+        message: `Runtime asset is declared but not referenced by runtime output: ${runtimePath}`,
+      });
+    }
+  });
+}
+
 async function validateSensitiveRuntimeData(files: string[]): Promise<void> {
   await validateSensitiveTextFiles(files, "runtime data");
 }
@@ -1039,6 +1147,9 @@ async function validateRuntimeAssetSourcesReport(): Promise<void> {
     const expectedRuntimePrefix = sourceCategory === "pokemon" ? "/assets/runtime/pokemon/" : "/assets/runtime/items/";
     if (!runtimePath.startsWith(expectedRuntimePrefix) || runtimePath.includes("..") || runtimePath.includes("\\")) {
       issues.push({ file: runtimeAssetSourcesPath, message: `Invalid runtimePath for ${slug || index}` });
+    }
+    if (!runtimePath.endsWith(".webp")) {
+      issues.push({ file: runtimeAssetSourcesPath, message: `runtimePath must use optimized .webp output for ${slug || index}` });
     }
     const key = `${String(sourceCategory)}:${slug}`;
     if (seen.has(key)) {

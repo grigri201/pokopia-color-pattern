@@ -27,7 +27,7 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   expect(staticHtml).toContain('id="staticPage"');
   expect(staticHtml).toContain('data-static-pokemon="ditto"');
   expect(staticHtml).toContain("百变怪 / Ditto");
-  expect(staticHtml).toContain("/assets/runtime/pokemon/ditto.png");
+  expect(staticHtml).toContain("/assets/runtime/pokemon/ditto.webp");
   expect(staticHtml).toContain("#DCBFFF");
   expect(staticHtml).toContain("推荐摘要");
 
@@ -47,7 +47,7 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   await expect(page.locator("#staticPage")).toHaveCount(0);
   await expect(page.locator("#languageToggle")).toHaveText("English");
   await expect(page.locator("#pokemonTitle")).toContainText("Ditto");
-  await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/ditto\.png/);
+  await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/ditto\.webp/);
   await expect(page.locator("#metricStrip")).toContainText("HEX");
   await expect(page.locator("#swatchList")).toContainText("#DCBFFF");
   await expect(page.locator(".recommendation-summary")).toContainText("/");
@@ -119,7 +119,7 @@ test("hydrated Pokemon page keeps pagination, filters, search, and switching usa
   await expect(page.locator("#staticPage")).toHaveCount(0);
   await expect(page.locator("#languageToggle")).toHaveText("English");
   await expect(page.locator("#pokemonTitle")).toContainText("Ditto");
-  await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/ditto\.png/);
+  await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/ditto\.webp/);
   await expect(page.locator("#metricStrip")).toContainText("HEX");
   await expect(page.locator("#swatchList")).toContainText("#");
 

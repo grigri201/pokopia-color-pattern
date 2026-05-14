@@ -7,6 +7,7 @@ import {
   type RuntimeAssetManifestEntry,
 } from "../src/data/schemas.js";
 import { writeJsonFile } from "./lib/write-json.js";
+import sharp from "sharp";
 
 type RuntimeAssetSourceEntry = {
   slug: string;
@@ -25,14 +26,25 @@ const sourceReportPath = "generated/reports/runtime-asset-sources.json";
 const outputRoot = "generated/assets/runtime";
 const manifestOutputPath = `${outputRoot}/asset-manifest.json`;
 const rawSourceRoot = resolve(projectRoot, "docs/pokopia_image_sources");
+const webpQuality = 82;
+const maxPokemonEdge = 420;
+const maxItemEdge = 240;
+const runtimeImageTotalLimit = 15 * 1024 * 1024;
+const runtimePokemonImageLimit = 64 * 1024;
+const runtimeItemImageLimit = 32 * 1024;
 
 const sourceReport = JSON.parse(await readFile(resolve(projectRoot, sourceReportPath), "utf8")) as RuntimeAssetSourcesData;
 validateSourceReport(sourceReport);
+validateUniqueRuntimePaths(sourceReport.assets);
 
 await rm(resolve(projectRoot, outputRoot), { recursive: true, force: true });
 
 const manifestEntries = await Promise.all(sourceReport.assets.map(copyRuntimeAsset));
 const sortedEntries = manifestEntries.sort(compareManifestEntries);
+const totalBytes = sortedEntries.reduce((sum, entry) => sum + entry.byteSize, 0);
+if (totalBytes >= runtimeImageTotalLimit) {
+  throw new Error(`Runtime image total exceeds ${runtimeImageTotalLimit} byte budget: ${totalBytes}`);
+}
 const manifest: RuntimeAssetManifestData = {
   schemaVersion: RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION,
   generatedFrom: {
@@ -43,7 +55,7 @@ const manifest: RuntimeAssetManifestData = {
     assetCount: sortedEntries.length,
     pokemonCount: sortedEntries.filter((entry) => entry.sourceCategory === "pokemon").length,
     itemCount: sortedEntries.filter((entry) => entry.sourceCategory === "item").length,
-    totalBytes: sortedEntries.reduce((sum, entry) => sum + entry.byteSize, 0),
+    totalBytes,
   },
   assets: sortedEntries,
 };
@@ -66,10 +78,10 @@ function validateSourceReport(data: RuntimeAssetSourcesData): void {
 
 async function copyRuntimeAsset(entry: RuntimeAssetSourceEntry): Promise<RuntimeAssetManifestEntry> {
   validateRuntimePath(entry);
+  validateRuntimePathExtension(entry);
   const sourcePath = await validatedSourcePath(entry);
-  const bytes = await readFile(sourcePath);
-  const contentType = contentTypeFromBytes(bytes);
-  validateRuntimePathExtension(entry, contentType);
+  const result = await optimizeRuntimeAsset(sourcePath, entry.sourceCategory);
+  validateOptimizedRuntimeAsset(entry, result);
   const outputPath = resolve(projectRoot, outputRoot, entry.runtimePath.replace(/^\/assets\/runtime\//, ""));
   const outputRelativePath = relative(resolve(projectRoot, outputRoot), outputPath);
   if (outputRelativePath.startsWith("..") || isAbsolute(outputRelativePath)) {
@@ -77,16 +89,34 @@ async function copyRuntimeAsset(entry: RuntimeAssetSourceEntry): Promise<Runtime
   }
 
   await mkdir(dirname(outputPath), { recursive: true });
-  await writeFile(outputPath, bytes);
+  await writeFile(outputPath, result.bytes);
   return {
     slug: entry.slug,
     sourceCategory: entry.sourceCategory,
     runtimePath: entry.runtimePath,
-    byteSize: bytes.length,
-    contentType,
-    width: null,
-    height: null,
+    byteSize: result.bytes.length,
+    contentType: "image/webp",
+    width: result.width,
+    height: result.height,
   };
+}
+
+async function optimizeRuntimeAsset(
+  sourcePath: string,
+  sourceCategory: RuntimeAssetSourceEntry["sourceCategory"],
+): Promise<{ bytes: Buffer; width: number; height: number }> {
+  const maxEdge = sourceCategory === "pokemon" ? maxPokemonEdge : maxItemEdge;
+  const { data, info } = await sharp(sourcePath, { animated: false })
+    .rotate()
+    .resize({
+      width: maxEdge,
+      height: maxEdge,
+      fit: "inside",
+      withoutEnlargement: true,
+    })
+    .webp({ quality: webpQuality })
+    .toBuffer({ resolveWithObject: true });
+  return { bytes: data, width: info.width, height: info.height };
 }
 
 function validateRuntimePath(entry: RuntimeAssetSourceEntry): void {
@@ -116,47 +146,43 @@ async function validatedSourcePath(entry: RuntimeAssetSourceEntry): Promise<stri
   return sourceRealPath;
 }
 
-function validateRuntimePathExtension(entry: RuntimeAssetSourceEntry, contentType: string): void {
-  const expectedExtension = extensionForContentType(contentType);
-  if (expectedExtension === null) {
-    throw new Error(`Unsupported runtime asset content type for ${entry.sourceCategory}:${entry.slug}: ${contentType}`);
-  }
-  if (!entry.runtimePath.endsWith(expectedExtension)) {
+function validateRuntimePathExtension(entry: RuntimeAssetSourceEntry): void {
+  if (!entry.runtimePath.endsWith(".webp")) {
     throw new Error(
-      `Runtime asset extension does not match content for ${entry.sourceCategory}:${entry.slug}: ${entry.runtimePath} should end with ${expectedExtension}`,
+      `Runtime asset path for ${entry.sourceCategory}:${entry.slug} must use .webp output: ${entry.runtimePath}`,
     );
   }
 }
 
-function contentTypeFromBytes(bytes: Buffer): string {
-  if (bytes.length >= 12 && bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP") {
-    return "image/webp";
+function validateOptimizedRuntimeAsset(
+  entry: RuntimeAssetSourceEntry,
+  result: { bytes: Buffer; width: number; height: number },
+): void {
+  const byteLimit = entry.sourceCategory === "pokemon" ? runtimePokemonImageLimit : runtimeItemImageLimit;
+  if (result.bytes.length >= byteLimit) {
+    throw new Error(
+      `Runtime asset ${entry.sourceCategory}:${entry.slug} exceeds ${byteLimit} byte budget after optimization: ${result.bytes.length}`,
+    );
   }
-  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes.toString("ascii", 1, 4) === "PNG") {
-    return "image/png";
+  const edgeLimit = entry.sourceCategory === "pokemon" ? maxPokemonEdge : maxItemEdge;
+  if (Math.max(result.width, result.height) > edgeLimit) {
+    throw new Error(
+      `Runtime asset ${entry.sourceCategory}:${entry.slug} exceeds ${edgeLimit}px edge budget after optimization: ${result.width}x${result.height}`,
+    );
   }
-  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
-    return "image/jpeg";
-  }
-  if (bytes.length >= 6 && (bytes.toString("ascii", 0, 6) === "GIF87a" || bytes.toString("ascii", 0, 6) === "GIF89a")) {
-    return "image/gif";
-  }
-  return "application/octet-stream";
 }
 
-function extensionForContentType(contentType: string): string | null {
-  switch (contentType) {
-    case "image/webp":
-      return ".webp";
-    case "image/png":
-      return ".png";
-    case "image/jpeg":
-      return ".jpg";
-    case "image/gif":
-      return ".gif";
-    default:
-      return null;
-  }
+function validateUniqueRuntimePaths(assets: RuntimeAssetSourceEntry[]): void {
+  const seen = new Map<string, RuntimeAssetSourceEntry>();
+  assets.forEach((asset) => {
+    const duplicate = seen.get(asset.runtimePath);
+    if (duplicate) {
+      throw new Error(
+        `Duplicate runtimePath ${asset.runtimePath} for ${duplicate.sourceCategory}:${duplicate.slug} and ${asset.sourceCategory}:${asset.slug}`,
+      );
+    }
+    seen.set(asset.runtimePath, asset);
+  });
 }
 
 function compareManifestEntries(left: RuntimeAssetManifestEntry, right: RuntimeAssetManifestEntry): number {

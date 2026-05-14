@@ -1,6 +1,6 @@
-import { existsSync, readFileSync } from "node:fs";
+import { existsSync } from "node:fs";
 import { readFile, readdir, rm } from "node:fs/promises";
-import { basename, extname, resolve } from "node:path";
+import { basename, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import {
   COMPACT_ITEMS_SCHEMA_VERSION,
@@ -837,6 +837,9 @@ function validateRuntimeAssetSources(
     if (!runtimePath.startsWith(expectedPrefix) || runtimePath.includes("..") || runtimePath.includes("\\")) {
       issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.runtimePath`, message: `Expected runtime path under ${expectedPrefix}` });
     }
+    if (!runtimePath.endsWith(".webp")) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.runtimePath`, message: "Expected optimized .webp runtime path" });
+    }
     const key = `${String(sourceCategory)}:${slug}`;
     if (seen.has(key)) {
       issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.slug`, message: "Duplicate runtime asset source" });
@@ -1385,37 +1388,7 @@ function runtimeAssetSource(
 
 function runtimeAssetPath(sourceCategory: RuntimeAssetSourceCategory, slug: string, sourceImagePath: string): string {
   const directory = sourceCategory === "pokemon" ? "pokemon" : "items";
-  const extension = imageExtensionFromBytes(sourceImagePath);
-  return `/assets/runtime/${directory}/${slug}${extension}`;
-}
-
-function imageExtensionFromBytes(sourceImagePath: string): string {
-  const sourcePath = resolve(projectRoot, sourceImagePath.replace(/^\//, ""));
-  if (!existsSync(sourcePath)) {
-    return normalizedImageExtension(sourceImagePath);
-  }
-  const bytes = readFileSync(sourcePath);
-  if (bytes.length >= 12 && bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP") {
-    return ".webp";
-  }
-  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes.toString("ascii", 1, 4) === "PNG") {
-    return ".png";
-  }
-  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
-    return ".jpg";
-  }
-  if (bytes.length >= 6 && (bytes.toString("ascii", 0, 6) === "GIF87a" || bytes.toString("ascii", 0, 6) === "GIF89a")) {
-    return ".gif";
-  }
-  return normalizedImageExtension(sourceImagePath);
-}
-
-function normalizedImageExtension(path: string): string {
-  const extension = extname(path).toLowerCase();
-  if (extension === ".jpeg") {
-    return ".jpg";
-  }
-  return extension || ".png";
+  return `/assets/runtime/${directory}/${slug}.webp`;
 }
 
 function validateRootAbsoluteImagePath(

@@ -169,8 +169,8 @@ export type RuntimeAssetManifestEntry = {
   runtimePath: string;
   byteSize: number;
   contentType: string;
-  width: number | null;
-  height: number | null;
+  width: number;
+  height: number;
 };
 
 export type RuntimeAssetManifestData = {
@@ -670,8 +670,8 @@ export function validateRuntimeAssetManifestData(value: unknown): SchemaIssue[] 
     requireRuntimeAssetPath(asset, "runtimePath", path, issues, slug);
     requireNonNegativeInteger(asset, "byteSize", path, issues, slug);
     requireString(asset, "contentType", path, issues, slug);
-    requireNullableNonNegativeInteger(asset, "width", path, issues, slug);
-    requireNullableNonNegativeInteger(asset, "height", path, issues, slug);
+    requireNonNegativeInteger(asset, "width", path, issues, slug);
+    requireNonNegativeInteger(asset, "height", path, issues, slug);
     if (typeof asset.runtimePath === "string" && typeof asset.contentType === "string") {
       const expectedExtension = extensionForRuntimeContentType(asset.contentType);
       if (expectedExtension === null) {
@@ -912,7 +912,7 @@ function requireRuntimeAssetPath(
   slug?: string,
 ): void {
   const value = record[key];
-  if (typeof value !== "string" || !/^\/assets\/runtime\/(?:pokemon|items)\/[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+$/.test(value)) {
+  if (typeof value !== "string" || !/^\/assets\/runtime\/(?:pokemon|items)\/[a-z0-9]+(?:-[a-z0-9]+)*\.webp$/.test(value)) {
     issue(path, key, "Expected root-absolute runtime asset path", issues, slug);
   }
 }
@@ -927,7 +927,7 @@ function requireRuntimeDataImagePath(
 ): void {
   const value = record[key];
   const directory = sourceCategory === "pokemon" ? "pokemon" : "items";
-  const pattern = new RegExp(`^/assets/runtime/${directory}/[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+$`);
+  const pattern = new RegExp(`^/assets/runtime/${directory}/[a-z0-9]+(?:-[a-z0-9]+)*\\.webp$`);
   if (typeof value !== "string" || !pattern.test(value)) {
     issue(path, key, `Expected root-absolute /assets/runtime/${directory}/ image path`, issues, slug);
   }
