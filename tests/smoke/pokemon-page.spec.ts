@@ -42,6 +42,8 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   expect(recommendationData.pokemonSlug).toBe("ditto");
   expect(Array.isArray(recommendationData.recommendations)).toBe(true);
   expect(recommendationData.recommendations.length).toBeGreaterThan(0);
+  const firstRecommendation = recommendationData.recommendations[0] as Record<string, unknown>;
+  expect(Object.keys(firstRecommendation)).not.toEqual(expect.arrayContaining(["itemName", "itemImagePath", "category", "pokemonPrimaryColor"]));
 
   await expect(page.locator("#app")).toBeVisible();
   await expect(page.locator("#staticPage")).toHaveCount(0);
@@ -52,6 +54,7 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   await expect(page.locator("#swatchList")).toContainText("#DCBFFF");
   await expect(page.locator(".recommendation-summary")).toContainText("/");
   await expect(page.locator(".recommendation-card").first()).toBeVisible();
+  await expect(page.locator(".recommendation-card img").first()).toHaveAttribute("src", /\/assets\/runtime\/items\/.*\.webp/);
 });
 
 test.describe("English browser locale", () => {

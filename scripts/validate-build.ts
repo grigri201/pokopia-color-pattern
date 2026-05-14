@@ -82,6 +82,7 @@ const compactGzipLimit = 50 * 1024;
 const recommendationGzipLimit = 5 * 1024;
 const recommendationRawTotalLimit = 12 * 1024 * 1024;
 const recommendationGzipTotalLimit = 800 * 1024;
+const distLogicalByteLimit = 40 * 1024 * 1024;
 const runtimeImageTotalLimit = 15 * 1024 * 1024;
 const runtimePokemonImageLimit = 64 * 1024;
 const runtimeItemImageLimit = 32 * 1024;
@@ -153,7 +154,9 @@ async function validateDistOutput(): Promise<void> {
     issues.push({ file: "dist", message: "Expected dist output to exist before dist validation" });
     return;
   }
-  await validateNoForbiddenDistOutput();
+  const distEntries = await listTreeEntries(resolve(projectRoot, "dist"));
+  validateDistLogicalSize(distEntries);
+  validateNoForbiddenDistOutput(distEntries);
   const ssgReport = await readSsgGenerationSummary();
   const distDataFiles = await validateRuntimeDataTree("dist/data", missingRecommendationFilesFromReport(ssgReport));
   await validateRecommendationBundleSizeBudget("dist/data/recommendations");
@@ -178,6 +181,7 @@ async function validateDistOutput(): Promise<void> {
   validateNoDocsSourceReferences(referenceFileTexts, "dist runtime output");
   const referencedRuntimeAssetPaths = validateRuntimeAssetReferences(referenceFileTexts, runtimeAssetPaths);
   validateManifestRuntimeAssetsAreReferenced(runtimeAssetPaths, referencedRuntimeAssetPaths);
+  await validateSensitiveTextFiles(files.map((file) => relative(projectRoot, file)), "dist deployable text output");
   await validateSensitiveRuntimeData([...bundleFiles.map((file) => relative(projectRoot, file)), ...distDataFiles]);
 }
 
@@ -277,18 +281,39 @@ async function validateStaticPokemonPages(ssgReport: unknown | null): Promise<vo
   validateSsgGenerationSummary(ssgReport, expectedSlugs, expectedPages, expectedFallbacks);
 }
 
-async function validateNoForbiddenDistOutput(): Promise<void> {
-  const entries = await listTreeEntries(resolve(projectRoot, "dist"));
+function validateDistLogicalSize(entries: TreeEntry[]): void {
+  const logicalBytes = entries.reduce((sum, entry) => sum + (entry.isDirectory ? 0 : entry.sizeBytes), 0);
+  if (logicalBytes >= distLogicalByteLimit) {
+    issues.push({ file: "dist", message: `dist logical size exceeds ${distLogicalByteLimit} byte budget: ${logicalBytes}` });
+  } else {
+    console.log(`Validated dist logical size ${logicalBytes}/${distLogicalByteLimit} bytes.`);
+  }
+}
+
+function validateNoForbiddenDistOutput(entries: TreeEntry[]): void {
   entries.forEach((entry) => {
     const outputPath = `dist/${entry.path}`;
+    const fileName = entry.path.split("/").at(-1) ?? entry.path;
     if (outputPath.startsWith("dist/docs/pokopia_image_sources")) {
       issues.push({ file: outputPath, message: "Raw Pokopia source directory must not be present in dist" });
     }
     if (entry.path.endsWith(".DS_Store")) {
       issues.push({ file: outputPath, message: ".DS_Store must not be present in dist" });
     }
-    if (outputPath === "dist/data/item-colors.json") {
-      issues.push({ file: outputPath, message: "Build-only item color data must not be served as runtime data" });
+    if (entry.path.endsWith(".csv")) {
+      issues.push({ file: outputPath, message: "Raw source CSV must not be present in dist" });
+    }
+    if (
+      fileName === "item-colors.json" ||
+      fileName === "recommendation-diagnostics.json" ||
+      fileName === "runtime-asset-sources.json" ||
+      fileName === "ssg-generation-summary.json" ||
+      fileName === "manifest.csv" ||
+      fileName.startsWith("pokopiadex_") ||
+      fileName === "decorative_item_images.csv" ||
+      fileName === "item_furniture_images.csv"
+    ) {
+      issues.push({ file: outputPath, message: "Build-only source or diagnostics file must not be served as runtime output" });
     }
   });
 }
@@ -544,6 +569,7 @@ function validateStaticPokemonPage(
     issues.push({ file, message: "Static Pokemon page is missing required no-JS readable content" });
   }
   validateRootAbsoluteHtmlReferences(file, text);
+  validateStaticRuntimeImageReferences(file, text);
 }
 
 function validateStaticMetadata(
@@ -952,6 +978,17 @@ function validateRootAbsoluteHtmlReferences(file: string, text: string): void {
     }
     if (!value.startsWith("/") || value.startsWith("//") || value.includes("\\") || value.includes("..")) {
       issues.push({ file, message: `Expected root-absolute static page asset reference, got ${value}` });
+    }
+  }
+}
+
+function validateStaticRuntimeImageReferences(file: string, text: string): void {
+  const imagePattern = /<img\b[^>]*\bsrc=["']([^"']+)["']/g;
+  let match: RegExpExecArray | null;
+  while ((match = imagePattern.exec(text)) !== null) {
+    const value = match[1];
+    if (!value.startsWith("/assets/runtime/")) {
+      issues.push({ file, message: `Static page image must use runtime asset path, got ${value}` });
     }
   }
 }
@@ -1416,6 +1453,7 @@ async function readFiles(files: string[]): Promise<Map<string, string>> {
 type TreeEntry = {
   path: string;
   isDirectory: boolean;
+  sizeBytes: number;
 };
 
 async function listTreeEntries(root: string, prefix = ""): Promise<TreeEntry[]> {
@@ -1425,9 +1463,10 @@ async function listTreeEntries(root: string, prefix = ""): Promise<TreeEntry[]> 
       const path = join(root, entry.name);
       const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name;
       if (entry.isDirectory()) {
-        return [{ path: entryPath, isDirectory: true }, ...(await listTreeEntries(path, entryPath))];
+        return [{ path: entryPath, isDirectory: true, sizeBytes: 0 }, ...(await listTreeEntries(path, entryPath))];
       }
-      return [{ path: entryPath, isDirectory: false }];
+      const fileStat = await stat(path);
+      return [{ path: entryPath, isDirectory: false, sizeBytes: fileStat.size }];
     }),
   );
   return children.flat();
