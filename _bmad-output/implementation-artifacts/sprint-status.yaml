@@ -1,5 +1,5 @@
 # generated: 2026-05-13T15:28:23+0800
-# last_updated: 2026-05-13T20:45:22+0800
+# last_updated: 2026-05-14T14:12:00+0800
 # project: pokopia-color-pattern
 # project_key: NOKEY
 # tracking_system: file-system
@@ -35,7 +35,7 @@
 # - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
 
 generated: 2026-05-13T15:28:23+0800
-last_updated: 2026-05-13T20:45:22+0800
+last_updated: 2026-05-14T14:12:00+0800
 project: pokopia-color-pattern
 project_key: NOKEY
 tracking_system: file-system
@@ -65,3 +65,10 @@ development_status:
   3-3-为静态页提供唯一-metadata-和推荐摘要: done
   3-4-验证静态输出-hydrate-parity-和-production-build-gate: done
   epic-3-retrospective: optional
+
+  epic-4: in-progress
+  4-1-拆除-raw-docs-copy-建立-runtime-asset-manifest: done
+  4-2-生成优化后的-runtime-image-assets: ready-for-dev
+  4-3-压缩-runtime-recommendation-data-contract: ready-for-dev
+  4-4-建立-dist-size-budget-与部署校验-gate: ready-for-dev
+  epic-4-retrospective: optional

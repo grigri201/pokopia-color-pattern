@@ -35,12 +35,14 @@ classification:
   implementationRisk: medium-high
 releaseMode: single-release
 workflowType: 'prd'
-lastEdited: '2026-05-13'
+lastEdited: '2026-05-14'
 editHistory:
   - date: '2026-05-13'
     changes: 'Clarified immutable raw data sources, build-time compact data generation, and Pokemon metadata override requirements.'
   - date: '2026-05-13'
     changes: 'Resolved PRD validation warnings for measurable fallback criteria, recommendation fields, accessibility alt behavior, SSG assertions, non-goals, and build gate wording.'
+  - date: '2026-05-14'
+    changes: 'Approved correct-course update for runtime asset boundary, raw source exclusion, dist size budgets, and deployment validation.'
 ---
 
 # Product Requirements Document - pokopia-color-pattern
@@ -52,7 +54,7 @@ editHistory:
 
 Pokopia Color Pattern 将从单页色板浏览器升级为“颜色驱动的 Pokemon item 推荐目录”。用户进入某只 Pokemon 的页面后，应能快速看到该 Pokemon 的主色、色板、可搭配物品，并获得具有审美感的浏览体验。当前 SPA 已具备基础展示能力，但 item manifest 体积、运行时推荐计算、hash-only 路由限制了首屏性能、快速访问和分享体验。
 
-本 PRD 定义三个 brownfield 改造方向：精简 item manifest 作为数据契约与性能债务治理；将 Pokemon-item 推荐改为构建期预计算；生成 `/pokemon/{slug}/` 静态详情页并在加载后 hydrate 为现有 SPA 交互体验。目标是让用户能更快打开、分享、访问某只 Pokemon 的搭配页，并获得稳定、可解释的推荐结果。
+本 PRD 定义四个 brownfield 改造方向：精简 item manifest 作为数据契约与性能债务治理；将 Pokemon-item 推荐改为构建期预计算；生成 `/pokemon/{slug}/` 静态详情页并在加载后 hydrate 为现有 SPA 交互体验；建立 runtime asset boundary，确保部署产物只包含运行时实际需要的压缩图片和数据。目标是让用户能更快打开、分享、访问某只 Pokemon 的搭配页，并获得稳定、可解释、可部署的推荐结果。
 
 ### What Makes This Special
 
@@ -69,7 +71,7 @@ Hybrid SSG 让每只 Pokemon 拥有可分享、可快速访问的静态详情页
 - **Project Context:** brownfield
 - **Implementation Risk:** medium-high
 
-项目领域本身不涉及监管或高合规要求，但实现涉及数据契约迁移、构建期图片取色、偏好词匹配、可染色 item 分支规则、OKLCH 推荐算法复用、静态页面生成、SEO/share metadata、SPA hydration 和性能回归验证。因此 PRD 后续应按三个 Epic 拆分：Data Payload / Compact Manifest、Recommendation Engine / Precomputed Matches、Hybrid SSG / Shareable Pokemon Pages。
+项目领域本身不涉及监管或高合规要求，但实现涉及数据契约迁移、构建期图片取色、偏好词匹配、可染色 item 分支规则、OKLCH 推荐算法复用、静态页面生成、SEO/share metadata、SPA hydration、runtime asset 分发边界和性能回归验证。因此 PRD 后续应按四个 Epic 拆分：Data Payload / Compact Manifest、Recommendation Engine / Precomputed Matches、Hybrid SSG / Shareable Pokemon Pages、Runtime Distribution / Deployment Budget。
 
 ## Success Criteria
 
@@ -98,14 +100,18 @@ Hybrid SSG 让每只 Pokemon 拥有可分享、可快速访问的静态详情页
 ### Measurable Outcomes
 
 - 为全部 311 个 Pokemon 生成静态详情页。
-- full item manifest 不再进入首屏关键路径。
-- compact item data gzip 目标小于 50KB。
-- 单个 Pokemon 推荐数据 gzip 目标小于 5KB。
+- full item manifest 不再进入首屏关键路径，也不得作为 raw source 被复制进 `dist`。
+- `dist/docs/pokopia_image_sources/**` 不得存在。
+- runtime 图片只允许来自构建生成的 allowlist，例如 `/assets/runtime/pokemon/**` 与 `/assets/runtime/items/**`。
+- runtime image assets 总体积目标小于 15 MiB；单个 Pokemon runtime image 小于 64 KiB，单个 item runtime image 小于 32 KiB。
+- compact runtime item data gzip 目标小于 50KB。
+- `dist/data/recommendations/**` raw 总体积目标小于 12 MiB，gzip 总体积目标小于 800 KiB，单个 Pokemon 推荐数据 gzip 小于 5KB。
+- `dist` uncompressed logical size 目标小于 40 MiB。
 - 每个 Pokemon 推荐结果至少包含偏好词命中信息。
 - 不可染色 item 必须包含 OKLCH 和谐判定结果。
 - 可染色 item 不因主色不和谐被过滤。
 - 每页最多展示 10 个推荐 item。
-- production build command 必须生成 SSG 页面和预计算数据，并通过输出校验。
+- production build command 必须生成 SSG 页面、预计算数据、runtime image assets，并通过输出校验。
 
 ## Product Scope
 
@@ -278,9 +284,11 @@ Pokopia Color Pattern 是一个 brownfield Web 应用，当前由 Vite + TypeScr
 
 ### Performance Targets
 
-- full item manifest 不进入首屏关键路径。
-- compact item data gzip 小于 50KB。
-- 单个 Pokemon 推荐数据 gzip 小于 5KB。
+- full item manifest 不进入首屏关键路径，也不得随 raw source 目录进入 `dist`。
+- compact runtime item data gzip 小于 50KB。
+- 单个 Pokemon 推荐数据 gzip 小于 5KB，且 `dist/data/recommendations/**` raw 总体积小于 12 MiB、gzip 总体积小于 800 KiB。
+- runtime image assets 总体积小于 15 MiB，单个 Pokemon runtime image 小于 64 KiB，单个 item runtime image 小于 32 KiB。
+- `dist` uncompressed logical size 小于 40 MiB。
 - 静态详情页首屏无需等待推荐引擎运行即可展示核心内容。
 - 构建输出必须包含体积或文件存在断言，防止 payload 回归。
 
@@ -311,7 +319,7 @@ Pokopia Color Pattern 是一个 brownfield Web 应用，当前由 Vite + TypeScr
 
 ### Strategy & Philosophy
 
-**Approach:** 单次 brownfield 改造发布。三个 Epic 用于组织工作，不表示分阶段交付；Data Payload、Recommendation Engine、Hybrid SSG 都属于本次发布范围。
+**Approach:** 单次 brownfield 改造发布。Epic 用于组织工作，不表示分阶段交付；Data Payload、Recommendation Engine、Hybrid SSG 和 Runtime Distribution 都属于本次发布范围。
 
 **Resource Requirements:** 需要 TypeScript/Vite 前端能力、Node 构建脚本能力、浏览器 smoke test 能力，以及对当前 Pokopia 数据 manifest 和 `docs/oklch_color.ts` 的理解。
 
@@ -346,7 +354,7 @@ Pokopia Color Pattern 是一个 brownfield Web 应用，当前由 Vite + TypeScr
 
 ### Risk Mitigation Strategy
 
-**Technical Risks:** 推荐引擎、SSG 和 hydrate 同时改动，存在集成风险。通过三个 Epic 的清晰边界、fixture tests、build output assertion 和浏览器 smoke test 控制风险。
+**Technical Risks:** 推荐引擎、SSG、hydrate 和 runtime asset 分发同时改动，存在集成风险。通过 Epic 边界、fixture tests、build output assertion、dist size budget 和浏览器 smoke test 控制风险。
 
 **Market Risks:** 用户可能不认同推荐结果。通过推荐原因字段、偏好词前置规则、可染色 item 分支规则和 OKLCH 和谐解释降低不信任风险。
 
@@ -423,15 +431,25 @@ Pokopia Color Pattern 是一个 brownfield Web 应用，当前由 Vite + TypeScr
 - FR47: 维护者可以排查推荐结果中使用的偏好词、可染色状态、主色和和谐判定。
 - FR48: 系统可以在输入数据缺失、图片取色失败或 slug 不存在时提供明确恢复路径。
 
+### Runtime Distribution and Deployment
+
+- FR49: 系统可以从 raw image source allowlist 生成运行时图片资产，而不是直接分发完整 raw source 图片目录。
+- FR50: 系统可以生成 runtime asset manifest，将 Pokemon 和推荐 item 的源图片映射到 `/assets/runtime/**` 分发路径。
+- FR51: 系统可以在 production build 中排除 `docs/pokopia_image_sources/**` raw source、raw CSV/JSON manifest 和 build-only diagnostics。
+- FR52: 维护者可以验证 `dist` 总体积、runtime image 体积、runtime data 体积、raw source exclusion 和静态页资源引用。
+
 ## Non-Functional Requirements
 
 ### Performance
 
-- NFR1: 完整 `item_portraits/manifest.csv` 不得作为首屏运行时必需资源加载。
-- NFR2: compact item data gzip 后必须小于 50KB。
-- NFR3: 单个 Pokemon 推荐数据 gzip 后必须小于 5KB。
+- NFR1: 完整 `item_portraits/manifest.csv` 不得作为首屏运行时必需资源加载，也不得随 raw source 目录复制到 `dist`。
+- NFR2: compact runtime item data gzip 后必须小于 50KB；build-only traceability data 可以保留在 `generated/**`，但不得进入 runtime payload。
+- NFR3: 单个 Pokemon 推荐数据 gzip 后必须小于 5KB，且 `dist/data/recommendations/**` raw 总体积小于 12 MiB、gzip 总体积小于 800 KiB。
 - NFR4: `/pokemon/{slug}/` 静态页首屏核心内容不得依赖客户端推荐计算完成后才出现。
-- NFR5: 构建流程必须输出或校验关键数据产物体积，防止 payload 回归。
+- NFR5: 构建流程必须校验 `dist` total size、runtime image size、runtime data size、raw source exclusion 和 SSG 页面存在性，防止 payload 回归。
+- NFR30: `dist` uncompressed logical size 必须小于 40 MiB；`dist/docs/pokopia_image_sources/**` 必须不存在。
+- NFR31: runtime image assets 必须由构建脚本从 raw image source allowlist 生成，默认输出 WebP 或等价压缩格式，并保留必要 alt/metadata 映射。
+- NFR32: runtime image assets 总体积必须小于 15 MiB；单个 Pokemon runtime image 小于 64 KiB，单个 item runtime image 小于 32 KiB。
 
 ### Accessibility
 
@@ -452,19 +470,21 @@ Pokopia Color Pattern 是一个 brownfield Web 应用，当前由 Vite + TypeScr
 - NFR14: 同一输入 manifest、图片和算法版本必须生成相同推荐排序。
 - NFR15: 可染色 item 不得因主色不和谐被过滤。
 - NFR16: 不可染色 item 必须同时满足偏好词命中和 OKLCH 和谐判定。
-- NFR17: 推荐数据必须包含 `matchedPreferenceTerms`、`isDyeable`、`pokemonPrimaryColor`、`itemPrimaryColor`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank` 和 `pageIndex` 字段，用于复现推荐原因。
+- NFR17: 推荐解释契约必须能通过 recommendation entry 或 validated runtime lookup 复现 `matchedPreferenceTerms`、`isDyeable`、`pokemonPrimaryColor`、`itemPrimaryColor`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank` 和 `pageIndex`；entry 本身至少保留 `itemSlug`、`matchedPreferenceTerms`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank` 和 `pageIndex`。
 - NFR18: 图片取色失败时必须优先使用 Pokemon metadata override；没有 override 时使用默认中性色和空色板，并在生成结果中记录 `colorSource: fallback`。
 
 ### Maintainability and Verification
 
 - NFR19: compact item manifest 必须有 schema 或等价结构校验。
 - NFR20: Pokemon metadata override 必须有 schema 或等价结构校验。
-- NFR21: 编译流程必须从原始数据源和 override 数据重新生成 compact data、推荐数据和 SSG 页面。
+- NFR21: 编译流程必须从原始数据源和 override 数据重新生成 compact data、推荐数据、runtime asset manifest/assets 和 SSG 页面。
 - NFR22: 推荐引擎必须有 fixture-based tests 覆盖偏好词、可染色、不可染色和 OKLCH 分支。
 - NFR23: 推荐引擎必须有 fixture-based tests 覆盖搭配道具 override 的追加和直接覆盖模式。
 - NFR24: SSG 输出必须有构建断言验证全部 311 个 `/pokemon/{slug}/` 页面存在，并抽样验证 `ditto` 等固定 fixture 页包含标题、图片、主色、色板和推荐摘要。
 - NFR25: 浏览器 smoke test 必须覆盖一个直接访问静态页并 hydrate 的路径。
 - NFR26: production build command 必须在生成 compact data、推荐数据和 SSG 页面后成功完成。
+- NFR33: production build command 必须在生成 runtime image assets、删除或跳过 raw docs copy、完成 size budget 校验后成功完成。
+- NFR34: 静态 HTML、runtime JSON 和 browser bundle 不得引用 `/docs/pokopia_image_sources/**` 作为生产图片路径；生产图片引用必须指向 `/assets/runtime/**` 或等价 runtime allowlist 路径。
 
 ### Security and Privacy
 

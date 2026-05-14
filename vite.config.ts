@@ -1,35 +1,31 @@
 import { createReadStream, cpSync, existsSync, readdirSync, readFileSync, realpathSync, statSync } from "node:fs";
+import type { ServerResponse } from "node:http";
 import { extname, join, relative, resolve, sep } from "node:path";
 import { defineConfig } from "vite";
 
-const docsSource = resolve(__dirname, "docs/pokopia_image_sources");
-const docsTarget = resolve(__dirname, "dist/docs/pokopia_image_sources");
 const generatedDataSource = resolve(__dirname, "generated/data");
 const generatedDataTarget = resolve(__dirname, "dist/data");
+const generatedRuntimeAssetsSource = resolve(__dirname, "generated/assets/runtime");
+const generatedRuntimeAssetsTarget = resolve(__dirname, "dist/assets/runtime");
 const requiredGeneratedDataFiles = ["pokemon-index.json", "compact-items.json", "item-colors.json"];
 const requiredGeneratedDataDirectories = ["recommendations"];
+const requiredRuntimeAssetManifest = "asset-manifest.json";
 
 export default defineConfig({
   publicDir: false,
   plugins: [
     {
-      name: "copy-pokopia-docs",
-      closeBundle() {
-        if (existsSync(docsSource)) {
-          cpSync(docsSource, docsTarget, {
-            recursive: true,
-            filter: (source) => !source.endsWith(".DS_Store"),
-          });
-        }
-      },
-    },
-    {
       name: "serve-and-copy-generated-data",
       buildStart() {
         assertRequiredGeneratedDataFiles();
+        assertRequiredRuntimeAssets();
       },
       configureServer(server) {
         server.middlewares.use((request, response, next) => {
+          if (request.url?.startsWith("/assets/runtime/")) {
+            serveGeneratedRuntimeAsset(request.url, response, next);
+            return;
+          }
           if (!request.url?.startsWith("/data/")) {
             next();
             return;
@@ -81,13 +77,30 @@ export default defineConfig({
           recursive: true,
           filter: (source) => isAllowedGeneratedDataCopyPath(source, allowlist),
         });
+        assertRequiredRuntimeAssets();
+        cpSync(generatedRuntimeAssetsSource, generatedRuntimeAssetsTarget, {
+          recursive: true,
+          filter: (source) => !source.endsWith(".DS_Store"),
+        });
       },
     },
   ],
 });
 
 function contentType(path: string): string {
-  return extname(path) === ".json" ? "application/json; charset=utf-8" : "application/octet-stream";
+  if (extname(path) === ".json") {
+    return "application/json; charset=utf-8";
+  }
+  if (extname(path) === ".webp") {
+    return "image/webp";
+  }
+  if (extname(path) === ".png") {
+    return "image/png";
+  }
+  if (extname(path) === ".jpg" || extname(path) === ".jpeg") {
+    return "image/jpeg";
+  }
+  return "application/octet-stream";
 }
 
 function assertRequiredGeneratedDataFiles(): Set<string> {
@@ -143,6 +156,17 @@ function validateGeneratedDataTree(allowlist: Set<string>): void {
   });
 }
 
+function assertRequiredRuntimeAssets(): void {
+  if (!existsSync(generatedRuntimeAssetsSource) || !statSync(generatedRuntimeAssetsSource).isDirectory()) {
+    throw new Error("Missing generated runtime assets. Run `npm run generate:assets` before production build.");
+  }
+
+  const manifestPath = resolve(generatedRuntimeAssetsSource, requiredRuntimeAssetManifest);
+  if (!existsSync(manifestPath) || !statSync(manifestPath).isFile()) {
+    throw new Error("Missing generated/assets/runtime/asset-manifest.json. Run `npm run generate:assets`.");
+  }
+}
+
 function listGeneratedDataTree(root: string, prefix = ""): string[] {
   return readdirSync(root, { withFileTypes: true }).flatMap((entry) => {
     const entryPath = prefix ? `${prefix}/${entry.name}` : entry.name;
@@ -162,6 +186,49 @@ function isAllowedGeneratedDataCopyPath(source: string, allowlist: Set<string>):
   return sourceRelativePath === "" || allowlist.has(sourceRelativePath);
 }
 
+function serveGeneratedRuntimeAsset(
+  requestUrl: string,
+  response: ServerResponse,
+  next: () => void,
+): void {
+  const url = new URL(requestUrl, "http://localhost");
+  const relativePath = decodeDataPath(url.pathname.replace(/^\/assets\/runtime\//, ""));
+  if (relativePath === null) {
+    response.statusCode = 400;
+    response.end();
+    return;
+  }
+
+  const assetPath = resolve(generatedRuntimeAssetsSource, relativePath);
+  const assetRelativePath = relative(generatedRuntimeAssetsSource, assetPath);
+  const escapesAssetRoot = assetRelativePath.startsWith("..") || assetRelativePath.includes(`..${sep}`);
+  if (escapesAssetRoot) {
+    response.statusCode = 400;
+    response.end();
+    return;
+  }
+  if (!existsSync(assetPath) || !statSync(assetPath).isFile()) {
+    response.statusCode = 404;
+    response.end();
+    return;
+  }
+  if (!isInsideGeneratedRuntimeAssetsRoot(assetPath)) {
+    response.statusCode = 400;
+    response.end();
+    return;
+  }
+
+  response.setHeader("content-type", contentType(assetPath));
+  const stream = createReadStream(assetPath);
+  stream.on("error", () => {
+    if (!("headersSent" in response) || response.headersSent !== true) {
+      response.statusCode = 500;
+    }
+    response.end();
+  });
+  stream.pipe(response);
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
@@ -176,6 +243,13 @@ function decodeDataPath(path: string): string | null {
 
 function isInsideGeneratedDataRoot(path: string): boolean {
   const root = realpathSync(generatedDataSource);
+  const target = realpathSync(path);
+  const targetRelativePath = relative(root, target);
+  return targetRelativePath !== "" && !targetRelativePath.startsWith("..") && !targetRelativePath.includes(`..${sep}`);
+}
+
+function isInsideGeneratedRuntimeAssetsRoot(path: string): boolean {
+  const root = realpathSync(generatedRuntimeAssetsSource);
   const target = realpathSync(path);
   const targetRelativePath = relative(root, target);
   return targetRelativePath !== "" && !targetRelativePath.startsWith("..") && !targetRelativePath.includes(`..${sep}`);

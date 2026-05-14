@@ -32,8 +32,8 @@ assertExcludes("Abra", "late", "abra");
   if (!entry) {
     throw new Error(`Expected smoke Pokemon to exist: ${slug}`);
   }
-  if (!entry.imagePath.startsWith("/docs/pokopia_image_sources/pokemon_portraits/")) {
-    throw new Error(`Expected root-absolute Pokemon image path for ${slug}`);
+  if (!entry.imagePath.startsWith("/assets/runtime/pokemon/")) {
+    throw new Error(`Expected runtime Pokemon image path for ${slug}`);
   }
   if (!entry.palette.length || !entry.palette[0]?.hex || typeof entry.palette[0].percent !== "number") {
     throw new Error(`Expected generated palette for ${slug}`);

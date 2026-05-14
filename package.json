@@ -6,6 +6,7 @@
   "scripts": {
     "build:data-script": "rm -rf .tmp/data-scripts && tsc -p tsconfig.scripts.json",
     "generate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js",
+    "generate:assets": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-runtime-assets.js",
     "validate:colors": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
     "validate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js --validate-only && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
     "validate:build": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-build.js",
@@ -16,8 +17,9 @@
     "smoke:story-1-4": "npm run build:data-script && node .tmp/data-scripts/scripts/smoke-story-1-4.js",
     "build:setup": "playwright install chromium",
     "smoke:hydrate": "npm run build:setup && playwright test --config playwright.config.ts",
+    "predev": "npm run generate:data && npm run generate:assets",
     "dev": "vite --host 127.0.0.1",
-    "build": "npm run validate:routes && npm run validate:recommendations && npm run validate:build && tsc --noEmit && vite build && npm run generate:ssg && npm run validate:dist && npm run smoke:hydrate",
+    "build": "npm run validate:routes && npm run validate:recommendations && npm run validate:build && npm run generate:assets && tsc --noEmit && vite build && npm run generate:ssg && npm run validate:dist && npm run smoke:hydrate",
     "preview": "vite preview --host 127.0.0.1"
   },
   "devDependencies": {

@@ -17,7 +17,7 @@ inputDocuments:
 workflowType: 'architecture'
 project_name: 'pokopia-color-pattern'
 user_name: 'Grigri'
-date: '2026-05-13'
+date: '2026-05-14'
 status: 'complete'
 completedAt: '2026-05-13'
 ---
@@ -32,7 +32,7 @@ _This document builds collaboratively through step-by-step discovery. Sections a
 
 **Functional Requirements:**
 
-PRD 定义了 48 条 FR，架构上可以归为七组：
+PRD 定义了 52 条 FR，架构上可以归为八组：
 
 - Pokemon 发现与详情页：支持稳定 `/pokemon/{slug}/`、当前 Pokemon 展示、搜索与切换、无 JS 核心可读。
 - 色板与审美上下文：为 Pokemon 和推荐 item 提供主色、色板、色值文本和 OKLCH 和谐关系。
@@ -41,10 +41,11 @@ PRD 定义了 48 条 FR，架构上可以归为七组：
 - 分享与快速访问：每个 Pokemon 有唯一 title、description、推荐摘要，并在 hydrate 后保留现有 SPA 体验。
 - 数据契约与生成：原始 Pokopia 数据只读，compact item data、Pokemon metadata、推荐数据和静态页面由编译期脚本生成。
 - 验证与维护：schema 校验、fixture tests、311 个静态页断言、推荐解释字段和错误恢复路径。
+- Runtime 分发与部署：从 raw image source allowlist 生成压缩 runtime 图片资产，禁止 raw source 进入 `dist`，并验证最终部署产物体积。
 
 **Non-Functional Requirements:**
 
-- 性能：完整 `item_portraits/manifest.csv` 不再作为首屏运行时必需资源；compact item data gzip 小于 50KB；单个 Pokemon 推荐数据 gzip 小于 5KB。
+- 性能：完整 `item_portraits/manifest.csv` 不再作为首屏运行时必需资源，也不得进入 `dist`；compact runtime item data gzip 小于 50KB；单个 Pokemon 推荐数据 gzip 小于 5KB；runtime images 小于 15 MiB；`dist` logical size 小于 40 MiB。
 - 静态访问：全部 311 个 Pokemon 必须有 `/pokemon/{slug}/` 静态页，无 JS 时保留 Pokemon 名称、图片、主色、色板和推荐摘要。
 - 可访问性：目标为基础 WCAG 2.2 AA；色板提供文本色值；搜索、筛选、分页和推荐浏览支持键盘操作；图片 alt 行为明确。
 - 数据正确性：同一输入和算法版本生成相同排序；推荐解释字段必须包含 `matchedPreferenceTerms`、`isDyeable`、`pokemonPrimaryColor`、`itemPrimaryColor`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank`、`pageIndex`。
@@ -55,7 +56,7 @@ PRD 定义了 48 条 FR，架构上可以归为七组：
 
 - Primary domain: brownfield Web SPA + Hybrid SSG 静态目录。
 - Complexity level: medium。项目没有后端、账号、实时协作或合规系统，但存在构建期数据管线、图片取色、推荐算法、SSG、hydrate 一致性和体积预算。
-- Estimated architectural components: 8 个核心组件。
+- Estimated architectural components: 9 个核心组件。
   1. 原始数据读取与 CSV/JSON 规范化。
   2. Pokemon metadata override 读取与合并。
   3. Pokemon/item 主色与色板生成。
@@ -63,7 +64,8 @@ PRD 定义了 48 条 FR，架构上可以归为七组：
   5. compact runtime data 生成。
   6. `/pokemon/{slug}/` 静态 HTML 生成。
   7. SPA hydration、路由和 UI 渲染。
-  8. schema、fixture、体积和浏览器 smoke validation。
+  8. runtime asset manifest 和压缩图片生成。
+  9. schema、fixture、体积和浏览器 smoke validation。
 
 ### Technical Constraints & Dependencies
 
@@ -72,9 +74,10 @@ PRD 定义了 48 条 FR，架构上可以归为七组：
 - `docs/oklch_color.ts` 是 OKLCH 方法论源头，推荐引擎只能复用或薄封装，不能另写不一致的色彩规则。
 - `docs/pokopia_image_sources/item_portraits/manifest.csv` 是完整 1,219 个 in-collection item 的重数据源，不再由浏览器首屏直接读取。
 - `docs/pokopia_image_sources/pokemon_portraits/manifest.csv` 包含 311 个 Pokemon portrait，是 SSG 页面的 Pokemon 范围来源。
-- 原始 `docs/pokopia_image_sources/**` 数据只读；compact data、recommendation data 和 SSG HTML 都是派生产物。
+- 原始 `docs/pokopia_image_sources/**` 数据只读；compact data、recommendation data、runtime image assets 和 SSG HTML 都是派生产物。
+- `docs/pokopia_image_sources/**` 不得作为 production distribution output 复制到 `dist`。
 - URL slug 使用小写 kebab-case，路径型 `/pokemon/{slug}/` 与当前 hash `#slug` 共享同一规范化逻辑。
-- 资源路径必须同时支持根路径 SPA 和 `/pokemon/{slug}/` 子路径静态页，静态页脚本和图片引用不得依赖错误的相对路径。
+- 资源路径必须同时支持根路径 SPA 和 `/pokemon/{slug}/` 子路径静态页，静态页脚本、图片和 JSON 引用必须使用 root-absolute runtime paths。
 
 ### Cross-Cutting Concerns Identified
 
@@ -82,7 +85,7 @@ PRD 定义了 48 条 FR，架构上可以归为七组：
 - Data contract: 浏览器端只消费 compact schema 和单 Pokemon recommendation data，不再解析重 CSV。
 - Hydration parity: 静态 HTML、hydrated SPA 和客户端导航必须展示同一个 slug、同一推荐排序和同一分页状态。
 - Accessibility: 静态页与 hydrated 控件都要保留可读标签、键盘路径和图片 alt 策略。
-- Performance budget: 体积校验是 build gate，不是人工检查项。
+- Performance budget: 体积校验是 build gate，不是人工检查项；校验必须覆盖 `dist` 总体积、runtime image 总量、recommendation data 总量和 raw source exclusion。
 - Fallback visibility: 图片取色失败、override 缺失、slug 不存在、推荐为空都必须有可追踪 fallback 和可恢复 UI。
 - Agent consistency: 多个实现 agent 不能各自发明数据目录、slug 规则、推荐字段或测试入口。
 
@@ -182,8 +185,8 @@ Versions checked on 2026-05-13:
 **Development Experience:**
 
 - `npm run dev` serves the hydrated SPA.
-- `npm run generate` produces data needed by dev and build.
-- `npm run build` must become the production gate: generate data, typecheck, Vite build, generate SSG pages, validate output.
+- `npm run generate` produces data and runtime asset inputs needed by dev and build.
+- `npm run build` must remain the production gate: generate data, generate runtime assets, typecheck, Vite build, generate SSG pages, validate output and size budgets.
 
 ## Core Architectural Decisions
 
@@ -194,7 +197,9 @@ Versions checked on 2026-05-13:
 - Keep Vite + TypeScript +原生 DOM. No React/Vue/Next migration.
 - Use a custom build-time data and SSG pipeline instead of runtime heavy CSV parsing.
 - Treat `docs/pokopia_image_sources/**` as immutable source input.
+- Do not copy `docs/pokopia_image_sources/**` into production `dist`.
 - Generate compact runtime data and per-Pokemon recommendation data before the app relies on it.
+- Generate optimized runtime image assets from an allowlist before SSG validation.
 - Use `/pokemon/{slug}/` pathname as the canonical direct-access route and keep hash `#slug` as compatibility navigation.
 - Reuse `docs/oklch_color.ts` for OKLCH harmony.
 - Add fixture/schema/build/smoke validation as package scripts.
@@ -203,6 +208,7 @@ Versions checked on 2026-05-13:
 
 - Use static JSON files as the browser data boundary instead of bundling all generated data into JavaScript.
 - Use a Vite plugin or equivalent dev middleware to serve generated data from `/data/` during development and copy it to `dist/data/` during build.
+- Use a Node build step to generate optimized runtime image assets under `/assets/runtime/`; do not copy raw image source directories into `dist`.
 - Generate static Pokemon pages after the Vite app build by reusing built asset references from `dist/index.html`.
 - Use `sharp` as the build-time image decoder/color extraction dependency because the dataset contains PNG and WebP assets.
 - Use `zod` for schemas and `csv-parse` for robust CSV parsing.
@@ -228,14 +234,24 @@ Versions checked on 2026-05-13:
   - `docs/oklch_color.ts`
 - Maintainer input:
   - `data/overrides/pokemon-metadata.json`
-- Generated runtime output:
+- Build-only generated output:
   - `generated/data/pokemon-index.json`
   - `generated/data/compact-items.json`
   - `generated/data/recommendations/{slug}.json`
   - `generated/data/build-summary.json`
+  - `generated/reports/**`
 - Distribution output:
-  - `dist/data/**`
+  - `dist/data/pokemon-index.json`
+  - `dist/data/runtime-items.json` or minimized `dist/data/compact-items.json`
+  - `dist/data/recommendations/{slug}.json`
+  - `dist/assets/runtime/pokemon/{slug}.webp`
+  - `dist/assets/runtime/items/{slug}.webp`
+  - `dist/assets/runtime/asset-manifest.json`
   - `dist/pokemon/{slug}/index.html`
+- Forbidden distribution output:
+  - `dist/docs/pokopia_image_sources/**`
+  - raw CSV/JSON source manifests
+  - build-only diagnostics unless explicitly allowlisted
 
 **Raw Data Rule:**
 
@@ -252,7 +268,8 @@ Raw Pokopia source files are read-only. Any correction to Pokemon primary color,
 
 - Browser code fetches `/data/pokemon-index.json` for the list and selected Pokemon metadata.
 - Browser code fetches `/data/recommendations/{slug}.json` only for the current Pokemon.
-- `compact-items.json` contains item display fields and compact lookup metadata, not full source manifest columns.
+- Browser code resolves item display fields, runtime image paths and item color fields through the runtime item index instead of requiring each recommendation entry to repeat them.
+- `compact-items.json` or its minimized runtime equivalent contains item display fields and compact lookup metadata, not full source manifest columns or raw traceability.
 - Static HTML includes enough core content for no-JS readability and may embed a minimal `application/json` bootstrap payload for the selected slug, but hydrated code still treats `/data/` as the canonical runtime data source.
 
 ### Recommendation Architecture
@@ -308,7 +325,24 @@ Every recommended item includes:
   2. Extracted dominant palette from local portrait image.
   3. Default neutral color plus empty palette with `colorSource: "fallback"`.
 - Item color fallback records `colorSource: "fallback"` and must not silently pass as extracted color.
-- Generated color output includes enough metadata for debugging: source image path, extraction status, fallback reason and palette list.
+- Generated color output includes enough metadata for debugging in `generated/**`: source image path, extraction status, fallback reason and palette list. Runtime distribution strips build-only traceability unless the browser needs it.
+
+### Runtime Asset Architecture
+
+**Runtime Asset Boundary:**
+
+- Raw source images remain under `docs/pokopia_image_sources/**` and are build inputs only.
+- Production images are generated under `dist/assets/runtime/**` from an allowlist derived from Pokemon index and recommendation data.
+- `dist/assets/runtime/asset-manifest.json` records source slug, runtime path, width/height, byte size, content type and source category.
+- Static HTML and hydrated SPA must reference runtime paths, not `/docs/pokopia_image_sources/**`.
+- Development may serve raw images only behind the same runtime URL contract, or require `generate:data` to create local runtime assets before `npm run dev`.
+
+**Image Optimization Defaults:**
+
+- Pokemon portraits: maximum edge 420px, WebP quality 82 or equivalent, per-file budget 64 KiB.
+- Recommended item portraits: maximum edge 240px, WebP quality 82 or equivalent, per-file budget 32 KiB.
+- Total runtime image budget: 15 MiB.
+- The generator must handle transparent backgrounds and WebP-behind-PNG source files through `sharp`.
 
 ### Static Rendering & Hydration Architecture
 
@@ -328,7 +362,8 @@ Every recommended item includes:
 - SSG script reads `dist/index.html`, generated Pokemon data and recommendation data.
 - SSG script writes `dist/pokemon/{slug}/index.html` for all 311 Pokemon.
 - Each static page includes unique title, description, Pokemon image, primary color, swatches and recommendation summary before JS loads.
-- Asset URLs in static pages use root-absolute paths so nested `/pokemon/{slug}/` pages load CSS, JS, images and JSON correctly.
+- Asset URLs in static pages use root-absolute runtime paths so nested `/pokemon/{slug}/` pages load CSS, JS, images and JSON correctly.
+- Static pages must not reference `/docs/pokopia_image_sources/**` in production HTML.
 
 **Hydration Strategy:**
 
@@ -354,6 +389,9 @@ Every recommended item includes:
   - `GET /data/pokemon-index.json`
   - `GET /data/compact-items.json`
   - `GET /data/recommendations/{slug}.json`
+  - `GET /assets/runtime/asset-manifest.json`
+  - `GET /assets/runtime/pokemon/{slug}.webp`
+  - `GET /assets/runtime/items/{slug}.webp`
 - Missing JSON, unknown slug or parse failure returns a visible recoverable UI state and logs a concise diagnostic.
 - No rate limiting, API auth, GraphQL or backend service boundary is needed.
 
@@ -557,6 +595,8 @@ const recommendation = await loadRecommendation(slug);
 **Anti-Patterns:**
 
 - Fetching `docs/pokopia_image_sources/item_portraits/manifest.csv` in `src/main.ts`.
+- Referencing `/docs/pokopia_image_sources/**` from production HTML, JS, CSS or runtime JSON.
+- Copying raw source image or manifest directories into `dist`.
 - Computing recommendation order in the browser with ad hoc HSL/RGB distance.
 - Generating `/pokemon/{slug}/` pages that contain only an empty app shell.
 - Using relative `../assets/...` paths that break from nested static pages.
@@ -659,6 +699,12 @@ pokopia-color-pattern/
 └── dist/
     ├── index.html
     ├── assets/
+    │   └── runtime/
+    │       ├── asset-manifest.json
+    │       ├── pokemon/
+    │       │   └── {slug}.webp
+    │       └── items/
+    │           └── {slug}.webp
     ├── data/
     └── pokemon/
         └── {slug}/
@@ -744,6 +790,14 @@ pokopia-color-pattern/
 - `tests/smoke/pokemon-page.spec.ts`
 - `generated/reports/**`
 
+**Runtime Distribution and Deployment (FR49-FR52):**
+
+- `scripts/generate-data.ts`
+- `scripts/validate-build.ts`
+- `vite.config.ts`
+- `dist/assets/runtime/asset-manifest.json`
+- `tests/smoke/pokemon-page.spec.ts`
+
 ### Integration Points
 
 **Internal Communication:**
@@ -762,10 +816,10 @@ pokopia-color-pattern/
 ```text
 docs raw manifests + local images + metadata overrides
 -> generate-data.ts
--> generated/data + generated/schemas + generation report
+-> generated/data + generated/schemas + generation report + runtime asset manifest inputs
 -> vite build
 -> generate-ssg.ts
--> dist/index.html + dist/data + dist/pokemon/{slug}/index.html
+-> dist/index.html + dist/data + dist/assets/runtime + dist/pokemon/{slug}/index.html
 -> validate-build.ts + Vitest + Playwright smoke
 ```
 
@@ -791,27 +845,30 @@ docs raw manifests + local images + metadata overrides
 
 **Asset Organization:**
 
-- Original images stay under `docs/pokopia_image_sources/**`.
+- Original images stay under `docs/pokopia_image_sources/**` and are never copied wholesale to `dist`.
 - Runtime generated data uses `/data/` in `dist`.
+- Runtime generated images use `/assets/runtime/` in `dist`.
 - Static pages are written under `dist/pokemon/{slug}/`.
 
 ### Development Workflow Integration
 
 **Development Server Structure:**
 
-- `npm run generate` creates `generated/data/**`.
-- `npm run dev` serves the app and generated data.
+- `npm run generate` creates `generated/data/**` and build-only reports.
+- `npm run dev` serves the app, generated data and runtime asset paths.
 - Vite dev middleware maps `/data/` to `generated/data/`.
+- Vite dev middleware must keep the production runtime image URL contract even if it serves source images during development.
 
 **Build Process Structure:**
 
-- `npm run build` runs generation, tests, typecheck, Vite build, SSG generation and validation in that order.
-- `vite.config.ts` continues copying required docs/assets and also copies/serves generated `/data/`.
+- `npm run build` runs data generation, runtime asset generation, tests, typecheck, Vite build, SSG generation and validation in that order.
+- `vite.config.ts` must not copy `docs/pokopia_image_sources/**` into `dist`.
+- Production build copies only allowlisted `/data/**` and `/assets/runtime/**`.
 
 **Deployment Structure:**
 
 - Deploy only `dist/`.
-- Static host must serve nested `/pokemon/{slug}/index.html` paths and `/data/**`.
+- Static host must serve nested `/pokemon/{slug}/index.html` paths, `/data/**` and `/assets/runtime/**`.
 - No server runtime is required.
 
 ## Architecture Validation Results
@@ -820,7 +877,7 @@ docs raw manifests + local images + metadata overrides
 
 **Decision Compatibility:**
 
-All decisions align with the PRD and current checkout. Vite + TypeScript +原生 DOM supports the existing UI, while custom Node scripts handle data generation and SSG without introducing a new framework. Static JSON files provide a clean runtime boundary and avoid bundling heavy manifest data.
+All decisions align with the PRD and current checkout. Vite + TypeScript +原生 DOM supports the existing UI, while custom Node scripts handle data generation, runtime image generation and SSG without introducing a new framework. Static JSON files and `/assets/runtime/**` provide a clean runtime boundary and avoid bundling or deploying raw source manifests.
 
 **Pattern Consistency:**
 
@@ -828,13 +885,13 @@ Naming, route, JSON and generated-path patterns all use one slug/data contract. 
 
 **Structure Alignment:**
 
-The proposed structure separates raw data, overrides, generated data, browser app, domain logic, scripts and tests. This supports multi-agent implementation because each story can own a clear module boundary.
+The proposed structure separates raw data, overrides, generated data, runtime assets, browser app, domain logic, scripts and tests. This supports multi-agent implementation because each story can own a clear module boundary.
 
 ### Requirements Coverage Validation
 
 **Epic/Feature Coverage:**
 
-No epics have been generated yet. Feature coverage is mapped directly from PRD FR categories and is ready for `bmad-create-epics-and-stories`.
+Epics 1-3 cover the original data/recommendation/SSG release. Epic 4 is the approved corrective epic for runtime distribution and deployment budgets.
 
 **Functional Requirements Coverage:**
 
@@ -845,6 +902,7 @@ No epics have been generated yet. Feature coverage is mapped directly from PRD F
 - FR26-FR30: covered by static route generation, metadata and hydration priority.
 - FR31-FR40: covered by schemas, overrides and data generation scripts.
 - FR41-FR48: covered by validation scripts, fixtures and smoke tests.
+- FR49-FR52: covered by runtime asset generation, production allowlists, dist source exclusion and size budget validation.
 
 **Non-Functional Requirements Coverage:**
 
@@ -854,16 +912,17 @@ No epics have been generated yet. Feature coverage is mapped directly from PRD F
 - NFR14-NFR18: deterministic sorting, recommendation fields and color fallback are architectural rules.
 - NFR19-NFR26: schemas, fixture tests, output assertions and production build command are part of build gate.
 - NFR27-NFR29: static-only no-secret/no-private-path rules address security and privacy.
+- NFR30-NFR34: runtime asset generation, raw source exclusion, size budgets and production path checks address deployment constraints.
 
 ### Implementation Readiness Validation
 
 **Decision Completeness:**
 
-Critical stack, data boundary, recommendation rules, route strategy, SSG strategy, validation strategy and testing tools are documented. Version checks were performed for current stack and likely new validation dependencies.
+Critical stack, data boundary, runtime asset boundary, recommendation rules, route strategy, SSG strategy, validation strategy and testing tools are documented. Version checks were performed for current stack and likely new validation dependencies.
 
 **Structure Completeness:**
 
-The document defines source, data, generated, script, test and dist locations with a concrete project tree. It maps each FR category to modules and files.
+The document defines source, data, generated, runtime asset, script, test and dist locations with a concrete project tree. It maps each FR category to modules and files.
 
 **Pattern Completeness:**
 
@@ -877,8 +936,7 @@ None.
 
 **Important Gaps:**
 
-- Epics and stories do not exist yet. This is expected because architecture precedes `bmad-create-epics-and-stories`.
-- Exact install versions for new dev dependencies should be pinned by the first implementation story using current registry values at implementation time.
+- Exact image optimization settings may be tuned during Story 4.2 if visual quality or byte budgets conflict, but any adjustment must keep the approved total and per-file budgets explicit.
 
 **Nice-to-Have Gaps:**
 
@@ -891,6 +949,7 @@ None.
 - Avoided runtime full-manifest loading by defining generated `/data/` contracts.
 - Avoided inconsistent color logic by making `docs/oklch_color.ts` the OKLCH source.
 - Avoided hydration mismatch by making pathname slug parsing higher priority than hash fallback.
+- Avoided deployment bloat by forbidding raw `docs/pokopia_image_sources/**` copies in `dist` and adding runtime asset budgets.
 
 ### Architecture Completeness Checklist
 
@@ -934,11 +993,12 @@ None.
 - Data and recommendation boundaries are explicit enough for multiple implementation agents.
 - Validation is tied directly to measurable PRD NFRs.
 - Recommendation rules preserve the product distinction: preference-first, dyeable exemption, OKLCH harmony for non-dyeable items.
+- Runtime asset boundary is explicit enough to prevent raw source data from re-entering `dist`.
 
 **Areas for Future Enhancement:**
 
-- Add social card image generation after core SSG is stable.
-- Add advanced recommendation filtering after initial recommendation correctness is proven.
+- Add social card image generation after runtime asset distribution is stable.
+- Add advanced recommendation filtering after initial recommendation correctness and deployment budgets are proven.
 - Consider dependency major upgrades only after the MVP build gate is stable.
 
 ### Implementation Handoff
@@ -947,9 +1007,9 @@ None.
 
 - Follow all architectural decisions exactly as documented.
 - Use implementation patterns consistently across all components.
-- Respect source/generated/runtime data boundaries.
+- Respect source/generated/runtime data and runtime asset boundaries.
 - Refer to this document for architecture questions before changing data paths, route behavior, recommendation rules or validation gates.
 
 **First Implementation Priority:**
 
-Run `bmad-create-epics-and-stories` next to convert the PRD and this architecture into implementable epics and stories. Story 1 should establish generation/test/build infrastructure before changing the visible SPA behavior.
+Run `bmad-create-story` next for Story 4.1, then `bmad-dev-story` and `bmad-code-review` story-by-story. Epic 4 must land before deployment because it changes the runtime asset boundary and dist budget gate.

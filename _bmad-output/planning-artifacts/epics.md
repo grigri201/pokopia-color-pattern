@@ -4,6 +4,7 @@ stepsCompleted:
   - step-02-design-epics
   - step-03-create-stories
   - step-04-final-validation
+  - step-correct-course-runtime-boundary
 inputDocuments:
   - _bmad-output/planning-artifacts/prd.md
   - _bmad-output/planning-artifacts/architecture.md
@@ -11,7 +12,7 @@ inputDocuments:
 workflowType: 'epics'
 project_name: 'pokopia-color-pattern'
 user_name: 'Grigri'
-date: '2026-05-13'
+date: '2026-05-14'
 status: 'complete'
 lastStep: 4
 completedAt: '2026-05-13'
@@ -123,17 +124,25 @@ FR47: 维护者可以排查推荐结果中使用的偏好词、可染色状态�
 
 FR48: 系统可以在输入数据缺失、图片取色失败或 slug 不存在时提供明确恢复路径。
 
+FR49: 系统可以从 raw image source allowlist 生成运行时图片资产，而不是直接分发完整 raw source 图片目录。
+
+FR50: 系统可以生成 runtime asset manifest，将 Pokemon 和推荐 item 的源图片映射到 `/assets/runtime/**` 分发路径。
+
+FR51: 系统可以在 production build 中排除 `docs/pokopia_image_sources/**` raw source、raw CSV/JSON manifest 和 build-only diagnostics。
+
+FR52: 维护者可以验证 `dist` 总体积、runtime image 体积、runtime data 体积、raw source exclusion 和静态页资源引用。
+
 ### NonFunctional Requirements
 
-NFR1: 完整 `item_portraits/manifest.csv` 不得作为首屏运行时必需资源加载。
+NFR1: 完整 `item_portraits/manifest.csv` 不得作为首屏运行时必需资源加载，也不得随 raw source 目录复制到 `dist`。
 
-NFR2: compact item data gzip 后必须小于 50KB。
+NFR2: compact runtime item data gzip 后必须小于 50KB；build-only traceability data 可以保留在 `generated/**`，但不得进入 runtime payload。
 
-NFR3: 单个 Pokemon 推荐数据 gzip 后必须小于 5KB。
+NFR3: 单个 Pokemon 推荐数据 gzip 后必须小于 5KB，且 `dist/data/recommendations/**` raw 总体积小于 12 MiB、gzip 总体积小于 800 KiB。
 
 NFR4: `/pokemon/{slug}/` 静态页首屏核心内容不得依赖客户端推荐计算完成后才出现。
 
-NFR5: 构建流程必须输出或校验关键数据产物体积，防止 payload 回归。
+NFR5: 构建流程必须校验 `dist` total size、runtime image size、runtime data size、raw source exclusion 和 SSG 页面存在性，防止 payload 回归。
 
 NFR6: 页面目标满足基础 WCAG 2.2 AA。
 
@@ -157,7 +166,7 @@ NFR15: 可染色 item 不得因主色不和谐被过滤。
 
 NFR16: 不可染色 item 必须同时满足偏好词命中和 OKLCH 和谐判定。
 
-NFR17: 推荐数据必须包含 `matchedPreferenceTerms`、`isDyeable`、`pokemonPrimaryColor`、`itemPrimaryColor`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank` 和 `pageIndex` 字段，用于复现推荐原因。
+NFR17: 推荐解释契约必须能通过 recommendation entry 或 validated runtime lookup 复现 `matchedPreferenceTerms`、`isDyeable`、`pokemonPrimaryColor`、`itemPrimaryColor`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank` 和 `pageIndex`；entry 本身至少保留 `itemSlug`、`matchedPreferenceTerms`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank` 和 `pageIndex`。
 
 NFR18: 图片取色失败时必须优先使用 Pokemon metadata override；没有 override 时使用默认中性色和空色板，并在生成结果中记录 `colorSource: fallback`。
 
@@ -165,7 +174,7 @@ NFR19: compact item manifest 必须有 schema 或等价结构校验。
 
 NFR20: Pokemon metadata override 必须有 schema 或等价结构校验。
 
-NFR21: 编译流程必须从原始数据源和 override 数据重新生成 compact data、推荐数据和 SSG 页面。
+NFR21: 编译流程必须从原始数据源和 override 数据重新生成 compact data、推荐数据、runtime asset manifest/assets 和 SSG 页面。
 
 NFR22: 推荐引擎必须有 fixture-based tests 覆盖偏好词、可染色、不可染色和 OKLCH 分支。
 
@@ -183,6 +192,16 @@ NFR28: 构建脚本不得要求将外部服务密钥写入前端产物。
 
 NFR29: 静态页面和数据文件不得暴露本地绝对路径或开发机私有信息。
 
+NFR30: `dist` uncompressed logical size 必须小于 40 MiB；`dist/docs/pokopia_image_sources/**` 必须不存在。
+
+NFR31: runtime image assets 必须由构建脚本从 raw image source allowlist 生成，默认输出 WebP 或等价压缩格式，并保留必要 alt/metadata 映射。
+
+NFR32: runtime image assets 总体积必须小于 15 MiB；单个 Pokemon runtime image 小于 64 KiB，单个 item runtime image 小于 32 KiB。
+
+NFR33: production build command 必须在生成 runtime image assets、删除或跳过 raw docs copy、完成 size budget 校验后成功完成。
+
+NFR34: 静态 HTML、runtime JSON 和 browser bundle 不得引用 `/docs/pokopia_image_sources/**` 作为生产图片路径；生产图片引用必须指向 `/assets/runtime/**` 或等价 runtime allowlist 路径。
+
 ### Additional Requirements
 
 - 使用现有 brownfield Vite + TypeScript + 原生 DOM 项目作为 starter；不重新脚手架，不迁移 React/Vue/Next/Remix/Astro。
@@ -192,8 +211,10 @@ NFR29: 静态页面和数据文件不得暴露本地绝对路径或开发机私�
 - `docs/oklch_color.ts` 是 OKLCH 方法论源头，推荐引擎只能复用或薄封装，不能另写 RGB/HSL/距离近似规则。
 - `docs/pokopia_image_sources/item_portraits/manifest.csv` 是完整 1,219 个 in-collection item 的重数据源，不得进入首屏运行时关键路径。
 - `docs/pokopia_image_sources/pokemon_portraits/manifest.csv` 包含 311 个 Pokemon portrait，是 SSG 页面范围来源。
-- 建议 source/generated/runtime 边界：raw source 在 `docs/pokopia_image_sources/**`，维护者 override 在 `data/overrides/**`，本地生成数据在 `generated/data/**`，最终分发数据在 `dist/data/**`。
+- source/generated/runtime 边界：raw source 在 `docs/pokopia_image_sources/**`，维护者 override 在 `data/overrides/**`，本地生成数据在 `generated/data/**`，最终分发数据在 `dist/data/**` 与 `dist/assets/runtime/**`。
+- `docs/pokopia_image_sources/**` 不得复制到 `dist`；production 只能分发 allowlist runtime data、runtime image assets、app bundle 和 SSG HTML。
 - 建议生成数据包括 `generated/data/pokemon-index.json`、`generated/data/compact-items.json`、`generated/data/recommendations/{slug}.json` 和 `generated/data/build-summary.json`。
+- runtime image assets 输出到 `/assets/runtime/pokemon/{slug}.webp` 与 `/assets/runtime/items/{slug}.webp`，并由 asset manifest 记录映射与体积。
 - JSON 数据契约使用 camelCase 字段、`schemaVersion` 顶层字段、稳定排序和稳定字段顺序。
 - 推荐文件必须包含 `pageSize: 10`、`totalPages`，且 `pageIndex` 在数据中为 zero-based。
 - 推荐排序必须 deterministic：override 优先级、偏好词匹配强度、可染色分支、OKLCH harmony/role fit、稳定 item slug tie-breaker。
@@ -204,9 +225,10 @@ NFR29: 静态页面和数据文件不得暴露本地绝对路径或开发机私�
 - 静态页资源 URL 使用 root-absolute path，避免嵌套路由下 CSS/JS/image/JSON 相对路径失效。
 - Hydrated app 不得先渲染默认 Ditto 再跳转到 route slug。
 - 浏览器运行时通过 `/data/pokemon-index.json`、`/data/compact-items.json` 和 `/data/recommendations/{slug}.json` 获取静态 JSON；不定义后端 API。
+- 浏览器和 SSG 生产图片路径必须通过 runtime asset boundary 解析，不得直接引用 `/docs/pokopia_image_sources/**`。
 - 前端拆分建议：`src/app/` 管理 boot/events/router/state/render，`src/data/` 管理 client/schemas/types，`src/domain/` 管理 pure business logic，`scripts/` 管理 Node-only generation/validation。
 - 建议新增轻量验证依赖：Vitest 覆盖 unit/fixture tests，Playwright 覆盖直接访问静态页并 hydrate 的 smoke test。
-- `npm run build` 应成为 production gate：生成数据、测试、typecheck、Vite build、SSG generation、build validation，并在可用时运行浏览器 smoke。
+- `npm run build` 应成为 production gate：生成数据、runtime assets、测试、typecheck、Vite build、SSG generation、build validation，并在可用时运行浏览器 smoke。
 - 所有 user-visible HTML 字符串必须经过 `escapeHtml` 或 DOM text API；manifest 字段不得直接插入 `innerHTML`。
 - 生成产物不得包含当前时间、随机数、本机绝对路径、开发机用户名、外部服务密钥或私有环境值。
 - 构建错误应聚合并打印可操作的文件/路径细节，浏览器数据加载失败应显示可恢复 UI，而不是让页面空白。
@@ -329,6 +351,14 @@ FR47: Epic 2 - 排查推荐结果中使用的偏好词、可染色状态、主�
 
 FR48: Epic 3 - 输入数据缺失、图片取色失败或 slug 不存在时提供明确恢复路径。
 
+FR49: Epic 4 - 从 raw image source allowlist 生成 runtime 图片资产。
+
+FR50: Epic 4 - 生成 runtime asset manifest 映射源图片和 `/assets/runtime/**` 分发路径。
+
+FR51: Epic 4 - production build 排除 raw source、raw manifest 和 build-only diagnostics。
+
+FR52: Epic 4 - 验证 `dist` 总体积、runtime image/data 体积、raw source exclusion 和静态页资源引用。
+
 ## Epic List
 
 ### Epic 1: 快速、可靠的 Pokemon 色彩详情体验
@@ -354,6 +384,14 @@ FR48: Epic 3 - 输入数据缺失、图片取色失败或 slug 不存在时提�
 **FRs covered:** FR1, FR6, FR26, FR27, FR28, FR29, FR30, FR35, FR43, FR44, FR48
 
 **Implementation notes:** 该 Epic 在 Epic 1/2 的生成数据和推荐数据上增加 SSG、路径解析、静态 HTML 内容、hydrate parity、直接访问 smoke test 和完整输出断言。
+
+### Epic 4: Runtime 分发体积与部署边界
+
+维护者可以部署只包含 runtime-required optimized assets/data 的 `dist`，避免把完整 raw Pokopia source data、重复图片目录和 build-only diagnostics 发布出去。
+
+**FRs covered:** FR49, FR50, FR51, FR52
+
+**Implementation notes:** 该 Epic 是 2026-05-14 correct-course 后新增的 release hardening。它不改变现有 UX 和 SSG 目标，而是把图片路径、runtime data contract、Vite copy behavior 和 `validate:dist` budget 收紧为部署可接受的边界。
 
 ## Epic 1: 快速、可靠的 Pokemon 色彩详情体验
 
@@ -742,3 +780,146 @@ So that 可分享页面不会在发布时退化。
 **When** 直接访问一个静态 Pokemon 页并完成 hydrate
 **Then** hydrate 后页面展示的 Pokemon 与路径 slug 一致
 **And** 搜索、切换、筛选和分页能力仍可用。
+
+## Epic 4: Runtime 分发体积与部署边界
+
+维护者可以部署只包含 runtime-required optimized assets/data 的 `dist`，避免把完整 raw Pokopia source data、重复图片目录和 build-only diagnostics 发布出去。
+
+**FRs covered:** FR49, FR50, FR51, FR52
+
+**Implementation notes:** 该 Epic 是 2026-05-14 correct-course 后新增的 release hardening。它不改变现有 UX 和 SSG 目标，而是把图片路径、runtime data contract、Vite copy behavior 和 `validate:dist` budget 收紧为部署可接受的边界。
+
+### Story 4.1: 拆除 raw docs copy，建立 runtime asset manifest
+
+As a 维护者,
+I want production build 不再复制完整 raw docs source，并有 runtime asset manifest 作为图片分发边界,
+So that `dist` 不包含部署不需要的 source manifests 和重复图片目录。
+
+**Requirements Covered:** FR49, FR50, FR51; NFR1, NFR5, NFR30, NFR31, NFR34
+
+**Acceptance Criteria:**
+
+**Given** production build 运行
+**When** Vite closeBundle 或等价 build copy step 执行
+**Then** 不再复制 `docs/pokopia_image_sources/**` 到 `dist/docs/**`
+**And** `dist/docs/pokopia_image_sources/**` 不存在。
+
+**Given** generated Pokemon index 和 recommendation data 已存在
+**When** runtime asset manifest 生成
+**Then** manifest 覆盖全部 Pokemon image 和全部被推荐 item image
+**And** manifest 条目包含 slug、source category、runtime path、byte size 和 content type。
+
+**Given** browser 或 SSG 引用图片
+**When** 读取 image path
+**Then** path 指向 `/assets/runtime/**`
+**And** path 不指向 `/docs/pokopia_image_sources/**`。
+
+**Given** `validate:dist` 运行
+**When** `dist/docs/pokopia_image_sources/**` 存在或生产产物引用 `/docs/pokopia_image_sources/**`
+**Then** validation 非零失败。
+
+### Story 4.2: 生成优化后的 runtime image assets
+
+As a 用户,
+I want Pokemon 和推荐 item 图片仍然清晰可见,
+So that deployment size 降低时不牺牲核心视觉体验。
+
+**Requirements Covered:** FR49, FR50; NFR31, NFR32, NFR34
+
+**Acceptance Criteria:**
+
+**Given** raw Pokemon/item source images 存在
+**When** asset generation 运行
+**Then** 仅为 runtime manifest allowlist 生成图片
+**And** 不为未被 runtime 使用的 raw source image 生成 dist 资产。
+
+**Given** Pokemon portrait 生成
+**When** 检查 runtime image
+**Then** 最大边长不超过 420px
+**And** 默认 WebP quality 82 或等价设置
+**And** 单文件小于 64 KiB。
+
+**Given** item portrait 生成
+**When** 检查 runtime image
+**Then** 最大边长不超过 240px
+**And** 默认 WebP quality 82 或等价设置
+**And** 单文件小于 32 KiB。
+
+**Given** generated runtime images
+**When** `validate:dist` 运行
+**Then** runtime image 总体积小于 15 MiB
+**And** 所有 manifest/runtime JSON/HTML 引用 path 都存在。
+
+**Given** raw image 存在透明背景或 WebP-behind-PNG
+**When** runtime image 生成
+**Then** 输出保持可见主体
+**And** 不因扩展名和真实 content-type 不一致而失败。
+
+### Story 4.3: 压缩 runtime recommendation/data contract
+
+As a 维护者,
+I want recommendation runtime data 不重复存储可从 item/Pokemon index 解析的字段,
+So that `/data/recommendations/**` 体积可部署且解释能力仍可保留。
+
+**Requirements Covered:** FR36, FR52; NFR2, NFR3, NFR17, NFR21
+
+**Acceptance Criteria:**
+
+**Given** browser 已加载 runtime item index
+**When** recommendation JSON 加载
+**Then** UI 可以用 `itemSlug` 解析 item 名称、图片、分类、可染色状态和 item 主色。
+
+**Given** recommendation entry 生成
+**When** schema 校验运行
+**Then** entry 至少包含 `itemSlug`、`matchedPreferenceTerms`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank` 和 `pageIndex`
+**And** 不再重复存储可从 Pokemon index 或 runtime item index 派生的字段。
+
+**Given** UI 展示推荐原因
+**When** 用户查看推荐卡片
+**Then** `matchedPreferenceTerms`、可染色状态、主色、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank`、`pageIndex` 仍可展示或追踪。
+
+**Given** `validate:recommendations` 或 `validate:dist` 运行
+**When** recommendation data 体积校验执行
+**Then** `dist/data/recommendations/**` raw 小于 12 MiB
+**And** `dist/data/recommendations/**` gzip 小于 800 KiB
+**And** 单个 Pokemon recommendation gzip 小于 5 KiB。
+
+**Given** compact runtime item data 生成
+**When** gzip 体积校验运行
+**Then** compact runtime item data gzip 小于 50 KiB
+**And** build-only traceability 不进入 runtime JSON。
+
+### Story 4.4: 建立 dist size budget 与部署校验 gate
+
+As a 维护者,
+I want `npm run build` 自动验证 deployment size budget 和 runtime boundary,
+So that deployment-blocking dist bloat 在合并前被发现。
+
+**Requirements Covered:** FR52; NFR5, NFR24, NFR25, NFR30, NFR32, NFR33, NFR34
+
+**Acceptance Criteria:**
+
+**Given** `npm run build` 完成
+**When** `validate:dist` 运行
+**Then** 递归计算 `dist` logical byte size
+**And** 要求小于 40 MiB。
+
+**Given** `dist` 包含 raw source manifests、raw source image directories、unexpected data files 或 local absolute paths
+**When** `validate:dist` 运行
+**Then** validation 非零失败
+**And** 输出具体违规路径。
+
+**Given** SSG pages 生成
+**When** validation 检查全部静态页
+**Then** 全部 311 个 `/pokemon/{slug}/index.html` 仍存在
+**And** static HTML 中图片 URL 指向 runtime asset path。
+
+**Given** Playwright smoke 直接访问 `/pokemon/ditto/`
+**When** hydrate 完成
+**Then** 页面展示 Ditto
+**And** 推荐图片和 recommendation data 均使用 runtime distribution boundary。
+
+**Given** build budget 被后续改动破坏
+**When** `npm run build` 运行
+**Then** command 返回非零
+**And** 不生成可误部署的 passing build。

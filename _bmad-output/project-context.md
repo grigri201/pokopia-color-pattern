@@ -1,7 +1,7 @@
 ---
 project_name: 'pokopia-color-pattern'
 user_name: 'Grigri'
-date: '2026-05-13'
+date: '2026-05-14'
 sections_completed:
   - discovery
   - technology_stack
@@ -12,7 +12,7 @@ sections_completed:
   - development_workflow_rules
   - critical_dont_miss_rules
 status: 'complete'
-rule_count: 57
+rule_count: 65
 optimized_for_llm: true
 existing_patterns_found: 8
 ---
@@ -31,9 +31,9 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - TypeScript 版本以 lockfile 为准：`typescript` 5.9.3。
 - Vite 版本以 lockfile 为准：`vite` 7.3.3；`package.json` 中是 `^7.1.12` 范围。
 - Node 类型版本以 lockfile 为准：`@types/node` 24.12.4。
-- 构建命令是 `npm run build`，实际执行 `tsc --noEmit && vite build`。
+- 构建命令是 `npm run build`，它是 production gate；具体链路以 `package.json` 为准。
 - 开发服务器命令是 `npm run dev`，固定 `vite --host 127.0.0.1`。
-- `vite.config.ts` 中已有构建后复制规则：把 `docs/pokopia_image_sources` 复制到 `dist/docs/pokopia_image_sources`，并过滤 `.DS_Store`。
+- Correct-course 后的目标边界：`vite.config.ts` 不得把完整 `docs/pokopia_image_sources/**` 复制到 `dist`；production 只分发 allowlist runtime data 和 `/assets/runtime/**` 图片资产。
 
 ## Critical Implementation Rules
 
@@ -52,11 +52,11 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 - 不要把项目改造成 React/Vue/Next；除非后续架构明确批准，继续使用 Vite + 原生 DOM + TypeScript。
 - Vite 入口仍以 `index.html` 和 `src/main.ts` 为中心；新增构建期生成逻辑优先放在独立 Node/TS 脚本，不要塞进浏览器运行时。
-- `vite.config.ts` 已承担构建后复制 `docs/pokopia_image_sources` 的职责；新增产物复制或校验要兼容这个插件。
+- `vite.config.ts` 不得继续复制 raw `docs/pokopia_image_sources/**` 到 `dist`；新增产物复制或校验要围绕 runtime allowlist，而不是兼容旧 raw docs copy。
 - 现有 SPA 依赖 `#slug` 选择 Pokemon；实现 `/pokemon/{slug}/` 时，hydrate 必须优先从 pathname 解析 slug，并保持 hash 导航兼容。
 - 静态详情页不是空 shell：无 JS 时必须有 Pokemon 名称、图片、主色、色板和推荐摘要。
 - Hydrate 后的 Pokemon、推荐列表、分页状态必须与静态 HTML 对应同一个 slug，不能出现先渲染默认 Pokemon 再跳转的状态闪烁。
-- 前端资源路径要能同时服务根路径 SPA 和 `/pokemon/{slug}/` 子路径静态页；引用生成数据和图片时避免写死只在根路径成立的相对路径。
+- 前端资源路径要能同时服务根路径 SPA 和 `/pokemon/{slug}/` 子路径静态页；生产图片引用必须指向 `/assets/runtime/**` 或等价 runtime allowlist path，不得指向 `/docs/pokopia_image_sources/**`。
 
 ### Testing Rules
 
@@ -66,18 +66,21 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - Pokemon metadata override 必须测试主色、色板、pattern、搭配道具追加和搭配道具替换模式。
 - compact item manifest、Pokemon metadata、推荐数据和 SSG 输出必须有 schema 或等价结构校验。
 - 构建断言必须验证全部 311 个 Pokemon 都有 `/pokemon/{slug}/` 静态页，且固定样本页包含标题、图片、主色、色板和推荐摘要。
-- 体积校验必须覆盖 compact item data gzip 小于 50KB、单个 Pokemon 推荐数据 gzip 小于 5KB。
+- 体积校验必须覆盖 compact runtime item data gzip 小于 50KB、单个 Pokemon 推荐数据 gzip 小于 5KB、`dist/data/recommendations/**` raw 小于 12 MiB / gzip 小于 800 KiB、runtime images 小于 15 MiB、`dist` logical size 小于 40 MiB。
+- `validate:dist` 必须 fail fast：只要 `dist/docs/pokopia_image_sources/**` 存在、runtime JSON/HTML/JS/CSS 指向 `/docs/pokopia_image_sources/**`、或 runtime asset manifest 缺失引用文件，就返回非零。
 - 浏览器 smoke test 至少覆盖直接访问一个静态 Pokemon 页并完成 hydrate 的路径。
 
 ### Code Quality & Style Rules
 
-- 原始 Pokopia 数据源只读保留；compact data、推荐数据和 SSG 页面必须由构建脚本从原始数据与 override 数据生成。
+- 原始 Pokopia 数据源只读保留；compact data、推荐数据、runtime asset manifest/assets 和 SSG 页面必须由构建脚本从原始数据与 override 数据生成。
 - 生成文件要有稳定排序和稳定字段顺序；不要把当前时间、随机数或本机路径写入可复现产物。
 - CSV manifest 字段中包含 JSON 字符串数组，例如 `tags`、`sources`、`favorite_category_ids`；读取时使用 JSON 解析并处理失败分支。
 - item 图片扩展名不能只信 URL 后缀；此前存在 `.png` URL 返回 WebP 的情况，下载/复制逻辑应以 content-type 或实际文件为准。
+- runtime image 生成默认使用 `sharp`，Pokemon 最大边长 420px、item 最大边长 240px、WebP quality 82 或等价设置；如实现时调整参数，必须同步更新 PRD/architecture budget。
 - `.DS_Store`、`node_modules/`、`dist/` 已在 `.gitignore`；生成或提交前保持这些文件不进入版本库。
 - CSS 继续使用现有全局样式与自定义属性；新增 UI 要检查移动端窄屏文本溢出、图片比例和可点击区域。
 - Pokemon 图片 alt 包含 Pokemon 名称；推荐 item 图片 alt 包含 item 名称；纯装饰或占位图用空 alt。
+- runtime asset manifest 需要能把 Pokemon/item slug 映射到 `/assets/runtime/**` 图片路径、文件大小和源类别；浏览器和 SSG 通过 manifest 或已生成 runtime path 消费图片。
 - 不要编辑 installer-managed 的 `_bmad/config.toml` 或 `_bmad/config.user.toml` 来表达项目规则；团队覆盖应放在 `_bmad/custom/`。
 
 ### Development Workflow Rules
@@ -86,6 +89,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - 对 BMAD 工作流优先使用仓库本地 `.agents/skills/*`，不要假设全局 cached skill 路径一定适用。
 - 若需要隔离较大改动，可按 `AGENTS.md` 指示新建 git worktree；普通文档或单点修改可在当前工作区处理。
 - 提交前至少运行 `npm run build`；涉及生成数据时还要运行对应生成和校验命令。
+- 涉及 runtime asset boundary 时，额外检查 `find dist -path '*docs/pokopia_image_sources*'` 为空，并确认 `rg -n "/docs/pokopia_image_sources" dist` 无生产引用。
 - 数据/静态产物改动后运行 `git diff --check`，避免 generated CSV/Markdown 中的尾随空白。
 - 提交范围要明确区分源码、生成数据、BMAD 输出和个人配置；不要把 `_bmad/config.user.toml` 当作项目变更提交。
 - commit message 目前使用简短 imperative `feat: ...` 风格；继续保持清晰动词和范围。
@@ -94,9 +98,10 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 - 推荐规则不是“颜色越接近越好”：所有推荐先要求 Pokemon 偏好词命中。
 - 可染色 item 命中偏好词后不要求主色和谐；不可染色 item 必须同时满足偏好词命中和 OKLCH 和谐。
-- 推荐结果必须保留解释字段：`matchedPreferenceTerms`、`isDyeable`、`pokemonPrimaryColor`、`itemPrimaryColor`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank`、`pageIndex`。
+- 推荐解释必须可复现，但字段可以分布在 recommendation entry 与 runtime lookup 中；entry 至少保留 `itemSlug`、`matchedPreferenceTerms`、`harmonyStatus`、`harmonyType`、`overrideSource`、`rank`、`pageIndex`，item/Pokemon 名称、图片、分类、主色等可从 validated runtime index 解析。
 - 图片取色失败时优先使用 Pokemon metadata override；没有 override 时使用默认中性色/空色板，并记录 `colorSource: fallback`。
-- `docs/pokopia_image_sources/item_portraits/manifest.csv` 是完整 1,219 个 in-collection item 的重数据源，不得继续作为首屏必需资源。
+- `docs/pokopia_image_sources/item_portraits/manifest.csv` 是完整 1,219 个 in-collection item 的重数据源，不得继续作为首屏必需资源，也不得随 raw source 进入 `dist`。
+- `dist/docs/pokopia_image_sources/**` 是禁止产物；如 build 后出现，优先修 `vite.config.ts`/runtime asset 生成，不要提高 size budget 掩盖问题。
 - `docs/pokopia_image_sources/decorative_item_images.csv` 是较窄装饰集；不要把它误认为完整 placeable item 数据。
 - `favorite_category_ids` 曾用于判断 Food/Materials 是否可放置为偏好物；变更该规则前必须重新验证数据选择口径。
 - `Farm soil (Skyland)` 曾需要共享 InfiPoke fallback 图片；重新下载或重建图片管线时要保留这种 404/fallback 处理能力。
@@ -119,4 +124,4 @@ _This file contains critical rules and patterns that AI agents must follow when 
 - 技术栈、数据契约、构建流程或推荐规则变化时更新本文件。
 - 定期删除已经过时或变成常识的规则。
 
-Last Updated: 2026-05-13
+Last Updated: 2026-05-14

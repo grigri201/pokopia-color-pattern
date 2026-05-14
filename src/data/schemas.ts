@@ -3,6 +3,7 @@ export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v1" as const;
 export const ITEM_COLORS_SCHEMA_VERSION = "item-colors.v1" as const;
 export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v3" as const;
 export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overrides.v1" as const;
+export const RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION = "runtime-asset-manifest.v1" as const;
 
 export type CompactItemColorSource = "extracted" | "override" | "fallback";
 export type PokemonColorSource = "extracted" | "override" | "fallback";
@@ -10,6 +11,7 @@ export type PokemonPreferenceSource = "metadata" | "override";
 export type PokemonRecommendationOverrideMode = "append" | "replace";
 export type RecommendationHarmonyStatus = "not_required" | "passed" | "override";
 export type RecommendationHarmonyType = "analogous" | "complementary" | "splitComplementary" | "triadic" | "monochrome";
+export type RuntimeAssetSourceCategory = "pokemon" | "item";
 
 export type CompactItemRecommendationFields = {
   isDyeable: boolean | null;
@@ -161,6 +163,31 @@ export type PokemonMetadataOverridesData = {
   pokemon: Record<string, PokemonMetadataOverrideEntry>;
 };
 
+export type RuntimeAssetManifestEntry = {
+  slug: string;
+  sourceCategory: RuntimeAssetSourceCategory;
+  runtimePath: string;
+  byteSize: number;
+  contentType: string;
+  width: number | null;
+  height: number | null;
+};
+
+export type RuntimeAssetManifestData = {
+  schemaVersion: typeof RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION;
+  generatedFrom: {
+    sourceReportPath: string;
+    rawBoundary: string;
+  };
+  summary: {
+    assetCount: number;
+    pokemonCount: number;
+    itemCount: number;
+    totalBytes: number;
+  };
+  assets: RuntimeAssetManifestEntry[];
+};
+
 export type SchemaIssue = {
   path: string;
   message: string;
@@ -267,7 +294,7 @@ function validateCompactItem(
   requireStringArray(item, "sources", path, issues, slug);
   requireNumberArray(item, "habitatItemCategoryIds", path, issues, slug);
   requireNumberArray(item, "favoriteCategoryIds", path, issues, slug);
-  requireString(item, "imagePath", path, issues, slug);
+  requireRuntimeDataImagePath(item, "imagePath", path, issues, "item", slug);
   requireNullableString(item, "sourceDataset", path, issues, slug);
   requireNullableNumber(item, "sourceIndex", path, issues, slug);
   requireNumber(item, "sourceRow", path, issues, slug);
@@ -330,7 +357,7 @@ export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
     requireString(pokemon, "sequence", path, issues, slug);
     requireString(pokemon, "name", path, issues, slug);
     requireNullableString(pokemon, "zhName", path, issues, slug);
-    requireString(pokemon, "imagePath", path, issues, slug);
+    requireRuntimeDataImagePath(pokemon, "imagePath", path, issues, "pokemon", slug);
     requireHex(pokemon, "primaryColor", path, issues, slug);
     requirePalette(pokemon, "palette", path, issues, slug);
     requireColorSource(pokemon, "colorSource", path, issues, slug);
@@ -521,7 +548,7 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
     }
     requireString(entry, "itemName", path, issues, slug);
     requireNullableString(entry, "itemZhName", path, issues, slug);
-    requireString(entry, "itemImagePath", path, issues, slug);
+    requireRuntimeDataImagePath(entry, "itemImagePath", path, issues, "item", slug);
     requireNullableString(entry, "category", path, issues, slug);
     requireStringArray(entry, "matchedPreferenceTerms", path, issues, slug);
     requireNonEmptyNormalizedStringArray(entry, "matchedPreferenceTerms", path, issues, slug);
@@ -590,6 +617,101 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
   for (let rank = 1; rank <= value.recommendations.length; rank += 1) {
     if (!seenRanks.has(rank)) {
       issues.push({ path: "$.recommendations", message: `Missing sequential recommendation rank ${rank}` });
+    }
+  }
+
+  return issues;
+}
+
+export function validateRuntimeAssetManifestData(value: unknown): SchemaIssue[] {
+  const issues: SchemaIssue[] = [];
+
+  if (!isRecord(value)) {
+    return [{ path: "$", message: "Expected runtime asset manifest object" }];
+  }
+
+  requireLiteral(value, "schemaVersion", RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION, "$", issues);
+  if (isRecord(value.generatedFrom)) {
+    requireString(value.generatedFrom, "sourceReportPath", "$.generatedFrom", issues);
+    requireString(value.generatedFrom, "rawBoundary", "$.generatedFrom", issues);
+  } else {
+    issues.push({ path: "$.generatedFrom", message: "Expected generatedFrom object" });
+  }
+
+  const summary = value.summary;
+  if (isRecord(summary)) {
+    requireNumber(summary, "assetCount", "$.summary", issues);
+    requireNumber(summary, "pokemonCount", "$.summary", issues);
+    requireNumber(summary, "itemCount", "$.summary", issues);
+    requireNumber(summary, "totalBytes", "$.summary", issues);
+  } else {
+    issues.push({ path: "$.summary", message: "Expected summary object" });
+  }
+
+  if (!Array.isArray(value.assets)) {
+    issues.push({ path: "$.assets", message: "Expected assets array" });
+    return issues;
+  }
+
+  const keys = new Set<string>();
+  let totalBytes = 0;
+  let pokemonCount = 0;
+  let itemCount = 0;
+  value.assets.forEach((asset, index) => {
+    const path = `$.assets[${index}]`;
+    if (!isRecord(asset)) {
+      issues.push({ path, message: "Expected runtime asset object" });
+      return;
+    }
+
+    const slug = typeof asset.slug === "string" ? asset.slug : undefined;
+    requireSlug(asset, "slug", path, issues);
+    requireRuntimeAssetSourceCategory(asset, "sourceCategory", path, issues, slug);
+    requireRuntimeAssetPath(asset, "runtimePath", path, issues, slug);
+    requireNonNegativeInteger(asset, "byteSize", path, issues, slug);
+    requireString(asset, "contentType", path, issues, slug);
+    requireNullableNonNegativeInteger(asset, "width", path, issues, slug);
+    requireNullableNonNegativeInteger(asset, "height", path, issues, slug);
+    if (typeof asset.runtimePath === "string" && typeof asset.contentType === "string") {
+      const expectedExtension = extensionForRuntimeContentType(asset.contentType);
+      if (expectedExtension === null) {
+        issues.push({ path: `${path}.contentType`, message: "Expected image content type", slug });
+      } else if (!asset.runtimePath.endsWith(expectedExtension)) {
+        issues.push({ path: `${path}.runtimePath`, message: `Expected path extension ${expectedExtension} for ${asset.contentType}`, slug });
+      }
+    }
+
+    if (slug && typeof asset.sourceCategory === "string") {
+      const key = `${asset.sourceCategory}:${slug}`;
+      if (keys.has(key)) {
+        issues.push({ path: `${path}.slug`, message: "Duplicate runtime asset slug for source category", slug });
+      }
+      keys.add(key);
+    }
+
+    if (asset.sourceCategory === "pokemon") {
+      pokemonCount += 1;
+    }
+    if (asset.sourceCategory === "item") {
+      itemCount += 1;
+    }
+    if (typeof asset.byteSize === "number" && Number.isFinite(asset.byteSize)) {
+      totalBytes += asset.byteSize;
+    }
+  });
+
+  if (isRecord(summary)) {
+    if (typeof summary.assetCount === "number" && summary.assetCount !== value.assets.length) {
+      issues.push({ path: "$.summary.assetCount", message: `Expected assetCount ${summary.assetCount} to match assets length ${value.assets.length}` });
+    }
+    if (typeof summary.pokemonCount === "number" && summary.pokemonCount !== pokemonCount) {
+      issues.push({ path: "$.summary.pokemonCount", message: `Expected pokemonCount ${summary.pokemonCount} to match asset rows ${pokemonCount}` });
+    }
+    if (typeof summary.itemCount === "number" && summary.itemCount !== itemCount) {
+      issues.push({ path: "$.summary.itemCount", message: `Expected itemCount ${summary.itemCount} to match asset rows ${itemCount}` });
+    }
+    if (typeof summary.totalBytes === "number" && summary.totalBytes !== totalBytes) {
+      issues.push({ path: "$.summary.totalBytes", message: `Expected totalBytes ${summary.totalBytes} to match asset byte sum ${totalBytes}` });
     }
   }
 
@@ -695,6 +817,18 @@ function requireNonNegativeInteger(
   }
 }
 
+function requireNullableNonNegativeInteger(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  if (record[key] !== null && (typeof record[key] !== "number" || !Number.isInteger(record[key]) || record[key] < 0)) {
+    issue(path, key, "Expected non-negative integer or null", issues, slug);
+  }
+}
+
 function requireNullableNumber(
   record: UnknownRecord,
   key: string,
@@ -754,6 +888,63 @@ function requireColorSource(
   const value = record[key];
   if (typeof value !== "string" || !colorSources.has(value)) {
     issue(path, key, "Expected known color source", issues, slug);
+  }
+}
+
+function requireRuntimeAssetSourceCategory(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (value !== "pokemon" && value !== "item") {
+    issue(path, key, "Expected pokemon or item", issues, slug);
+  }
+}
+
+function requireRuntimeAssetPath(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (typeof value !== "string" || !/^\/assets\/runtime\/(?:pokemon|items)\/[a-z0-9]+(?:-[a-z0-9]+)*\.[a-z0-9]+$/.test(value)) {
+    issue(path, key, "Expected root-absolute runtime asset path", issues, slug);
+  }
+}
+
+function requireRuntimeDataImagePath(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  sourceCategory: RuntimeAssetSourceCategory,
+  slug?: string,
+): void {
+  const value = record[key];
+  const directory = sourceCategory === "pokemon" ? "pokemon" : "items";
+  const pattern = new RegExp(`^/assets/runtime/${directory}/[a-z0-9]+(?:-[a-z0-9]+)*\\.[a-z0-9]+$`);
+  if (typeof value !== "string" || !pattern.test(value)) {
+    issue(path, key, `Expected root-absolute /assets/runtime/${directory}/ image path`, issues, slug);
+  }
+}
+
+function extensionForRuntimeContentType(contentType: string): string | null {
+  switch (contentType) {
+    case "image/webp":
+      return ".webp";
+    case "image/png":
+      return ".png";
+    case "image/jpeg":
+      return ".jpg";
+    case "image/gif":
+      return ".gif";
+    default:
+      return null;
   }
 }
 

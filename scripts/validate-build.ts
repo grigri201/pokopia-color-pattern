@@ -9,6 +9,7 @@ import {
   validateItemColorsData,
   validatePokemonIndexData,
   validateRecommendationsData,
+  validateRuntimeAssetManifestData,
   type SchemaIssue,
 } from "../src/data/schemas.js";
 
@@ -60,6 +61,8 @@ const pokemonIndexPath = "generated/data/pokemon-index.json";
 const recommendationsDir = "generated/data/recommendations";
 const recommendationDiagnosticsPath = "generated/reports/recommendation-diagnostics.json";
 const ssgGenerationSummaryPath = "generated/reports/ssg-generation-summary.json";
+const runtimeAssetSourcesPath = "generated/reports/runtime-asset-sources.json";
+const runtimeAssetManifestPath = "dist/assets/runtime/asset-manifest.json";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
 const compactGzipLimit = 70 * 1024;
 const recommendationGzipLimit = 12 * 1024;
@@ -90,6 +93,7 @@ async function validateGeneratedDataGate(): Promise<void> {
   }
   const firstRuntimeFiles = await validateRuntimeDataTree("generated/data");
   await validateDiagnosticsReportFile();
+  await validateRuntimeAssetSourcesReport();
   const firstSnapshot = await snapshotDeterministicContracts(firstRuntimeFiles);
 
   validateNoRuntimeManifestFetch(
@@ -105,6 +109,7 @@ async function validateGeneratedDataGate(): Promise<void> {
   }
   const secondRuntimeFiles = await validateRuntimeDataTree("generated/data");
   await validateDiagnosticsReportFile();
+  await validateRuntimeAssetSourcesReport();
   const secondSnapshot = await snapshotDeterministicContracts(secondRuntimeFiles);
   compareSnapshots(firstSnapshot, secondSnapshot);
 }
@@ -114,10 +119,12 @@ async function validateDistOutput(): Promise<void> {
     issues.push({ file: "dist", message: "Expected dist output to exist before dist validation" });
     return;
   }
+  await validateNoForbiddenDistOutput();
   const ssgReport = await readSsgGenerationSummary();
   const distDataFiles = await validateRuntimeDataTree("dist/data", missingRecommendationFilesFromReport(ssgReport));
+  await validateRuntimeAssetManifest();
   await validateStaticPokemonPages(ssgReport);
-  const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json"])).filter((file) => {
+  const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
     return (
       outputPath === "dist/index.html" ||
@@ -131,6 +138,7 @@ async function validateDistOutput(): Promise<void> {
     return extension === ".html" || extension === ".css" || extension === ".js";
   });
   validateNoRuntimeManifestFetch(await readFiles(bundleFiles), "dist runtime bundle");
+  validateNoDocsSourceReferences(await readFiles(files), "dist runtime output");
   await validateSensitiveRuntimeData([...bundleFiles.map((file) => relative(projectRoot, file)), ...distDataFiles]);
 }
 
@@ -229,6 +237,89 @@ async function validateStaticPokemonPages(ssgReport: unknown | null): Promise<vo
   validateSsgGenerationSummary(ssgReport, expectedSlugs, expectedPages, expectedFallbacks);
 }
 
+async function validateNoForbiddenDistOutput(): Promise<void> {
+  const entries = await listTreeEntries(resolve(projectRoot, "dist"));
+  entries.forEach((entry) => {
+    const outputPath = `dist/${entry.path}`;
+    if (outputPath.startsWith("dist/docs/pokopia_image_sources")) {
+      issues.push({ file: outputPath, message: "Raw Pokopia source directory must not be present in dist" });
+    }
+    if (entry.path.endsWith(".DS_Store")) {
+      issues.push({ file: outputPath, message: ".DS_Store must not be present in dist" });
+    }
+  });
+}
+
+async function validateRuntimeAssetManifest(): Promise<void> {
+  let text: string;
+  try {
+    text = await readFile(runtimeAssetManifestPath, "utf8");
+  } catch (error) {
+    issues.push({ file: runtimeAssetManifestPath, message: `Unable to read runtime asset manifest: ${error instanceof Error ? error.message : String(error)}` });
+    return;
+  }
+
+  const manifest = parseJson(text, runtimeAssetManifestPath);
+  if (manifest !== null) {
+    addSchemaIssues(runtimeAssetManifestPath, validateRuntimeAssetManifestData(manifest));
+  }
+  if (!isRecord(manifest) || !Array.isArray(manifest.assets)) {
+    return;
+  }
+
+  const seenRuntimePaths = new Set<string>();
+  manifest.assets.filter(isRecord).forEach((asset, index) => {
+    const runtimePath = asset.runtimePath;
+    const contentType = asset.contentType;
+    if (typeof runtimePath !== "string") {
+      return;
+    }
+    if (!runtimePath.startsWith("/assets/runtime/")) {
+      issues.push({ file: runtimeAssetManifestPath, message: `Asset ${index} must use /assets/runtime/** path` });
+      return;
+    }
+    if (seenRuntimePaths.has(runtimePath)) {
+      issues.push({ file: runtimeAssetManifestPath, message: `Duplicate runtime asset path ${runtimePath}` });
+    }
+    seenRuntimePaths.add(runtimePath);
+    if (typeof contentType === "string") {
+      const expectedExtension = runtimeExtensionForContentType(contentType);
+      if (expectedExtension === null) {
+        issues.push({ file: runtimeAssetManifestPath, message: `Unsupported contentType for ${runtimePath}: ${contentType}` });
+      } else if (!runtimePath.endsWith(expectedExtension)) {
+        issues.push({ file: runtimeAssetManifestPath, message: `Runtime asset extension must match ${contentType}: ${runtimePath}` });
+      }
+    }
+    const filePath = resolve(projectRoot, "dist", runtimePath.replace(/^\//, ""));
+    if (!existsSync(filePath)) {
+      issues.push({ file: runtimeAssetManifestPath, message: `Runtime asset file is missing: ${runtimePath}` });
+    }
+  });
+
+  const actualRuntimeFiles = await listFiles(resolve(projectRoot, "dist/assets/runtime"), [".webp", ".png", ".jpg", ".jpeg", ".gif"]);
+  actualRuntimeFiles.forEach((file) => {
+    const runtimePath = `/${relative(resolve(projectRoot, "dist"), file)}`;
+    if (!seenRuntimePaths.has(runtimePath)) {
+      issues.push({ file: relative(projectRoot, file), message: "Runtime asset file is not declared in asset-manifest.json" });
+    }
+  });
+}
+
+function runtimeExtensionForContentType(contentType: string): string | null {
+  switch (contentType) {
+    case "image/webp":
+      return ".webp";
+    case "image/png":
+      return ".png";
+    case "image/jpeg":
+      return ".jpg";
+    case "image/gif":
+      return ".gif";
+    default:
+      return null;
+  }
+}
+
 function toStaticPokemonEntry(value: unknown, index: number, file: string): StaticPokemonEntry | null {
   if (!isRecord(value)) {
     issues.push({ file, message: `Expected pokemon[${index}] object for static page validation` });
@@ -250,6 +341,9 @@ function toStaticPokemonEntry(value: unknown, index: number, file: string): Stat
   ) {
     issues.push({ file, message: `Expected pokemon[${index}] to include slug, sequence, name, zhName, imagePath, and primaryColor` });
     return null;
+  }
+  if (!imagePath.startsWith("/assets/runtime/pokemon/")) {
+    issues.push({ file, message: `Expected pokemon[${index}].imagePath to use /assets/runtime/pokemon/**` });
   }
   return { slug, sequence, name, zhName, imagePath, primaryColor };
 }
@@ -757,6 +851,18 @@ function validateNoRuntimeManifestFetch(sourceFiles: Map<string, string>, label:
   });
 }
 
+function validateNoDocsSourceReferences(sourceFiles: Map<string, string>, label: string): void {
+  const forbiddenPattern = /\/docs\/pokopia_image_sources\//;
+  sourceFiles.forEach((text, file) => {
+    if (forbiddenPattern.test(text)) {
+      issues.push({
+        file: relative(projectRoot, file),
+        message: `${label} must not reference /docs/pokopia_image_sources/**`,
+      });
+    }
+  });
+}
+
 async function validateSensitiveRuntimeData(files: string[]): Promise<void> {
   await validateSensitiveTextFiles(files, "runtime data");
 }
@@ -892,6 +998,56 @@ async function validateDiagnosticsReportFile(): Promise<void> {
   await validateSensitiveTextFiles([recommendationDiagnosticsPath], "diagnostics report");
 }
 
+async function validateRuntimeAssetSourcesReport(): Promise<void> {
+  if (!existsSync(resolve(projectRoot, runtimeAssetSourcesPath))) {
+    issues.push({ file: runtimeAssetSourcesPath, message: "Expected runtime asset sources report to exist" });
+    return;
+  }
+
+  const text = await readFile(runtimeAssetSourcesPath, "utf8");
+  const report = parseJson(text, runtimeAssetSourcesPath);
+  if (!isRecord(report)) {
+    issues.push({ file: runtimeAssetSourcesPath, message: "Expected runtime asset sources report object" });
+    return;
+  }
+  if (report.schemaVersion !== "runtime-asset-sources.v1") {
+    issues.push({ file: runtimeAssetSourcesPath, message: "Expected schemaVersion runtime-asset-sources.v1" });
+  }
+  if (!Array.isArray(report.assets)) {
+    issues.push({ file: runtimeAssetSourcesPath, message: "Expected assets array" });
+    return;
+  }
+
+  const seen = new Set<string>();
+  report.assets.forEach((asset, index) => {
+    if (!isRecord(asset)) {
+      issues.push({ file: runtimeAssetSourcesPath, message: `Expected assets[${index}] object` });
+      return;
+    }
+    const sourceCategory = asset.sourceCategory;
+    const slug = typeof asset.slug === "string" ? asset.slug : "";
+    const sourcePath = typeof asset.sourcePath === "string" ? asset.sourcePath : "";
+    const runtimePath = typeof asset.runtimePath === "string" ? asset.runtimePath : "";
+    if (sourceCategory !== "pokemon" && sourceCategory !== "item") {
+      issues.push({ file: runtimeAssetSourcesPath, message: `Expected assets[${index}].sourceCategory pokemon or item` });
+    }
+    if (!sourcePath.startsWith("docs/pokopia_image_sources/") || sourcePath.includes("..") || sourcePath.includes("\\")) {
+      issues.push({ file: runtimeAssetSourcesPath, message: `Invalid sourcePath for ${slug || index}` });
+    } else if (!existsSync(resolve(projectRoot, sourcePath))) {
+      issues.push({ file: runtimeAssetSourcesPath, message: `Source asset does not exist for ${slug}: ${sourcePath}` });
+    }
+    const expectedRuntimePrefix = sourceCategory === "pokemon" ? "/assets/runtime/pokemon/" : "/assets/runtime/items/";
+    if (!runtimePath.startsWith(expectedRuntimePrefix) || runtimePath.includes("..") || runtimePath.includes("\\")) {
+      issues.push({ file: runtimeAssetSourcesPath, message: `Invalid runtimePath for ${slug || index}` });
+    }
+    const key = `${String(sourceCategory)}:${slug}`;
+    if (seen.has(key)) {
+      issues.push({ file: runtimeAssetSourcesPath, message: `Duplicate runtime asset source ${key}` });
+    }
+    seen.add(key);
+  });
+}
+
 async function validateRuntimeDataTree(root: string, allowedMissingFiles: Set<string> = new Set()): Promise<string[]> {
   const absoluteRoot = resolve(projectRoot, root);
   if (!existsSync(absoluteRoot)) {
@@ -960,7 +1116,7 @@ async function expectedRuntimeDataAllowlist(root: string): Promise<{ directories
 }
 
 async function snapshotDeterministicContracts(runtimeFiles: string[]): Promise<Map<string, string>> {
-  const deterministicContractPaths = [...runtimeFiles, recommendationDiagnosticsPath, "src/data/schemas.ts"];
+  const deterministicContractPaths = [...runtimeFiles, recommendationDiagnosticsPath, runtimeAssetSourcesPath, "src/data/schemas.ts"];
   const entries = await Promise.all(
     deterministicContractPaths.map(async (file) => {
       const text = await readFile(file, "utf8");

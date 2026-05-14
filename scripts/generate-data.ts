@@ -1,6 +1,6 @@
-import { existsSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { readFile, readdir, rm } from "node:fs/promises";
-import { basename, isAbsolute, relative, resolve } from "node:path";
+import { basename, extname, resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import {
   COMPACT_ITEMS_SCHEMA_VERSION,
@@ -64,6 +64,46 @@ type ItemTranslationSource = {
   byName: Map<string, string>;
 };
 
+type RuntimeAssetSourceCategory = "pokemon" | "item";
+
+type RuntimeAssetSourceEntry = {
+  slug: string;
+  sourceCategory: RuntimeAssetSourceCategory;
+  sourcePath: string;
+  runtimePath: string;
+};
+
+type RuntimeAssetSourcesData = {
+  schemaVersion: "runtime-asset-sources.v1";
+  generatedFrom: {
+    compactItemsPath: string;
+    pokemonIndexPath: string;
+    recommendationDataDir: string;
+    rawBoundary: string;
+  };
+  summary: {
+    assetCount: number;
+    pokemonCount: number;
+    itemCount: number;
+  };
+  assets: RuntimeAssetSourceEntry[];
+};
+
+type CompactItemsBuildResult = {
+  data: CompactItemsData;
+  assetSources: RuntimeAssetSourceEntry[];
+};
+
+type PokemonIndexBuildResult = {
+  data: PokemonIndexData;
+  assetSources: RuntimeAssetSourceEntry[];
+};
+
+type CompactItemBuildResult = {
+  item: CompactItem;
+  assetSource: RuntimeAssetSourceEntry;
+};
+
 const projectRoot = process.cwd();
 
 const itemManifestPath = "docs/pokopia_image_sources/item_portraits/manifest.csv";
@@ -83,6 +123,7 @@ const itemColorsOutputPath = "generated/data/item-colors.json";
 const pokemonIndexOutputPath = "generated/data/pokemon-index.json";
 const recommendationsOutputDir = "generated/data/recommendations";
 const recommendationDiagnosticsOutputPath = "generated/reports/recommendation-diagnostics.json";
+const runtimeAssetSourcesOutputPath = "generated/reports/runtime-asset-sources.json";
 
 const maxCompactItemsGzipBytes = 70 * 1024;
 const maxItemColorsGzipBytes = 25 * 1024;
@@ -105,8 +146,7 @@ const absoluteItemColorsOutputPath = resolve(projectRoot, itemColorsOutputPath);
 const absolutePokemonIndexOutputPath = resolve(projectRoot, pokemonIndexOutputPath);
 const absoluteRecommendationsOutputDir = resolve(projectRoot, recommendationsOutputDir);
 const absoluteRecommendationDiagnosticsOutputPath = resolve(projectRoot, recommendationDiagnosticsOutputPath);
-const localItemImageRoot = resolve(projectRoot, "docs/pokopia_image_sources/item_portraits");
-const localPokemonImageRoot = resolve(projectRoot, "docs/pokopia_image_sources/pokemon_portraits");
+const absoluteRuntimeAssetSourcesOutputPath = resolve(projectRoot, runtimeAssetSourcesOutputPath);
 
 const validateOnly = process.argv.includes("--validate-only");
 
@@ -131,7 +171,7 @@ async function generateData(): Promise<void> {
   const overrides = parsePokemonOverrides(overrideText, issues);
   const pokemonPreferenceSource = parsePokemonPreferenceSource(pokemonPreferenceText, issues);
   const itemTranslationSource = parseItemTranslationSource(itemTranslationCsvs, issues);
-  const compactItems = buildCompactItems(
+  const compactItemsBuild = buildCompactItems(
     manifestCsv,
     placeableCsv,
     placeableJsonText,
@@ -139,11 +179,22 @@ async function generateData(): Promise<void> {
     itemTranslationSource,
     issues,
   );
-  const itemColors = await buildItemColors(compactItems.items, issues);
-  const pokemonIndex = await buildPokemonIndex(pokemonCsv, pokemonPreferenceSource.pokemonTermsBySlug, overrides, issues);
+  const compactItems = compactItemsBuild.data;
+  const itemSourceBySlug = new Map(compactItemsBuild.assetSources.map((asset) => [asset.slug, asset]));
+  const itemColors = await buildItemColors(compactItems.items, itemSourceBySlug, issues);
+  applyItemColorsToCompactItems(compactItems, itemColors);
+  const pokemonIndexBuild = await buildPokemonIndex(pokemonCsv, pokemonPreferenceSource.pokemonTermsBySlug, overrides, issues);
+  const pokemonIndex = pokemonIndexBuild.data;
   const recommendationBuild = buildRecommendations(pokemonIndex, compactItems, itemColors, overrides, issues);
   const recommendations = recommendationBuild.recommendations;
   const recommendationDiagnostics = recommendationBuild.diagnostics;
+  const runtimeAssetSources = buildRuntimeAssetSources(
+    pokemonIndexBuild.assetSources,
+    compactItemsBuild.assetSources,
+    compactItems,
+    recommendations,
+    issues,
+  );
 
   validateAllData(compactItems, itemColors, pokemonIndex, overrides, recommendations, issues);
   validateRecommendationSourceCoverage(pokemonPreferenceSource, issues);
@@ -161,6 +212,7 @@ async function generateData(): Promise<void> {
     writeJsonFile(absoluteItemColorsOutputPath, itemColors),
     writeJsonFile(absolutePokemonIndexOutputPath, pokemonIndex),
     writeJsonFile(absoluteRecommendationDiagnosticsOutputPath, recommendationDiagnostics),
+    writeJsonFile(absoluteRuntimeAssetSourcesOutputPath, runtimeAssetSources),
     ...recommendations.map((data) => writeJsonFile(resolve(absoluteRecommendationsOutputDir, `${data.pokemonSlug}.json`), data)),
   ]);
 
@@ -175,17 +227,19 @@ async function generateData(): Promise<void> {
   console.log(
     `Generated ${recommendationDiagnosticsOutputPath} (${recommendationDiagnostics.summary.emptyCount} empty, ${recommendationDiagnostics.summary.sparseCount} sparse).`,
   );
+  console.log(`Generated ${runtimeAssetSourcesOutputPath} with ${runtimeAssetSources.assets.length} runtime asset source rows.`);
 }
 
 async function validateExistingOutputs(): Promise<void> {
   const issues: GenerationIssue[] = [];
-  const [compactText, itemColorsText, pokemonIndexText, pokemonPreferenceText, overrideText, recommendationDiagnosticsText, recommendationFiles] = await Promise.all([
+  const [compactText, itemColorsText, pokemonIndexText, pokemonPreferenceText, overrideText, recommendationDiagnosticsText, runtimeAssetSourcesText, recommendationFiles] = await Promise.all([
     readFile(absoluteCompactItemsOutputPath, "utf8"),
     readFile(absoluteItemColorsOutputPath, "utf8"),
     readFile(absolutePokemonIndexOutputPath, "utf8"),
     readFile(absolutePokemonPreferencePath, "utf8"),
     readFile(absolutePokemonOverridePath, "utf8"),
     readFile(absoluteRecommendationDiagnosticsOutputPath, "utf8"),
+    readFile(absoluteRuntimeAssetSourcesOutputPath, "utf8"),
     readRecommendationOutputFiles(issues),
   ]);
 
@@ -195,12 +249,14 @@ async function validateExistingOutputs(): Promise<void> {
   const pokemonPreferenceSource = parsePokemonPreferenceSource(pokemonPreferenceText, issues);
   const overrides = parseJsonValue(overrideText, pokemonOverridePath, issues);
   const recommendationDiagnostics = parseJsonValue(recommendationDiagnosticsText, recommendationDiagnosticsOutputPath, issues);
+  const runtimeAssetSources = parseJsonValue(runtimeAssetSourcesText, runtimeAssetSourcesOutputPath, issues);
   const recommendations = recommendationFiles.map((file) => parseJsonValue(file.text, file.path, issues));
   validateRecommendationOutputPaths(recommendationFiles, recommendations, issues);
 
   validateAllData(compactItems, itemColors, pokemonIndex, overrides, recommendations, issues);
   validateRecommendationSourceCoverage(pokemonPreferenceSource, issues);
   validateRecommendationDiagnostics(recommendationDiagnostics, recommendations, issues);
+  validateRuntimeAssetSources(runtimeAssetSources, compactItems, pokemonIndex, recommendations, issues);
 
   if (issues.length > 0) {
     printIssues("Data validation failed", issues);
@@ -218,7 +274,7 @@ async function validateExistingOutputs(): Promise<void> {
     ? (pokemonIndex as { pokemon: unknown[] }).pokemon.length
     : 0;
   console.log(
-    `Validated ${compactItemsOutputPath} (${compactCount}), ${itemColorsOutputPath} (${itemColorCount}), ${pokemonIndexOutputPath} (${pokemonCount}), and ${recommendations.length} recommendation files.`,
+    `Validated ${compactItemsOutputPath} (${compactCount}), ${itemColorsOutputPath} (${itemColorCount}), ${pokemonIndexOutputPath} (${pokemonCount}), ${runtimeAssetSourcesOutputPath}, and ${recommendations.length} recommendation files.`,
   );
 }
 
@@ -229,7 +285,7 @@ function buildCompactItems(
   itemPreferenceTermsBySlug: Map<string, string[]>,
   itemTranslationSource: ItemTranslationSource,
   issues: GenerationIssue[],
-): CompactItemsData {
+): CompactItemsBuildResult {
   const manifest = parseCsv(manifestCsv);
   const placeable = parseCsv(placeableCsv);
   manifest.issues.forEach((message) => issues.push({ file: itemManifestPath, message }));
@@ -237,7 +293,7 @@ function buildCompactItems(
 
   const placeableBySlug = indexCsvRowsBySlug(placeable.rows, placeableCsvPath, issues);
   const rawJsonBySlug = parsePlaceableJson(placeableJsonText, issues);
-  const compactRows = manifest.rows
+  const compactBuildRows = manifest.rows
     .filter((row) => row.values.status === "ok" && row.values.kind === "placeable_item")
     .map((row) =>
       toCompactItem(
@@ -249,22 +305,25 @@ function buildCompactItems(
         issues,
       ),
     )
-    .sort(compareCompactItems);
+    .sort((left, right) => compareCompactItems(left.item, right.item));
 
   return {
-    schemaVersion: COMPACT_ITEMS_SCHEMA_VERSION,
-    generatedFrom: {
-      itemManifestPath,
-      placeableCsvPath,
-      placeableJsonPath,
-      rawBoundary: "docs/pokopia_image_sources/**",
+    data: {
+      schemaVersion: COMPACT_ITEMS_SCHEMA_VERSION,
+      generatedFrom: {
+        itemManifestPath,
+        placeableCsvPath,
+        placeableJsonPath,
+        rawBoundary: "docs/pokopia_image_sources/**",
+      },
+      summary: {
+        itemCount: compactBuildRows.length,
+        categoryCounts: countBy(compactBuildRows.map((row) => row.item), (item) => item.category ?? "Uncategorized"),
+        tagCounts: countTags(compactBuildRows.map((row) => row.item)),
+      },
+      items: compactBuildRows.map((row) => row.item),
     },
-    summary: {
-      itemCount: compactRows.length,
-      categoryCounts: countBy(compactRows, (item) => item.category ?? "Uncategorized"),
-      tagCounts: countTags(compactRows),
-    },
-    items: compactRows,
+    assetSources: compactBuildRows.map((row) => row.assetSource),
   };
 }
 
@@ -324,9 +383,14 @@ function itemNameTranslationKey(value: string): string {
     .replace(/\s+/g, " ");
 }
 
-async function buildItemColors(items: CompactItem[], issues: GenerationIssue[]): Promise<ItemColorsData> {
+async function buildItemColors(
+  items: CompactItem[],
+  itemSourceBySlug: Map<string, RuntimeAssetSourceEntry>,
+  issues: GenerationIssue[],
+): Promise<ItemColorsData> {
   const colorRows = await mapWithConcurrency(items, 12, async (item): Promise<ItemColorEntry> => {
-    const imagePath = resolve(projectRoot, item.imagePath.slice(1));
+    const source = itemSourceBySlug.get(item.slug);
+    const imagePath = source ? resolve(projectRoot, source.sourcePath) : resolve(projectRoot, item.imagePath.slice(1));
     const result = await extractImagePalette(imagePath);
 
     if (result.status === "ok") {
@@ -362,18 +426,31 @@ async function buildItemColors(items: CompactItem[], issues: GenerationIssue[]):
   };
 }
 
+function applyItemColorsToCompactItems(compactItems: CompactItemsData, itemColors: ItemColorsData): void {
+  const itemColorBySlug = new Map(itemColors.items.map((item) => [item.slug, item]));
+  compactItems.items.forEach((item) => {
+    const color = itemColorBySlug.get(item.slug);
+    if (!color) {
+      return;
+    }
+    item.recommendation.itemPrimaryColor = color.itemPrimaryColor;
+    item.recommendation.colorSource = color.colorSource;
+    item.recommendation.fallbackReason = color.fallbackReason;
+  });
+}
+
 async function buildPokemonIndex(
   pokemonCsv: string,
   pokemonPreferenceTermsBySlug: Map<string, string[]>,
   overrides: PokemonMetadataOverridesData,
   issues: GenerationIssue[],
-): Promise<PokemonIndexData> {
+): Promise<PokemonIndexBuildResult> {
   const manifest = parseCsv(pokemonCsv);
   manifest.issues.forEach((message) => issues.push({ file: pokemonManifestPath, message }));
   const rows = manifest.rows.filter((row) => row.values.status === "ok" && row.values.kind === "pokemon");
   const seenPokemonSlugs = new Set<string>();
 
-  const pokemonRows = await mapWithConcurrency(rows, 12, async (row): Promise<PokemonIndexEntry> => {
+  const pokemonRows = await mapWithConcurrency(rows, 12, async (row): Promise<{ pokemon: PokemonIndexEntry; assetSource: RuntimeAssetSourceEntry }> => {
     const name = requireField(row.values, "name", pokemonManifestPath, row.rowNumber, issues);
     const slug = pokemonSlug(row.values, name);
     seenPokemonSlugs.add(slug);
@@ -382,8 +459,10 @@ async function buildPokemonIndex(
     if (!/^\d+$/.test(sequence)) {
       issues.push({ file: pokemonManifestPath, row: row.rowNumber, slug, field: "sequence", message: "Expected numeric sequence" });
     }
-    const imagePath = toRootAbsolutePath(requireField(row.values, "relative_path", pokemonManifestPath, row.rowNumber, issues, slug));
-    const localImagePath = resolve(projectRoot, imagePath.slice(1));
+    const sourceImagePath = toRootAbsolutePath(requireField(row.values, "relative_path", pokemonManifestPath, row.rowNumber, issues, slug));
+    const runtimeImagePath = runtimeAssetPath("pokemon", slug, sourceImagePath);
+    const assetSource = runtimeAssetSource("pokemon", slug, sourceImagePath, runtimeImagePath);
+    const localImagePath = resolve(projectRoot, sourceImagePath.slice(1));
     const overrideFields = resolvePokemonMetadataOverrideFields(slug, override, pokemonOverridePath, DEFAULT_FALLBACK_COLOR);
     const metadataPreferenceTerms = pokemonPreferenceTermsBySlug.get(slug) ?? [];
     const preferenceTerms = uniqueSorted([...metadataPreferenceTerms, ...overrideFields.preferenceTerms].map(toPreferenceTerm).filter(Boolean));
@@ -393,19 +472,22 @@ async function buildPokemonIndex(
     if (override?.primaryColor || override?.palette) {
       const overridePalette = overrideFields.overridePalette;
       return {
-        slug,
-        sequence,
-        name,
-        zhName: nullable(row.values.name_zh_hans),
-        imagePath,
-        primaryColor: overrideFields.overridePrimaryColor ?? overridePalette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
-        palette: overridePalette,
-        colorSource: "override",
-        fallbackReason: null,
-        overrideSource,
-        pattern: overrideFields.overridePattern ?? overridePalette.map((color) => color.hex),
-        preferenceTerms,
-        preferenceSource,
+        pokemon: {
+          slug,
+          sequence,
+          name,
+          zhName: nullable(row.values.name_zh_hans),
+          imagePath: runtimeImagePath,
+          primaryColor: overrideFields.overridePrimaryColor ?? overridePalette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
+          palette: overridePalette,
+          colorSource: "override",
+          fallbackReason: null,
+          overrideSource,
+          pattern: overrideFields.overridePattern ?? overridePalette.map((color) => color.hex),
+          preferenceTerms,
+          preferenceSource,
+        },
+        assetSource,
       };
     }
 
@@ -413,36 +495,42 @@ async function buildPokemonIndex(
     if (result.status === "ok") {
       const palette = result.palette.map((color) => ({ hex: color.hex, percent: color.percent }));
       return {
-        slug,
-        sequence,
-        name,
-        zhName: nullable(row.values.name_zh_hans),
-        imagePath,
-        primaryColor: palette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
-        palette,
-        colorSource: "extracted",
-        fallbackReason: null,
-        overrideSource,
-        pattern: overrideFields.overridePattern ?? palette.map((color) => color.hex),
-        preferenceTerms,
-        preferenceSource,
+        pokemon: {
+          slug,
+          sequence,
+          name,
+          zhName: nullable(row.values.name_zh_hans),
+          imagePath: runtimeImagePath,
+          primaryColor: palette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
+          palette,
+          colorSource: "extracted",
+          fallbackReason: null,
+          overrideSource,
+          pattern: overrideFields.overridePattern ?? palette.map((color) => color.hex),
+          preferenceTerms,
+          preferenceSource,
+        },
+        assetSource,
       };
     }
 
     return {
-      slug,
-      sequence,
-      name,
-      zhName: nullable(row.values.name_zh_hans),
-      imagePath,
-      primaryColor: DEFAULT_FALLBACK_COLOR,
-      palette: [],
-      colorSource: "fallback",
-      fallbackReason: result.reason,
-      overrideSource,
-      pattern: overrideFields.overridePattern ?? [],
-      preferenceTerms,
-      preferenceSource,
+      pokemon: {
+        slug,
+        sequence,
+        name,
+        zhName: nullable(row.values.name_zh_hans),
+        imagePath: runtimeImagePath,
+        primaryColor: DEFAULT_FALLBACK_COLOR,
+        palette: [],
+        colorSource: "fallback",
+        fallbackReason: result.reason,
+        overrideSource,
+        pattern: overrideFields.overridePattern ?? [],
+        preferenceTerms,
+        preferenceSource,
+      },
+      assetSource,
     };
   });
 
@@ -452,32 +540,36 @@ async function buildPokemonIndex(
     }
   });
 
-  const sortedRows = pokemonRows.sort(comparePokemon);
-  const fallbackCount = sortedRows.filter((pokemon) => pokemon.colorSource === "fallback").length;
-  const overrideCount = sortedRows.filter((pokemon) => pokemon.colorSource === "override" || pokemon.overrideSource).length;
+  const sortedRows = pokemonRows.sort((left, right) => comparePokemon(left.pokemon, right.pokemon));
+  const sortedPokemon = sortedRows.map((row) => row.pokemon);
+  const fallbackCount = sortedPokemon.filter((pokemon) => pokemon.colorSource === "fallback").length;
+  const overrideCount = sortedPokemon.filter((pokemon) => pokemon.colorSource === "override" || pokemon.overrideSource).length;
 
-  if (sortedRows.length !== expectedPokemonCount) {
+  if (sortedPokemon.length !== expectedPokemonCount) {
     issues.push({
       file: pokemonIndexOutputPath,
       field: "$.summary.pokemonCount",
-      message: `Expected ${expectedPokemonCount} Pokemon rows, got ${sortedRows.length}`,
+      message: `Expected ${expectedPokemonCount} Pokemon rows, got ${sortedPokemon.length}`,
     });
   }
 
   return {
-    schemaVersion: POKEMON_INDEX_SCHEMA_VERSION,
-    generatedFrom: {
-      pokemonManifestPath,
-      pokemonPreferencePath,
-      overridePath: pokemonOverridePath,
-      rawBoundary: "docs/pokopia_image_sources/**",
+    data: {
+      schemaVersion: POKEMON_INDEX_SCHEMA_VERSION,
+      generatedFrom: {
+        pokemonManifestPath,
+        pokemonPreferencePath,
+        overridePath: pokemonOverridePath,
+        rawBoundary: "docs/pokopia_image_sources/**",
+      },
+      summary: {
+        pokemonCount: sortedPokemon.length,
+        fallbackCount,
+        overrideCount,
+      },
+      pokemon: sortedPokemon,
     },
-    summary: {
-      pokemonCount: sortedRows.length,
-      fallbackCount,
-      overrideCount,
-    },
-    pokemon: sortedRows,
+    assetSources: sortedRows.map((row) => row.assetSource),
   };
 }
 
@@ -670,6 +762,113 @@ function validateRecommendationDiagnostics(report: unknown, recommendations: unk
   validateNoPrivatePaths(recommendationDiagnosticsOutputPath, report, issues);
 }
 
+function validateRuntimeAssetSources(
+  report: unknown,
+  compactItems: unknown,
+  pokemonIndex: unknown,
+  recommendations: unknown[],
+  issues: GenerationIssue[],
+): void {
+  if (!isRecord(report)) {
+    issues.push({ file: runtimeAssetSourcesOutputPath, field: "$", message: "Expected runtime asset source report object" });
+    return;
+  }
+  if (report.schemaVersion !== "runtime-asset-sources.v1") {
+    issues.push({ file: runtimeAssetSourcesOutputPath, field: "$.schemaVersion", message: "Expected runtime-asset-sources.v1" });
+  }
+  if (!Array.isArray(report.assets)) {
+    issues.push({ file: runtimeAssetSourcesOutputPath, field: "$.assets", message: "Expected runtime asset source array" });
+    return;
+  }
+
+  const expectedPokemonSlugs = isRecord(pokemonIndex) && Array.isArray(pokemonIndex.pokemon)
+    ? new Set(
+        pokemonIndex.pokemon
+          .filter(isRecord)
+          .map((pokemon) => pokemon.slug)
+          .filter((slug): slug is string => typeof slug === "string"),
+      )
+    : new Set<string>();
+  const expectedItemSlugs = isRecord(compactItems) && Array.isArray(compactItems.items)
+    ? new Set(
+        compactItems.items
+          .filter(isRecord)
+          .map((item) => item.slug)
+          .filter((slug): slug is string => typeof slug === "string"),
+      )
+    : new Set<string>();
+  const recommendedItemSlugs = new Set<string>();
+  recommendations.forEach((recommendation) => {
+    if (!isRecord(recommendation) || !Array.isArray(recommendation.recommendations)) {
+      return;
+    }
+    recommendation.recommendations.filter(isRecord).forEach((entry) => {
+      if (typeof entry.itemSlug === "string") {
+        recommendedItemSlugs.add(entry.itemSlug);
+      }
+    });
+  });
+
+  const seen = new Set<string>();
+  const seenPokemon = new Set<string>();
+  const seenItems = new Set<string>();
+  report.assets.forEach((asset, index) => {
+    const path = `$.assets[${index}]`;
+    if (!isRecord(asset)) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, field: path, message: "Expected runtime asset source object" });
+      return;
+    }
+    const slug = typeof asset.slug === "string" ? asset.slug : "";
+    const sourceCategory = asset.sourceCategory;
+    const sourcePath = typeof asset.sourcePath === "string" ? asset.sourcePath : "";
+    const runtimePath = typeof asset.runtimePath === "string" ? asset.runtimePath : "";
+    if (!slug) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, field: `${path}.slug`, message: "Expected slug" });
+    }
+    if (sourceCategory !== "pokemon" && sourceCategory !== "item") {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.sourceCategory`, message: "Expected pokemon or item" });
+    }
+    if (!sourcePath.startsWith("docs/pokopia_image_sources/") || sourcePath.includes("..") || sourcePath.includes("\\")) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.sourcePath`, message: "Expected normalized docs source path" });
+    } else if (!existsSync(resolve(projectRoot, sourcePath))) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.sourcePath`, message: "Runtime asset source file does not exist" });
+    }
+    const expectedPrefix = sourceCategory === "pokemon" ? "/assets/runtime/pokemon/" : "/assets/runtime/items/";
+    if (!runtimePath.startsWith(expectedPrefix) || runtimePath.includes("..") || runtimePath.includes("\\")) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.runtimePath`, message: `Expected runtime path under ${expectedPrefix}` });
+    }
+    const key = `${String(sourceCategory)}:${slug}`;
+    if (seen.has(key)) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: `${path}.slug`, message: "Duplicate runtime asset source" });
+    }
+    seen.add(key);
+    if (sourceCategory === "pokemon" && slug) {
+      seenPokemon.add(slug);
+    }
+    if (sourceCategory === "item" && slug) {
+      seenItems.add(slug);
+    }
+  });
+
+  expectedPokemonSlugs.forEach((slug) => {
+    if (!seenPokemon.has(slug)) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: "$.assets", message: "Missing Pokemon runtime asset source" });
+    }
+  });
+  expectedItemSlugs.forEach((slug) => {
+    if (!seenItems.has(slug)) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: "$.assets", message: "Missing compact item runtime asset source" });
+    }
+  });
+  recommendedItemSlugs.forEach((slug) => {
+    if (!seenItems.has(slug)) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: "$.assets", message: "Missing recommended item runtime asset source" });
+    }
+  });
+
+  validateNoPrivatePaths(runtimeAssetSourcesOutputPath, report, issues);
+}
+
 function validateRecommendationSourceCoverage(
   source: ReturnType<typeof parsePokemonPreferenceSource>,
   issues: GenerationIssue[],
@@ -724,7 +923,7 @@ function toCompactItem(
   itemPreferenceTerms: string[],
   itemTranslationSource: ItemTranslationSource,
   issues: GenerationIssue[],
-): CompactItem {
+): CompactItemBuildResult {
   const row = manifestRow.values;
   const placeable = placeableRow?.values;
   const slug = requireField(row, "slug", itemManifestPath, manifestRow.rowNumber, issues);
@@ -757,31 +956,36 @@ function toCompactItem(
   }
 
   const sourceIndex = parseNumberField(row.sequence, "sequence", itemManifestPath, manifestRow.rowNumber, slug, issues);
+  const sourceImagePath = toRootAbsolutePath(requireField(row, "relative_path", itemManifestPath, manifestRow.rowNumber, issues, slug));
+  const runtimeImagePath = runtimeAssetPath("item", slug, sourceImagePath);
 
   return {
-    slug,
-    id: nullable(firstText(row.id, asString(rawJson?.id))),
-    name,
-    nameZh: resolveItemTranslation(itemTranslationSource, slug, name),
-    category,
-    tags,
-    event: nullable(row.event),
-    sources,
-    habitatItemCategoryIds,
-    favoriteCategoryIds,
-    imagePath: toRootAbsolutePath(requireField(row, "relative_path", itemManifestPath, manifestRow.rowNumber, issues, slug)),
-    sourceDataset: nullable(row.source),
-    sourceIndex,
-    sourceRow: manifestRow.rowNumber,
-    recommendation: {
-      isDyeable: isDyeableItem(rawJson),
-      dyeColorVariants: normalizeDyeColorVariants(rawJson),
-      itemPrimaryColor: null,
-      colorSource: null,
-      fallbackReason: null,
-      preferenceTerms: uniqueSorted(itemPreferenceTerms.map(toPreferenceTerm).filter(Boolean)),
-      roleTags: buildRoleTags(category, tags),
+    item: {
+      slug,
+      id: nullable(firstText(row.id, asString(rawJson?.id))),
+      name,
+      nameZh: resolveItemTranslation(itemTranslationSource, slug, name),
+      category,
+      tags,
+      event: nullable(row.event),
+      sources,
+      habitatItemCategoryIds,
+      favoriteCategoryIds,
+      imagePath: runtimeImagePath,
+      sourceDataset: nullable(row.source),
+      sourceIndex,
+      sourceRow: manifestRow.rowNumber,
+      recommendation: {
+        isDyeable: isDyeableItem(rawJson),
+        dyeColorVariants: normalizeDyeColorVariants(rawJson),
+        itemPrimaryColor: null,
+        colorSource: null,
+        fallbackReason: null,
+        preferenceTerms: uniqueSorted(itemPreferenceTerms.map(toPreferenceTerm).filter(Boolean)),
+        roleTags: buildRoleTags(category, tags),
+      },
     },
+    assetSource: runtimeAssetSource("item", slug, sourceImagePath, runtimeImagePath),
   };
 }
 
@@ -933,8 +1137,7 @@ function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssu
     }
     validateRootAbsoluteImagePath(
       item.imagePath,
-      localItemImageRoot,
-      "/docs/pokopia_image_sources/item_portraits/",
+      "/assets/runtime/items/",
       compactItemsOutputPath,
       item.slug,
       issues,
@@ -986,8 +1189,7 @@ function validatePokemonIndexShape(data: PokemonIndexData, issues: GenerationIss
   data.pokemon.forEach((pokemon) => {
     validateRootAbsoluteImagePath(
       pokemon.imagePath,
-      localPokemonImageRoot,
-      "/docs/pokopia_image_sources/pokemon_portraits/",
+      "/assets/runtime/pokemon/",
       pokemonIndexOutputPath,
       pokemon.slug,
       issues,
@@ -1051,8 +1253,7 @@ function validateRecommendationsShape(
       }
       validateRootAbsoluteImagePath(
         entry.itemImagePath,
-        localItemImageRoot,
-        "/docs/pokopia_image_sources/item_portraits/",
+        "/assets/runtime/items/",
         file,
         entry.itemSlug,
         issues,
@@ -1111,9 +1312,114 @@ function validateRecommendationOutputPaths(
   });
 }
 
+function buildRuntimeAssetSources(
+  pokemonSources: RuntimeAssetSourceEntry[],
+  itemSources: RuntimeAssetSourceEntry[],
+  compactItems: CompactItemsData,
+  recommendations: RecommendationsData[],
+  issues: GenerationIssue[],
+): RuntimeAssetSourcesData {
+  const itemSourceBySlug = new Map(itemSources.map((asset) => [asset.slug, asset]));
+  const recommendedItemSlugs = new Set<string>();
+  recommendations.forEach((recommendation) => {
+    recommendation.recommendations.forEach((entry) => recommendedItemSlugs.add(entry.itemSlug));
+  });
+
+  recommendedItemSlugs.forEach((slug) => {
+    if (!itemSourceBySlug.has(slug)) {
+      issues.push({ file: runtimeAssetSourcesOutputPath, slug, field: "$.assets", message: "Recommended item has no runtime asset source" });
+    }
+  });
+
+  const compactItemSlugs = new Set(compactItems.items.map((item) => item.slug));
+  const assets = uniqueRuntimeAssetSources([...pokemonSources, ...itemSources.filter((asset) => compactItemSlugs.has(asset.slug))]);
+  const pokemonCount = assets.filter((asset) => asset.sourceCategory === "pokemon").length;
+  const itemCount = assets.filter((asset) => asset.sourceCategory === "item").length;
+
+  return {
+    schemaVersion: "runtime-asset-sources.v1",
+    generatedFrom: {
+      compactItemsPath: compactItemsOutputPath,
+      pokemonIndexPath: pokemonIndexOutputPath,
+      recommendationDataDir: recommendationsOutputDir,
+      rawBoundary: "docs/pokopia_image_sources/**",
+    },
+    summary: {
+      assetCount: assets.length,
+      pokemonCount,
+      itemCount,
+    },
+    assets,
+  };
+}
+
+function uniqueRuntimeAssetSources(assets: RuntimeAssetSourceEntry[]): RuntimeAssetSourceEntry[] {
+  const byKey = new Map<string, RuntimeAssetSourceEntry>();
+  assets.forEach((asset) => {
+    byKey.set(`${asset.sourceCategory}:${asset.slug}`, asset);
+  });
+  return Array.from(byKey.values()).sort(compareRuntimeAssetSource);
+}
+
+function compareRuntimeAssetSource(left: RuntimeAssetSourceEntry, right: RuntimeAssetSourceEntry): number {
+  return (
+    left.sourceCategory.localeCompare(right.sourceCategory, "en") ||
+    left.slug.localeCompare(right.slug, "en") ||
+    left.runtimePath.localeCompare(right.runtimePath, "en")
+  );
+}
+
+function runtimeAssetSource(
+  sourceCategory: RuntimeAssetSourceCategory,
+  slug: string,
+  sourceImagePath: string,
+  runtimePath: string,
+): RuntimeAssetSourceEntry {
+  return {
+    slug,
+    sourceCategory,
+    sourcePath: sourceImagePath.replace(/^\//, ""),
+    runtimePath,
+  };
+}
+
+function runtimeAssetPath(sourceCategory: RuntimeAssetSourceCategory, slug: string, sourceImagePath: string): string {
+  const directory = sourceCategory === "pokemon" ? "pokemon" : "items";
+  const extension = imageExtensionFromBytes(sourceImagePath);
+  return `/assets/runtime/${directory}/${slug}${extension}`;
+}
+
+function imageExtensionFromBytes(sourceImagePath: string): string {
+  const sourcePath = resolve(projectRoot, sourceImagePath.replace(/^\//, ""));
+  if (!existsSync(sourcePath)) {
+    return normalizedImageExtension(sourceImagePath);
+  }
+  const bytes = readFileSync(sourcePath);
+  if (bytes.length >= 12 && bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP") {
+    return ".webp";
+  }
+  if (bytes.length >= 8 && bytes[0] === 0x89 && bytes.toString("ascii", 1, 4) === "PNG") {
+    return ".png";
+  }
+  if (bytes.length >= 3 && bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) {
+    return ".jpg";
+  }
+  if (bytes.length >= 6 && (bytes.toString("ascii", 0, 6) === "GIF87a" || bytes.toString("ascii", 0, 6) === "GIF89a")) {
+    return ".gif";
+  }
+  return normalizedImageExtension(sourceImagePath);
+}
+
+function normalizedImageExtension(path: string): string {
+  const extension = extname(path).toLowerCase();
+  if (extension === ".jpeg") {
+    return ".jpg";
+  }
+  return extension || ".png";
+}
+
 function validateRootAbsoluteImagePath(
   imagePath: string,
-  localRoot: string,
   expectedPrefix: string,
   file: string,
   slug: string,
@@ -1122,14 +1428,8 @@ function validateRootAbsoluteImagePath(
   if (!imagePath.startsWith(expectedPrefix)) {
     issues.push({ file, slug, field: "$.imagePath", message: `Expected root-absolute image path under ${expectedPrefix}` });
   }
-
-  const localImagePath = resolve(projectRoot, imagePath.slice(1));
-  const rootRelativeImagePath = relative(localRoot, localImagePath);
-  if (rootRelativeImagePath.startsWith("..") || isAbsolute(rootRelativeImagePath)) {
-    issues.push({ file, slug, field: "$.imagePath", message: "Referenced image path escapes expected image root" });
-  }
-  if (!existsSync(localImagePath)) {
-    issues.push({ file, slug, field: "$.imagePath", message: `Referenced image file does not exist: ${imagePath}` });
+  if (imagePath.includes("\\") || imagePath.includes("..")) {
+    issues.push({ file, slug, field: "$.imagePath", message: "Expected normalized runtime image path" });
   }
 }
 
