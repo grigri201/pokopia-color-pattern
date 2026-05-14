@@ -48,6 +48,13 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   await expect(page.locator("#app")).toBeVisible();
   await expect(page.locator("#staticPage")).toHaveCount(0);
   await expect(page.locator("#languageToggle")).toHaveText("English");
+  const githubLink = page.getByRole("link", { name: "GitHub repository" });
+  await expect(githubLink).toHaveAttribute(
+    "href",
+    "https://github.com/grigri201/pokopia-color-pattern",
+  );
+  await expect(githubLink).toHaveText("");
+  await expect(githubLink.locator("svg")).toBeVisible();
   await expect(page.locator("#pokemonTitle")).toContainText("Ditto");
   await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/ditto\.webp/);
   await expect(page.locator("#metricStrip")).toContainText("HEX");

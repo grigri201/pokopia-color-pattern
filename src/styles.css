@@ -486,8 +486,24 @@ body.drawer-open .selected-float {
   white-space: nowrap;
 }
 
-.hash-pill:hover {
+.hash-pill:hover,
+.icon-link:hover {
   opacity: 0.72;
+}
+
+.icon-link {
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  color: currentColor;
+  text-decoration: none;
+}
+
+.icon-link svg {
+  display: block;
+  width: 18px;
+  height: 18px;
 }
 
 .hero-grid {
