@@ -1,7 +1,3933 @@
 {
-  "schemaVersion": "recommendations.v2",
+  "schemaVersion": "recommendations.v3",
   "pokemonSlug": "raichu",
   "pageSize": 10,
-  "totalPages": 0,
-  "recommendations": []
+  "totalPages": 20,
+  "recommendations": [
+    {
+      "itemSlug": "mirror-ball",
+      "itemName": "Mirror ball",
+      "itemZhName": "镜球",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0601-mirror-ball.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#8B7C6E",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 1,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "poke-ball-lamp",
+      "itemName": "Poké Ball lamp",
+      "itemZhName": "精灵球灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0588-poke-ball-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0F9EC",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 2,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "surface-light",
+      "itemName": "Surface light",
+      "itemZhName": "吸顶灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0610-surface-light.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0FFF0",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 3,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "humidifier",
+      "itemName": "Humidifier",
+      "itemZhName": "加湿器",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0400-humidifier.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#6ED6F1",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 4,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "berry-hanging-lamp",
+      "itemName": "Berry hanging lamp",
+      "itemZhName": "树果吊灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0609-berry-hanging-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#7889E9",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 5,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "gaming-bed",
+      "itemName": "Gaming bed",
+      "itemZhName": "电竞床",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0314-gaming-bed.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#626075",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 6,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "gaming-light",
+      "itemName": "Gaming light",
+      "itemZhName": "游戏灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0605-gaming-light.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#707277",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 7,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "cd-player",
+      "itemName": "CD player",
+      "itemZhName": "CD播放器",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0407-cd-player.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F1EEF1",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 8,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "construction-supplies",
+      "itemName": "Construction supplies",
+      "itemZhName": "建筑材料",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0536-construction-supplies.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "group activities",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#507AB8",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 9,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "harbor-streetlight",
+      "itemName": "Harbor streetlight",
+      "itemZhName": "港口路灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0579-harbor-streetlight.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#DAD6DA",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 10,
+      "pageIndex": 0
+    },
+    {
+      "itemSlug": "string-lights",
+      "itemName": "String lights",
+      "itemZhName": "串灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0607-string-lights.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFF1FF",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 11,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "violet-meteor-lamp",
+      "itemName": "Violet meteor lamp",
+      "itemZhName": "紫罗兰流星灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0596-violet-meteor-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D89BF3",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 12,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "wobbuffet-wobbler",
+      "itemName": "Wobbuffet wobbler",
+      "itemZhName": "果然翁不倒翁",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0421-wobbuffet-wobbler.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "play spaces",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#7AC0F9",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 13,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "antique-chandelier",
+      "itemName": "Antique chandelier",
+      "itemZhName": "古董吊灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0612-antique-chandelier.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F3FFE9",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 14,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "berry-table-lamp",
+      "itemName": "Berry table lamp",
+      "itemZhName": "树果台灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0586-berry-table-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#AEEC8B",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 15,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "firepit",
+      "itemName": "Firepit",
+      "itemZhName": "火坑",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0480-firepit.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "group activities",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F58E38",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 16,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "green-meteor-lamp",
+      "itemName": "Green meteor lamp",
+      "itemZhName": "绿色流星灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0593-green-meteor-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#BCF56C",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 17,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "microwave-oven",
+      "itemName": "Microwave oven",
+      "itemZhName": "微波炉",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0373-microwave-oven.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0EADD",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 18,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "model-planet",
+      "itemName": "Model planet",
+      "itemZhName": "行星模型",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0589-model-planet.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FAC53B",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 19,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "pop-art-lamp",
+      "itemName": "Pop art lamp",
+      "itemZhName": "波普艺术灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0608-pop-art-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F3FFEF",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 20,
+      "pageIndex": 1
+    },
+    {
+      "itemSlug": "sandbox",
+      "itemName": "Sandbox",
+      "itemZhName": "沙坑",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0482-sandbox.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "group activities",
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0C370",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 21,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "wall-light",
+      "itemName": "Wall light",
+      "itemZhName": "壁灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0602-wall-light.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F2FFEA",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 22,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "alarm-clock",
+      "itemName": "Alarm clock",
+      "itemZhName": "闹钟",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0395-alarm-clock.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "glass stuff",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#EEF0F1",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 23,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "balloons",
+      "itemName": "Balloons",
+      "itemZhName": "气球",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0418-balloons.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "play spaces",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FF7AD4",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 24,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "blue-meteor-lamp",
+      "itemName": "Blue meteor lamp",
+      "itemZhName": "蓝色流星灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0594-blue-meteor-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#ADEDFF",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 25,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "cute-lamp",
+      "itemName": "Cute lamp",
+      "itemZhName": "可爱灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0587-cute-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F2D9EF",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 26,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "indigo-meteor-lamp",
+      "itemName": "Indigo meteor lamp",
+      "itemZhName": "靛色流星灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0595-indigo-meteor-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#55C7F5",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 27,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "red-meteor-lamp",
+      "itemName": "Red meteor lamp",
+      "itemZhName": "红色流星灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0590-red-meteor-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F8B7EF",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 28,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "tablet",
+      "itemName": "Tablet",
+      "itemZhName": "平板电脑",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0387-tablet.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#53D9ED",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 29,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "crystal-ball",
+      "itemName": "Crystal ball",
+      "itemZhName": "水晶球",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0403-crystal-ball.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "glass stuff",
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFFFB7",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 30,
+      "pageIndex": 2
+    },
+    {
+      "itemSlug": "double-streetlight",
+      "itemName": "Double streetlight",
+      "itemZhName": "双头路灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0581-double-streetlight.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#939284",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 31,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "fluorescent-light",
+      "itemName": "Fluorescent light",
+      "itemZhName": "荧光灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0604-fluorescent-light.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0F0D0",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 32,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "gaming-fridge",
+      "itemName": "Gaming Fridge",
+      "itemZhName": "电竞冰箱",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0214-gaming-fridge.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#615F55",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 33,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "garden-light",
+      "itemName": "Garden light",
+      "itemZhName": "庭院灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0598-garden-light.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FEF0CB",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 34,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "luxury-lamp",
+      "itemName": "Luxury lamp",
+      "itemZhName": "豪华灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0597-luxury-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#494844",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 35,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "orange-meteor-lamp",
+      "itemName": "Orange meteor lamp",
+      "itemZhName": "橙色流星灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0591-orange-meteor-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F7C741",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 36,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "poke-ball-light",
+      "itemName": "Poké Ball light",
+      "itemZhName": "精灵球灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0585-poke-ball-light.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0F1C3",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 37,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "shell-lamp",
+      "itemName": "Shell lamp",
+      "itemZhName": "贝壳灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0603-shell-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFFFB5",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 38,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "slide",
+      "itemName": "Slide",
+      "itemZhName": "滑梯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0486-slide.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "group activities",
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F5D74C",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 39,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "spotlight",
+      "itemName": "Spotlight",
+      "itemZhName": "射灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0611-spotlight.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFFFFF",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 40,
+      "pageIndex": 3
+    },
+    {
+      "itemSlug": "yellow-meteor-lamp",
+      "itemName": "Yellow meteor lamp",
+      "itemZhName": "黄色流星灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0592-yellow-meteor-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics",
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFFF55",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 41,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "aether-paradise",
+      "itemName": "♪ Aether Paradise",
+      "itemZhName": "以太乐园",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1070-aether-paradise.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 42,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "area-zero",
+      "itemName": "♪ Area Zero",
+      "itemZhName": "零区",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1079-area-zero.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 43,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "battle-gym-leader-1",
+      "itemName": "♪ Battle! (Gym Leader) 1",
+      "itemZhName": "对战！（馆主）1",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1075-battle-gym-leader-1.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 44,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "battle-gym-leader-2",
+      "itemName": "♪ Battle! (Gym Leader) 2",
+      "itemZhName": "对战！（馆主）2",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1080-battle-gym-leader-2.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 45,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "battle-gym-leader-battle",
+      "itemName": "♪ Battle! (Gym Leader Battle)",
+      "itemZhName": "对战！（馆主战）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1053-battle-gym-leader-battle.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 46,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "bell-tower",
+      "itemName": "♪ Bell Tower",
+      "itemZhName": "铃铛塔",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1056-bell-tower.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD0EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 47,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "boutique",
+      "itemName": "♪ Boutique",
+      "itemZhName": "精品店",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1066-boutique.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 48,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "caves-of-mt-moon",
+      "itemName": "♪ Caves of Mt. Moon",
+      "itemZhName": "月见山的洞穴",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1044-caves-of-mt-moon.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 49,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "contest-spectacular",
+      "itemName": "♪ Contest Spectacular",
+      "itemZhName": "华丽大型表演",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1068-contest-spectacular.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 50,
+      "pageIndex": 4
+    },
+    {
+      "itemSlug": "cute-dresser",
+      "itemName": "Cute dresser",
+      "itemZhName": "可爱梳妆台",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0320-cute-dresser.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#E6E8F1",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 51,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "cute-sofa",
+      "itemName": "Cute sofa",
+      "itemZhName": "可爱沙发",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0292-cute-sofa.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#ECEDF4",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 52,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "dress-up-with-props",
+      "itemName": "♪ Dress Up With Props",
+      "itemZhName": "使用道具装扮",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1064-dress-up-with-props.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1ED",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 53,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "driftveil-city",
+      "itemName": "♪ Driftveil City",
+      "itemZhName": "帆巴市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1062-driftveil-city.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1ED",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 54,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "ecruteak-city",
+      "itemName": "♪ Ecruteak City",
+      "itemZhName": "圆朱市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1055-ecruteak-city.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD0EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 55,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "fan",
+      "itemName": "Fan",
+      "itemZhName": "电风扇",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0375-fan.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#EFEFF0",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 56,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "fortree-city",
+      "itemName": "♪ Fortree City",
+      "itemZhName": "茵郁市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1057-fortree-city.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED0EF",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 57,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "fuchsia-city-theme",
+      "itemName": "♪ Fuchsia City Theme",
+      "itemZhName": "浅红市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1046-fuchsia-city-theme.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 58,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "game-corner",
+      "itemName": "♪ Game Corner",
+      "itemZhName": "游戏角",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1061-game-corner.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD0EF",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 59,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "hauoli-city-day",
+      "itemName": "♪ Hau'oli City (Day)",
+      "itemZhName": "好奥乐市（日间）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1069-hauoli-city-day.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 60,
+      "pageIndex": 5
+    },
+    {
+      "itemSlug": "jubilife-village",
+      "itemName": "♪ Jubilife Village",
+      "itemZhName": "祝庆村",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1076-jubilife-village.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 61,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "mt-coronet",
+      "itemName": "♪ Mt. Coronet",
+      "itemZhName": "天冠山",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1060-mt-coronet.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD0EF",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 62,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "office-shelf",
+      "itemName": "Office shelf",
+      "itemZhName": "办公置物架",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0221-office-shelf.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#929399",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 63,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "paint-balloon-navy",
+      "itemName": "Paint balloon (navy)",
+      "itemZhName": "颜料气球（海军蓝）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0944-paint-balloon-navy.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#6376A9",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 64,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "pallet-town-theme",
+      "itemName": "♪ Pallet Town Theme",
+      "itemZhName": null,
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1039-pallet-town-theme.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 65,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "pewter-city-theme",
+      "itemName": "♪ Pewter City Theme",
+      "itemZhName": "尼比市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1042-pewter-city-theme.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 66,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "pokemon-center",
+      "itemName": "♪ Pokémon Center",
+      "itemZhName": "宝可梦中心",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1043-pokemon-center.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 67,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "pokemon-gym",
+      "itemName": "♪ Pokémon Gym",
+      "itemZhName": "宝可梦道馆",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1047-pokemon-gym.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 68,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "professor-oaks-laboratory",
+      "itemName": "♪ Professor Oak's Laboratory",
+      "itemZhName": null,
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1040-professor-oaks-laboratory.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 69,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "road-to-bill",
+      "itemName": "♪ Road to Bill",
+      "itemZhName": "通往正辉之路",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1048-road-to-bill.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 70,
+      "pageIndex": 6
+    },
+    {
+      "itemSlug": "road-to-cerulean-city",
+      "itemName": "♪ Road to Cerulean City",
+      "itemZhName": "通往华蓝市之路",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1045-road-to-cerulean-city.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 71,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "road-to-viridian-city",
+      "itemName": "♪ Road to Viridian City",
+      "itemZhName": "通往常磐市之路",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1041-road-to-viridian-city.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 72,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "rocket-hideout",
+      "itemName": "♪ Rocket Hideout",
+      "itemZhName": "火箭队秘密基地",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1051-rocket-hideout.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 73,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "rose-tower",
+      "itemName": "♪ Rose Tower",
+      "itemZhName": "洛兹塔",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1074-rose-tower.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 74,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "route-10-unova",
+      "itemName": "♪ Route 10 (Unova)",
+      "itemZhName": "10号道路（合众）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1063-route-10-unova.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1ED",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 75,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "route-209-day",
+      "itemName": "♪ Route 209 (Day)",
+      "itemZhName": "209号道路（日间）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1059-route-209-day.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD0EF",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 76,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "silph-co",
+      "itemName": "♪ Silph Co.",
+      "itemZhName": "西尔佛公司",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1052-silph-co.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 77,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "snowbelle-city",
+      "itemName": "♪ Snowbelle City",
+      "itemZhName": "映雪市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1065-snowbelle-city.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 78,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "sootopolis-city",
+      "itemName": "♪ Sootopolis City",
+      "itemZhName": "琉璃市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1058-sootopolis-city.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED0EF",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 79,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "south-province",
+      "itemName": "♪ South Province",
+      "itemZhName": "南部地区",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1077-south-province.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 80,
+      "pageIndex": 7
+    },
+    {
+      "itemSlug": "spacesuit",
+      "itemName": "Spacesuit",
+      "itemZhName": "太空服",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0434-spacesuit.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#8D9097",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 81,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "super-training",
+      "itemName": "♪ Super Training!",
+      "itemZhName": "超级特训！",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1067-super-training.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 82,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "the-academy",
+      "itemName": "♪ The Academy",
+      "itemZhName": "学园",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1078-the-academy.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CED1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 83,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "the-s-s-anne",
+      "itemName": "♪ The S.S. Anne",
+      "itemZhName": "圣安奴号",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1050-the-s-s-anne.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 84,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "tidal-bell",
+      "itemName": "Tidal Bell",
+      "itemZhName": "潮汐铃铛",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0429-tidal-bell.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#5C639F",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 85,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "tires",
+      "itemName": "Tires",
+      "itemZhName": "轮胎",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0534-tires.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#5D5F66",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 86,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "title-screen",
+      "itemName": "♪ Title Screen",
+      "itemZhName": "标题画面",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1038-title-screen.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 87,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "ultra-ruin",
+      "itemName": "♪ Ultra Ruin",
+      "itemZhName": "究极城市废墟",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1071-ultra-ruin.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 88,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "union-cave",
+      "itemName": "♪ Union Cave",
+      "itemZhName": "联合洞穴",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1054-union-cave.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD0EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 89,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "vermilion-city-theme",
+      "itemName": "♪ Vermilion City Theme",
+      "itemZhName": "枯叶市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1049-vermilion-city-theme.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 90,
+      "pageIndex": 8
+    },
+    {
+      "itemSlug": "wild-area-north",
+      "itemName": "♪ Wild Area (North)",
+      "itemZhName": "旷野地带（北）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1072-wild-area-north.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 91,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "window-pane",
+      "itemName": "Window pane",
+      "itemZhName": "窗玻璃",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0653-window-pane.png",
+      "category": "Buildings",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#ACB2C1",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 92,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "wyndon",
+      "itemName": "♪ Wyndon",
+      "itemZhName": "宫门市",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1073-wyndon.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#CFD1EE",
+      "harmonyStatus": "passed",
+      "harmonyType": "complementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 93,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "adrenaline-orb",
+      "itemName": "Adrenaline Orb",
+      "itemZhName": "胆怯球",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1111-adrenaline-orb.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#62BFF0",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 94,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "berry-clock",
+      "itemName": "Berry clock",
+      "itemZhName": "树果钟",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0443-berry-clock.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#319BDE",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 95,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "concrete-pipe",
+      "itemName": "Concrete pipe",
+      "itemZhName": "水泥管",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0484-concrete-pipe.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#BFC0C1",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 96,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "cool-bass-guitar",
+      "itemName": "Cool bass guitar",
+      "itemZhName": "酷炫贝斯吉他",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0412-cool-bass-guitar.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#96D5F9",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 97,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "firework-blue",
+      "itemName": "Firework (blue)",
+      "itemZhName": "烟花（蓝）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0953-firework-blue.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#2390D9",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 98,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "glass-window",
+      "itemName": "Glass window",
+      "itemZhName": "玻璃窗",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0652-glass-window.png",
+      "category": "Buildings",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#A7B3C4",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 99,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "inflatable-boat",
+      "itemName": "Inflatable boat",
+      "itemZhName": "充气船",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0510-inflatable-boat.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#A6C5F9",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 100,
+      "pageIndex": 9
+    },
+    {
+      "itemSlug": "large-mirror",
+      "itemName": "Large mirror",
+      "itemZhName": "大镜子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0317-large-mirror.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#B4D8F0",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 101,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "lucky-egg",
+      "itemName": "Lucky Egg",
+      "itemZhName": "幸运蛋",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1105-lucky-egg.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D1E0F0",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 102,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "metal-drum",
+      "itemName": "Metal drum",
+      "itemZhName": "金属桶",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0535-metal-drum.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#5B8AC0",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 103,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "music-mat-ti",
+      "itemName": "Music mat (Ti)",
+      "itemZhName": "音乐地垫（Ti）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0619-music-mat-ti.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#4ABDF2",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 104,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "paint-balloon-blue",
+      "itemName": "Paint balloon (blue)",
+      "itemZhName": "颜料气球（蓝）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0945-paint-balloon-blue.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#5FA7E9",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 105,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "paint-balloon-gray",
+      "itemName": "Paint balloon (gray)",
+      "itemZhName": "颜料气球（灰）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0947-paint-balloon-gray.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#7E8FAB",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 106,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "paint-balloon-purple",
+      "itemName": "Paint balloon (purple)",
+      "itemZhName": "颜料气球（紫）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0938-paint-balloon-purple.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#A252DA",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 107,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "science-experiment",
+      "itemName": "Science Experiment",
+      "itemZhName": "科学实验装置",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0405-science-experiment.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#75787C",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 108,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "ships-wheel",
+      "itemName": "Ship's wheel",
+      "itemZhName": "船舵",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0430-ships-wheel.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#608CC3",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 109,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "whiteboard",
+      "itemName": "Whiteboard",
+      "itemZhName": "白板",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0424-whiteboard.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFF3FF",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 110,
+      "pageIndex": 10
+    },
+    {
+      "itemSlug": "armor-fossil",
+      "itemName": "Armor Fossil",
+      "itemZhName": "盾甲化石",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1169-armor-fossil.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#C78D64",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 111,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "barrel",
+      "itemName": "Barrel",
+      "itemZhName": "木桶",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0523-barrel.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#E4A962",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 112,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "campfire",
+      "itemName": "Campfire",
+      "itemZhName": "篝火",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0475-campfire.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0943D",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 113,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "chansey-plant",
+      "itemName": "Chansey plant",
+      "itemZhName": "吉利蛋盆栽",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0489-chansey-plant.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#66EB49",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 114,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "chic-sofa",
+      "itemName": "Chic sofa",
+      "itemZhName": "时尚沙发",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0286-chic-sofa.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#E19134",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 115,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "clear-amulet",
+      "itemName": "Clear Amulet",
+      "itemZhName": "净化之符",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1125-clear-amulet.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#76726B",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 116,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "clear-bell",
+      "itemName": "Clear Bell",
+      "itemZhName": "清澈铃铛",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0428-clear-bell.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#A28345",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 117,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "cool-electric-guitar",
+      "itemName": "Cool electric guitar",
+      "itemZhName": "酷炫电吉他",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0411-cool-electric-guitar.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FDD67D",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 118,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "dining-cabinet",
+      "itemName": "Dining cabinet",
+      "itemZhName": "餐边柜",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0370-dining-cabinet.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#EEBD81",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 119,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "firework-green",
+      "itemName": "Firework (green)",
+      "itemZhName": "烟花（绿）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0951-firework-green.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#3C9647",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 120,
+      "pageIndex": 11
+    },
+    {
+      "itemSlug": "firework-white",
+      "itemName": "Firework (white)",
+      "itemZhName": "烟花（白）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0949-firework-white.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#EFE6D9",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 121,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "garden-bench",
+      "itemName": "Garden bench",
+      "itemZhName": "庭院长椅",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0291-garden-bench.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#C7BDAA",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 122,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "industrial-bench",
+      "itemName": "Industrial bench",
+      "itemZhName": "工业风长椅",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0289-industrial-bench.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#BF8C4E",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 123,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "microscope",
+      "itemName": "Microscope",
+      "itemZhName": "显微镜",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0404-microscope.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D2CAC5",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 124,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "music-mat-fa",
+      "itemName": "Music mat (Fa)",
+      "itemZhName": "音乐地垫（Fa）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0616-music-mat-fa.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#BFF318",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 125,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "music-mat-re",
+      "itemName": "Music mat (Re)",
+      "itemZhName": "音乐地垫（Re）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0614-music-mat-re.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0A002",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 126,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "paint-balloon-brown",
+      "itemName": "Paint balloon (brown)",
+      "itemZhName": "颜料气球（棕）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0939-paint-balloon-brown.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#AA784A",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 127,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "paint-balloon-green",
+      "itemName": "Paint balloon (green)",
+      "itemZhName": "颜料气球（绿）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0934-paint-balloon-green.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#60C262",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 128,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "paint-balloon-lime",
+      "itemName": "Paint balloon (lime)",
+      "itemZhName": "颜料气球（青柠）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0942-paint-balloon-lime.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#BAF51A",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 129,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "paint-balloon-orange",
+      "itemName": "Paint balloon (orange)",
+      "itemZhName": "颜料气球（橙）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0937-paint-balloon-orange.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0A537",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 130,
+      "pageIndex": 12
+    },
+    {
+      "itemSlug": "paint-balloon-white",
+      "itemName": "Paint balloon (white)",
+      "itemZhName": "颜料气球（白）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0931-paint-balloon-white.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F6EDD9",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 131,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "picnic-basket",
+      "itemName": "Picnic basket",
+      "itemZhName": "野餐篮",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0330-picnic-basket.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F4A34F",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 132,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "pinwheels",
+      "itemName": "Pinwheels",
+      "itemZhName": "风车",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0397-pinwheels.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#E7D8C8",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 133,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "plain-sofa",
+      "itemName": "Plain sofa",
+      "itemZhName": "朴素沙发",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0284-plain-sofa.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FDEDE0",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 134,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "raichu-sign",
+      "itemName": "Raichu sign",
+      "itemZhName": "雷丘看板",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0519-raichu-sign.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#ECA352",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 135,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "tabletop-mic",
+      "itemName": "Tabletop mic",
+      "itemZhName": "桌面麦克风",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0408-tabletop-mic.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FDC640",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 136,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "tea-set",
+      "itemName": "Tea set",
+      "itemZhName": "茶具",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0332-tea-set.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#DED4CC",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 137,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "toy-blocks",
+      "itemName": "Toy blocks",
+      "itemZhName": "积木",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0396-toy-blocks.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#ECC277",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 138,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "utility-pole",
+      "itemName": "Utility pole",
+      "itemZhName": "电线杆",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0568-utility-pole.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#C9C3BD",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 139,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "water-basin",
+      "itemName": "Water basin",
+      "itemZhName": "水盆",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0508-water-basin.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#A87A52",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 140,
+      "pageIndex": 13
+    },
+    {
+      "itemSlug": "wireless-power-transmitter",
+      "itemName": "Wireless power transmitter",
+      "itemZhName": "无线电力传输器",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0570-wireless-power-transmitter.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D8A846",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 141,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "wireless-power-transmitter-switch",
+      "itemName": "Wireless power-transmitter switch",
+      "itemZhName": "无线电力传输开关",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0569-wireless-power-transmitter-switch.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D8A846",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 142,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "wooden-bed",
+      "itemName": "Wooden bed",
+      "itemZhName": "木制床",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0306-wooden-bed.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F9BB07",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 143,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "wooden-bench",
+      "itemName": "Wooden bench",
+      "itemZhName": "木长椅",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0282-wooden-bench.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D7925B",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 144,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "wreath",
+      "itemName": "Wreath",
+      "itemZhName": "花环",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0438-wreath.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#9EFF5B",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 145,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "crystal-fragment",
+      "itemName": "Crystal fragment",
+      "itemZhName": "水晶碎片",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0066-crystal-fragment.png",
+      "category": "Materials",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#5CCAF4",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 146,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "glass",
+      "itemName": "Glass",
+      "itemZhName": "玻璃",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0074-glass.png",
+      "category": "Materials",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#92D8EC",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 147,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "industrial-bed",
+      "itemName": "Industrial bed",
+      "itemZhName": "工业风床",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0311-industrial-bed.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#BE97A4",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 148,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "life-orb",
+      "itemName": "Life Orb",
+      "itemZhName": "生命宝珠",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1107-life-orb.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#AA3075",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 149,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "music-mat-high-do",
+      "itemName": "Music mat (High do)",
+      "itemZhName": "音乐地垫（高Do）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0620-music-mat-high-do.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F074DC",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 150,
+      "pageIndex": 14
+    },
+    {
+      "itemSlug": "music-mat-la",
+      "itemName": "Music mat (La)",
+      "itemZhName": "音乐地垫（La）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0618-music-mat-la.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#80EAF3",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 151,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "paint-balloon-cyan",
+      "itemName": "Paint balloon (cyan)",
+      "itemZhName": "颜料气球（青）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0946-paint-balloon-cyan.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#72D7FC",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 152,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "paint-balloon-pink",
+      "itemName": "Paint balloon (pink)",
+      "itemZhName": "颜料气球（粉）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0936-paint-balloon-pink.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F096DE",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 153,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "photo-frame",
+      "itemName": "Photo frame",
+      "itemZhName": "相框",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0362-photo-frame.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#BBF0F8",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 154,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "pop-art-sofa",
+      "itemName": "Pop art sofa",
+      "itemZhName": "波普艺术沙发",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0293-pop-art-sofa.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#7DCFEF",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 155,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "sea-glass-fragments",
+      "itemName": "Sea glass fragments",
+      "itemZhName": "海玻璃碎片",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0055-sea-glass-fragments.png",
+      "category": "Materials",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#9EE7FF",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 156,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "silver-bottle-cap",
+      "itemName": "Silver Bottle Cap",
+      "itemZhName": "银色王冠",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1082-silver-bottle-cap.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#ADBEC0",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 157,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "stone-bench",
+      "itemName": "Stone bench",
+      "itemZhName": "石长椅",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0283-stone-bench.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#81767B",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 158,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "wiggly-mirror",
+      "itemName": "Wiggly mirror",
+      "itemZhName": "摆动镜子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0321-wiggly-mirror.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "glass stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#C1E6F0",
+      "harmonyStatus": "passed",
+      "harmonyType": "triadic",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 159,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "big-nugget",
+      "itemName": "Big Nugget",
+      "itemZhName": "巨型金珠",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0417-big-nugget.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0D240",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 160,
+      "pageIndex": 15
+    },
+    {
+      "itemSlug": "firework-yellow",
+      "itemName": "Firework (yellow)",
+      "itemZhName": "烟花（黄）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0952-firework-yellow.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFCB00",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 161,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "fluff",
+      "itemName": "Fluff",
+      "itemZhName": "绒毛",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0059-fluff.png",
+      "category": "Materials",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0EFE5",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 162,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "gold-bottle-cap",
+      "itemName": "Gold Bottle Cap",
+      "itemZhName": "金色王冠",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1083-gold-bottle-cap.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D8BF0E",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 163,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "guest-room-bed",
+      "itemName": "Guest-room bed",
+      "itemZhName": "客房床",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0309-guest-room-bed.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F2EEDD",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 164,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "mini-generator",
+      "itemName": "Mini generator",
+      "itemZhName": "迷你发电机",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0571-mini-generator.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#D8D8D7",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 165,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "mushroom-lamp",
+      "itemName": "Mushroom lamp",
+      "itemZhName": "蘑菇灯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0582-mushroom-lamp.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "electronics"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFEF86",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 166,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "music-mat-mi",
+      "itemName": "Music mat (Mi)",
+      "itemZhName": "音乐地垫（Mi）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0615-music-mat-mi.png",
+      "category": "Utilities",
+      "matchedPreferenceTerms": [
+        "play spaces"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F2F23D",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 167,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "nugget",
+      "itemName": "Nugget",
+      "itemZhName": "金珠",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/1081-nugget.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FAD85E",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 168,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "paint-balloon-beige",
+      "itemName": "Paint balloon (beige)",
+      "itemZhName": "颜料气球（米色）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0940-paint-balloon-beige.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#978F75",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 169,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "paint-balloon-yellow",
+      "itemName": "Paint balloon (yellow)",
+      "itemZhName": "颜料气球（黄）",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0933-paint-balloon-yellow.png",
+      "category": "Other",
+      "matchedPreferenceTerms": [
+        "round stuff"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFF051",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 170,
+      "pageIndex": 16
+    },
+    {
+      "itemSlug": "paper-party-cups",
+      "itemName": "Paper party cups",
+      "itemZhName": "派对纸杯",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0334-paper-party-cups.png",
+      "category": "Misc.",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFEF90",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 171,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "photo-cutout-board",
+      "itemName": "Photo cutout board",
+      "itemZhName": "脸洞看板",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0520-photo-cutout-board.png",
+      "category": "Outdoor",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F2EDD8",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 172,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "pikachu-sofa",
+      "itemName": "Pikachu sofa",
+      "itemZhName": "皮卡丘沙发",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0295-pikachu-sofa.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#FFDD5A",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 173,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "plain-bed",
+      "itemName": "Plain bed",
+      "itemZhName": "简易床",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0307-plain-bed.png",
+      "category": "Furniture",
+      "matchedPreferenceTerms": [
+        "group activities"
+      ],
+      "isDyeable": false,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#DBD4C4",
+      "harmonyStatus": "passed",
+      "harmonyType": "monochrome",
+      "recommendedDyeColors": [],
+      "overrideSource": null,
+      "rank": 174,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "adorable-hedge",
+      "itemName": "Adorable hedge",
+      "itemZhName": "可爱树篱",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0140-adorable-hedge.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#01A06C",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange"
+      ],
+      "overrideSource": null,
+      "rank": 175,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "adorable-hedge-seeds",
+      "itemName": "Adorable-hedge seeds",
+      "itemZhName": "可爱树篱种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0107-adorable-hedge-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#01A06C",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange"
+      ],
+      "overrideSource": null,
+      "rank": 176,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "beautiful-flower",
+      "itemName": "Beautiful flower",
+      "itemZhName": "美丽花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0136-beautiful-flower.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F05142",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "purple",
+        "white",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 177,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "beautiful-flower-seeds",
+      "itemName": "Beautiful-flower seeds",
+      "itemZhName": "美丽花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0103-beautiful-flower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#E3283B",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "purple",
+        "white",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 178,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "cute-flower",
+      "itemName": "Cute flower",
+      "itemZhName": "可爱花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0137-cute-flower.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F55A64",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "white",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 179,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "cute-flower-seeds",
+      "itemName": "Cute-flower seeds",
+      "itemZhName": "可爱花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0104-cute-flower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F55A65",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "white",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 180,
+      "pageIndex": 17
+    },
+    {
+      "itemSlug": "damp-hedge",
+      "itemName": "Damp hedge",
+      "itemZhName": "湿润树篱",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0142-damp-hedge.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#B086E6",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 181,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "damp-hedge-seeds",
+      "itemName": "Damp-hedge seeds",
+      "itemZhName": "湿润树篱种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0109-damp-hedge-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#AF86E6",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 182,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "healthy-hedge",
+      "itemName": "Healthy hedge",
+      "itemZhName": "健康树篱",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0141-healthy-hedge.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#0B6F4D",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "purple",
+        "orange"
+      ],
+      "overrideSource": null,
+      "rank": 183,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "healthy-hedge-seeds",
+      "itemName": "Healthy-hedge seeds",
+      "itemZhName": "健康树篱种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0108-healthy-hedge-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#209754",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "purple",
+        "orange"
+      ],
+      "overrideSource": null,
+      "rank": 184,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "mountain-flower-seeds",
+      "itemName": "Mountain-flower seeds",
+      "itemZhName": "岩场花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0101-mountain-flower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#7180E6",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "purple",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 185,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "mountain-flowers",
+      "itemName": "Mountain flowers",
+      "itemZhName": "岩场花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0134-mountain-flowers.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#7080E6",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "purple",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 186,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "robust-flower",
+      "itemName": "Robust flower",
+      "itemZhName": "坚韧花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0139-robust-flower.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#525342",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 187,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "robust-flower-seeds",
+      "itemName": "Robust-flower seeds",
+      "itemZhName": "坚韧花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0106-robust-flower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#90A931",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 188,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "seashore-flower-seeds",
+      "itemName": "Seashore-flower seeds",
+      "itemZhName": "海边花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0100-seashore-flower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#DEA9F2",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "orange",
+        "white",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 189,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "seashore-flowers",
+      "itemName": "Seashore flowers",
+      "itemZhName": "海边花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0133-seashore-flowers.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#DEA9F2",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "orange",
+        "white",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 190,
+      "pageIndex": 18
+    },
+    {
+      "itemSlug": "skyland-flower-seeds",
+      "itemName": "Skyland-flower seeds",
+      "itemZhName": "浮岛花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0102-skyland-flower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#EFF2CF",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "orange",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 191,
+      "pageIndex": 19
+    },
+    {
+      "itemSlug": "skyland-flowers",
+      "itemName": "Skyland flowers",
+      "itemZhName": "浮岛花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0135-skyland-flowers.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0F2CF",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "orange",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 192,
+      "pageIndex": 19
+    },
+    {
+      "itemSlug": "stylish-hedge",
+      "itemName": "Stylish hedge",
+      "itemZhName": "时尚树篱",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0143-stylish-hedge.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#5EA534",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 193,
+      "pageIndex": 19
+    },
+    {
+      "itemSlug": "stylish-hedge-seeds",
+      "itemName": "Stylish-hedge seeds",
+      "itemZhName": "时尚树篱种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0110-stylish-hedge-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#5DA436",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange",
+        "white"
+      ],
+      "overrideSource": null,
+      "rank": 194,
+      "pageIndex": 19
+    },
+    {
+      "itemSlug": "wildflower-seeds",
+      "itemName": "Wildflower seeds",
+      "itemZhName": "野花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0099-wildflower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#EB9EB6",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange"
+      ],
+      "overrideSource": null,
+      "rank": 195,
+      "pageIndex": 19
+    },
+    {
+      "itemSlug": "wildflowers",
+      "itemName": "Wildflowers",
+      "itemZhName": "野花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0132-wildflowers.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#424A46",
+      "harmonyStatus": "passed",
+      "harmonyType": "splitComplementary",
+      "recommendedDyeColors": [
+        "blue",
+        "purple",
+        "orange"
+      ],
+      "overrideSource": null,
+      "rank": 196,
+      "pageIndex": 19
+    },
+    {
+      "itemSlug": "elegant-flower",
+      "itemName": "Elegant flower",
+      "itemZhName": "优雅花",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0138-elegant-flower.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0F0D5",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [
+        "orange",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 197,
+      "pageIndex": 19
+    },
+    {
+      "itemSlug": "elegant-flower-seeds",
+      "itemName": "Elegant-flower seeds",
+      "itemZhName": "优雅花种子",
+      "itemImagePath": "/docs/pokopia_image_sources/item_portraits/0105-elegant-flower-seeds.png",
+      "category": "Nature",
+      "matchedPreferenceTerms": [
+        "dyeable",
+        "nature"
+      ],
+      "isDyeable": true,
+      "pokemonPrimaryColor": "#DBC003",
+      "itemPrimaryColor": "#F0F0D5",
+      "harmonyStatus": "passed",
+      "harmonyType": "analogous",
+      "recommendedDyeColors": [
+        "orange",
+        "yellow"
+      ],
+      "overrideSource": null,
+      "rank": 198,
+      "pageIndex": 19
+    }
+  ]
 }

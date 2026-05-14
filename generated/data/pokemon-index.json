@@ -2,6 +2,7 @@
   "schemaVersion": "pokemon-index.v1",
   "generatedFrom": {
     "pokemonManifestPath": "docs/pokopia_image_sources/pokemon_portraits/manifest.csv",
+    "pokemonPreferencePath": "docs/pokopia_image_sources/pokopiadex_pokemon_preferences.json",
     "overridePath": "data/overrides/pokemon-metadata.json",
     "rawBoundary": "docs/pokopia_image_sources/**"
   },
@@ -55,8 +56,15 @@
         "#8E6052",
         "#9F785E"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "metal stuff",
+        "soft stuff",
+        "strange stuff",
+        "watching stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "absol",
@@ -102,8 +110,15 @@
         "#F1FFFF",
         "#2A608F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "dry flavors",
+        "exercise",
+        "letters and words",
+        "nice breezes",
+        "soft stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "aerodactyl",
@@ -149,8 +164,15 @@
         "#A978C0",
         "#E9D8FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "nice breezes",
+        "shiny stuff",
+        "sour flavors",
+        "spinning stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "alakazam",
@@ -196,8 +218,15 @@
         "#8B614E",
         "#A2785F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "letters and words",
+        "metal stuff",
+        "strange stuff",
+        "watching stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "altaria",
@@ -243,8 +272,15 @@
         "#2490C1",
         "#FFFFFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "nice breezes",
+        "noisy stuff",
+        "soft stuff",
+        "sour flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "amaura",
@@ -290,8 +326,15 @@
         "#F3CDD0",
         "#C3BF79"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "group activities",
+        "hard stuff",
+        "shiny stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ampharos",
@@ -337,8 +380,15 @@
         "#D9D5B7",
         "#FFD848"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "pretty flowers",
+        "shiny stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "arbok",
@@ -384,8 +434,15 @@
         "#171927",
         "#C0C0DC"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "garbage",
+        "lots of nature",
+        "slender objects",
+        "spicy flavors",
+        "spinning stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "arcanine",
@@ -431,8 +488,15 @@
         "#DDC0A6",
         "#FFFFF0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of fire",
+        "nice breezes",
+        "spicy flavors",
+        "stone stuff",
+        "symbols",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ariados",
@@ -478,8 +542,15 @@
         "#FF4861",
         "#363030"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "garbage",
+        "lots of nature",
+        "rides",
+        "sour flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "armarouge",
@@ -525,8 +596,15 @@
         "#D8BF2F",
         "#FFEE30"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of fire",
+        "luxury",
+        "spicy flavors",
+        "stone stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "articuno",
@@ -572,8 +650,15 @@
         "#15A8DE",
         "#0874A8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of water",
+        "luxury",
+        "nice breezes",
+        "shiny stuff",
+        "sour flavors",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "audino",
@@ -619,8 +704,15 @@
         "#FFF0A8",
         "#DABE91"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "fabric",
+        "healing",
+        "round stuff",
+        "soft stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "aurorus",
@@ -666,8 +758,15 @@
         "#B4C4D4",
         "#DFD691"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "noisy stuff",
+        "shiny stuff",
+        "sour flavors",
+        "stone stuff",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "axew",
@@ -713,8 +812,15 @@
         "#789061",
         "#C0D200"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "lots of dirt",
+        "lots of fire",
+        "luxury",
+        "sharp stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "azumarill",
@@ -760,8 +866,15 @@
         "#058EC0",
         "#E2F0F1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "cute stuff",
+        "lots of water",
+        "sour flavors",
+        "symbols",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "azurill",
@@ -807,8 +920,15 @@
         "#34A7DA",
         "#F16072"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "healing",
+        "lots of water",
+        "rides",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "bastiodon",
@@ -854,8 +974,15 @@
         "#C0C0C0",
         "#D5D8DA"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "exercise",
+        "hard stuff",
+        "luxury",
+        "metal stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "beldum",
@@ -901,8 +1028,15 @@
         "#30A8C0",
         "#60F0FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "hard stuff",
+        "metal stuff",
+        "sour flavors",
+        "stone stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "bellossom",
@@ -948,8 +1082,15 @@
         "#F1C036",
         "#3E771B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "lots of nature",
+        "noisy stuff",
+        "play spaces",
+        "pretty flowers",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "bellsprout",
@@ -995,8 +1136,15 @@
         "#D8D61C",
         "#C0FF9E"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "lots of dirt",
+        "lots of nature",
+        "lots of water",
+        "pretty flowers",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "blastoise",
@@ -1042,8 +1190,15 @@
         "#638EAF",
         "#D7D9D7"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "exercise",
+        "healing",
+        "lots of water",
+        "luxury",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "blaziken",
@@ -1089,8 +1244,15 @@
         "#EDA818",
         "#FCF3C1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "containers",
+        "exercise",
+        "lots of fire",
+        "luxury",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "blissey",
@@ -1136,8 +1298,15 @@
         "#D790A8",
         "#F0F0F0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "fabric",
+        "group activities",
+        "healing",
+        "round stuff",
+        "soft stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "bonsly",
@@ -1183,8 +1352,15 @@
         "#CE9060",
         "#C09048"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "lots of nature",
+        "round stuff",
+        "sour flavors",
+        "stone stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "bulbasaur",
@@ -1230,8 +1406,15 @@
         "#A8FDF0",
         "#90D8C0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "lots of nature",
+        "lots of water",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cacnea",
@@ -1277,8 +1460,15 @@
         "#77A747",
         "#619034"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "lots of nature",
+        "pretty flowers",
+        "round stuff",
+        "sharp stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cacturne",
@@ -1324,8 +1514,15 @@
         "#97BE62",
         "#638F49"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "lots of nature",
+        "luxury",
+        "nice breezes",
+        "sharp stuff",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "carkol",
@@ -1371,8 +1568,15 @@
         "#787866",
         "#B24D47"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "lots of fire",
+        "metal stuff",
+        "rides",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ceruledge",
@@ -1418,8 +1622,15 @@
         "#D8B6FF",
         "#CA7CFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "lots of fire",
+        "luxury",
+        "spooky stuff",
+        "stone stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "chandelure",
@@ -1465,8 +1676,15 @@
         "#E6F6FF",
         "#787D86"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "lots of fire",
+        "spooky stuff",
+        "strange stuff",
+        "watching stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "chansey",
@@ -1512,8 +1730,15 @@
         "#E27C90",
         "#FFA8BA"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "fabric",
+        "group activities",
+        "healing",
+        "round stuff",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "charcadet",
@@ -1559,8 +1784,15 @@
         "#FFA506",
         "#9A3030"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of fire",
+        "luxury",
+        "stone stuff",
+        "strange stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "charizard",
@@ -1606,8 +1838,15 @@
         "#FFAC00",
         "#EAE177"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of fire",
+        "luxury",
+        "nice breezes",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "charjabug",
@@ -1653,8 +1892,15 @@
         "#D8D5C4",
         "#F6E850"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "blocky stuff",
+        "electronics",
+        "glass stuff",
+        "lots of nature",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "charmander",
@@ -1700,8 +1946,15 @@
         "#CF5F01",
         "#FF3C1A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "group activities",
+        "hard stuff",
+        "lots of fire",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "charmeleon",
@@ -1747,8 +2000,15 @@
         "#E3D290",
         "#F2D204"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "hard stuff",
+        "lots of fire",
+        "rides",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "chatot",
@@ -1794,8 +2054,15 @@
         "#EFC303",
         "#CED6D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "fabric",
+        "nice breezes",
+        "noisy stuff",
+        "play spaces",
+        "slender objects",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "chef-dente",
@@ -1841,8 +2108,15 @@
         "#E9DDC2",
         "#C4BEBF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "group activities",
+        "looks like food",
+        "luxury",
+        "metal stuff",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cinccino",
@@ -1888,8 +2162,15 @@
         "#F1C0D3",
         "#F0A8BD"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "fabric",
+        "rides",
+        "soft stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cinderace",
@@ -1935,8 +2216,15 @@
         "#DBD8D8",
         "#FFEA63"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "group activities",
+        "lots of fire",
+        "play spaces",
+        "round stuff",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "clefable",
@@ -1982,8 +2270,15 @@
         "#F0C0D8",
         "#2F1E18"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "healing",
+        "play spaces",
+        "pretty flowers",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "clefairy",
@@ -2029,8 +2324,15 @@
         "#FEF0F1",
         "#BF9BA6"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "healing",
+        "play spaces",
+        "pretty flowers",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cleffa",
@@ -2076,8 +2378,15 @@
         "#FFD8D8",
         "#483118"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "cute stuff",
+        "healing",
+        "rides",
+        "round stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "clodsire",
@@ -2123,8 +2432,15 @@
         "#BFA89D",
         "#3A2C30"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cleanliness",
+        "garbage",
+        "lots of dirt",
+        "lots of water",
+        "round stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "coalossal",
@@ -2170,8 +2486,15 @@
         "#97353A",
         "#784949"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "lots of fire",
+        "metal stuff",
+        "rides",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "combee",
@@ -2217,8 +2540,15 @@
         "#FFF100",
         "#F0F0F0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "gatherings",
+        "group activities",
+        "lots of nature",
+        "nice breezes",
+        "sweet flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "combusken",
@@ -2264,8 +2594,15 @@
         "#E8C05B",
         "#A8A197"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "containers",
+        "exercise",
+        "lots of fire",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "conkeldurr",
@@ -2311,8 +2648,15 @@
         "#91928E",
         "#DAA486"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "group activities",
+        "slender objects",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "corviknight",
@@ -2358,8 +2702,15 @@
         "#181842",
         "#7677B1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "containers",
+        "metal stuff",
+        "nice breezes",
+        "shiny stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "corvisquire",
@@ -2405,8 +2756,15 @@
         "#587692",
         "#466677"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "nice breezes",
+        "shiny stuff",
+        "slender objects",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cramorant",
@@ -2452,8 +2810,15 @@
         "#E7F0FF",
         "#B7BED9"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "looks like food",
+        "lots of water",
+        "nice breezes",
+        "ocean vibes",
+        "slender objects"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cranidos",
@@ -2499,8 +2864,15 @@
         "#89F0FF",
         "#CDD8D7"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "group activities",
+        "hard stuff",
+        "spicy flavors",
+        "stone stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "crobat",
@@ -2546,8 +2918,15 @@
         "#9052A4",
         "#6DA6BF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "garbage",
+        "nice breezes",
+        "spooky stuff",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cubone",
@@ -2593,8 +2972,15 @@
         "#BF9052",
         "#EEDDB6"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "construction",
+        "exercise",
+        "group activities",
+        "lots of dirt",
+        "slender objects"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "cyndaquil",
@@ -2640,8 +3026,15 @@
         "#027090",
         "#016078"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "fabric",
+        "lots of fire",
+        "metal stuff",
+        "rides",
+        "slender objects",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dj-rotom",
@@ -2687,8 +3080,15 @@
         "#D8E8D7",
         "#C0D4CE"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "blocky stuff",
+        "glass stuff",
+        "group activities",
+        "noisy stuff",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dachsbun",
@@ -2734,8 +3134,15 @@
         "#CE9039",
         "#E2AC4A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "looks like food",
+        "lots of fire",
+        "sour flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dartrix",
@@ -2781,8 +3188,15 @@
         "#CAC0BD",
         "#E15C35"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "lots of nature",
+        "nice breezes",
+        "slender objects",
+        "sour flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "decidueye",
@@ -2828,8 +3242,15 @@
         "#03B376",
         "#DDD6C0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "letters and words",
+        "lots of nature",
+        "nice breezes",
+        "spooky stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dedenne",
@@ -2875,8 +3296,15 @@
         "#FFC000",
         "#BA7802"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "group activities",
+        "looks like food",
+        "sweet flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "diglett",
@@ -2922,8 +3350,15 @@
         "#A4786E",
         "#F0BCA8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "group activities",
+        "lots of dirt",
+        "play spaces",
+        "slender objects"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ditto",
@@ -3016,8 +3451,15 @@
         "#FE7893",
         "#E76277"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "group activities",
+        "lots of fire",
+        "rides",
+        "spicy flavors",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dragonair",
@@ -3063,8 +3505,15 @@
         "#0178BE",
         "#01C0FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "glass stuff",
+        "lots of fire",
+        "lots of water",
+        "slender objects",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dragonite",
@@ -3110,8 +3559,15 @@
         "#F6EFA6",
         "#D2C077"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "dry flavors",
+        "lots of fire",
+        "nice breezes",
+        "pretty flowers",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "drakloak",
@@ -3157,8 +3613,15 @@
         "#88BFC2",
         "#EF6178"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "group activities",
+        "lots of fire",
+        "rides",
+        "spooky stuff",
+        "strange stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dratini",
@@ -3204,8 +3667,15 @@
         "#A7A8B3",
         "#ECF0F2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "lots of fire",
+        "lots of water",
+        "slender objects",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dreepy",
@@ -3251,8 +3721,15 @@
         "#FFFF9C",
         "#C0F4D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "group activities",
+        "lots of fire",
+        "rides",
+        "spicy flavors",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "drifblim",
@@ -3298,8 +3775,15 @@
         "#FFFF49",
         "#EEEDF3"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "nice breezes",
+        "spinning stuff",
+        "spooky stuff",
+        "strange stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "drifloon",
@@ -3345,8 +3829,15 @@
         "#EFF0F0",
         "#EBC351"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "nice breezes",
+        "round stuff",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "drilbur",
@@ -3392,8 +3883,15 @@
         "#C1C0BA",
         "#5760A2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of dirt",
+        "lots of nature",
+        "sharp stuff",
+        "sour flavors",
+        "stone stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dugtrio",
@@ -3439,8 +3937,15 @@
         "#F1BDA8",
         "#9CA8A8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "gatherings",
+        "group activities",
+        "lots of dirt",
+        "play spaces",
+        "slender objects",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dusclops",
@@ -3486,8 +3991,15 @@
         "#DDD8CE",
         "#5F6064"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "rides",
+        "soft stuff",
+        "sour flavors",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "dusknoir",
@@ -3533,8 +4045,15 @@
         "#8F9778",
         "#78786C"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "containers",
+        "group activities",
+        "rides",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "duskull",
@@ -3580,8 +4099,15 @@
         "#F0EBC4",
         "#C5C0A3"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "fabric",
+        "glass stuff",
+        "rides",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "eevee",
@@ -3627,8 +4153,15 @@
         "#EBDDA8",
         "#7C4819"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "letters and words",
+        "soft stuff",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ekans",
@@ -3674,8 +4207,15 @@
         "#F5E31A",
         "#C0B12A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "garbage",
+        "lots of nature",
+        "slender objects",
+        "spicy flavors",
+        "spinning stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "electabuzz",
@@ -3721,8 +4261,15 @@
         "#424843",
         "#DBC036"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "exercise",
+        "glass stuff",
+        "lots of fire",
+        "sharp stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "electivire",
@@ -3768,8 +4315,15 @@
         "#464846",
         "#D4C24D"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "exercise",
+        "glass stuff",
+        "hard stuff",
+        "lots of fire",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "electrode",
@@ -3815,8 +4369,15 @@
         "#FFFFFF",
         "#C3C0C2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "play spaces",
+        "round stuff",
+        "shiny stuff",
+        "sour flavors",
+        "spinning stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "elekid",
@@ -3862,8 +4423,15 @@
         "#D7BD00",
         "#BFAB13"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "round stuff",
+        "spinning stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "empoleon",
@@ -3909,8 +4477,15 @@
         "#FFE743",
         "#EFCD4D"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cleanliness",
+        "letters and words",
+        "lots of water",
+        "metal stuff",
+        "ocean vibes"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "entei",
@@ -3956,8 +4531,15 @@
         "#774819",
         "#ACC1CC"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "exercise",
+        "lots of fire",
+        "luxury",
+        "stone stuff",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "espeon",
@@ -4003,8 +4585,15 @@
         "#BD96A8",
         "#6290B1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "cute stuff",
+        "nice breezes",
+        "strange stuff",
+        "sweet flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "excadrill",
@@ -4050,8 +4639,15 @@
         "#F2F0F0",
         "#CCC0BF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of dirt",
+        "metal stuff",
+        "sharp stuff",
+        "sour flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "exeggcute",
@@ -4097,8 +4693,15 @@
         "#FFD800",
         "#B78D93"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "gatherings",
+        "group activities",
+        "lots of nature",
+        "spicy flavors",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "exeggutor",
@@ -4144,8 +4747,15 @@
         "#F3EB93",
         "#60A04A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "gatherings",
+        "lots of nature",
+        "strange stuff",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "farfetchd",
@@ -4191,8 +4801,15 @@
         "#FFD748",
         "#F1BD3F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "nice breezes",
+        "slender objects",
+        "soft stuff",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "farigiraf",
@@ -4238,8 +4855,15 @@
         "#D7D87D",
         "#1E1818"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "rides",
+        "slender objects",
+        "soft stuff",
+        "sour flavors",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "fidough",
@@ -4285,8 +4909,15 @@
         "#FFF062",
         "#FFFFF0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "letters and words",
+        "lots of fire",
+        "soft stuff",
+        "sweet flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "flaaffy",
@@ -4332,8 +4963,15 @@
         "#FFC0D8",
         "#F1FFFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "rides",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "flareon",
@@ -4379,8 +5017,15 @@
         "#D9D67B",
         "#BB6E34"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "lots of fire",
+        "metal stuff",
+        "rides",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "floragato",
@@ -4426,8 +5071,15 @@
         "#60B849",
         "#A6C296"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "cute stuff",
+        "lots of nature",
+        "pretty flowers",
+        "sharp stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "flygon",
@@ -4473,8 +5125,15 @@
         "#95BA60",
         "#BD354A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of dirt",
+        "lots of fire",
+        "lots of nature",
+        "sour flavors",
+        "stone stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "fraxure",
@@ -4520,8 +5179,15 @@
         "#90AA1B",
         "#607318"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of dirt",
+        "lots of fire",
+        "luxury",
+        "sharp stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "froakie",
@@ -4567,8 +5233,15 @@
         "#EDF0DB",
         "#F6E678"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "containers",
+        "lots of water",
+        "ocean vibes",
+        "spicy flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "frogadier",
@@ -4614,8 +5287,15 @@
         "#0FC3F8",
         "#0063AC"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "exercise",
+        "lots of water",
+        "ocean vibes",
+        "spicy flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gallade",
@@ -4661,8 +5341,15 @@
         "#F6FFFF",
         "#B7BFC0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "fabric",
+        "healing",
+        "spicy flavors",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "garbodor",
@@ -4708,8 +5395,15 @@
         "#316058",
         "#017E9F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "containers",
+        "garbage",
+        "gatherings",
+        "shiny stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gardevoir",
@@ -4755,8 +5449,15 @@
         "#C9D7D7",
         "#D7799B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "healing",
+        "luxury",
+        "sour flavors",
+        "strange stuff",
+        "symbols",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gastly",
@@ -4802,8 +5503,15 @@
         "#F0F0F0",
         "#907B91"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "garbage",
+        "group activities",
+        "spicy flavors",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gastrodon-east-sea",
@@ -4849,8 +5557,15 @@
         "#0FC0F7",
         "#FFF648"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "containers",
+        "dry flavors",
+        "lots of dirt",
+        "lots of water",
+        "ocean vibes"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gastrodon-west-sea",
@@ -4896,8 +5611,15 @@
         "#F1DB47",
         "#FFF94C"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "containers",
+        "lots of dirt",
+        "lots of water",
+        "ocean vibes",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gengar",
@@ -4943,8 +5665,15 @@
         "#9F90D7",
         "#FF625B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "garbage",
+        "group activities",
+        "rides",
+        "spooky stuff",
+        "strange stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "geodude",
@@ -4990,8 +5719,15 @@
         "#F0F0E0",
         "#797978"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "exercise",
+        "hard stuff",
+        "round stuff",
+        "spinning stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gholdengo",
@@ -5037,8 +5773,15 @@
         "#FFFF48",
         "#303030"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "dry flavors",
+        "metal stuff",
+        "shiny stuff",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gimmighoul",
@@ -5084,8 +5827,15 @@
         "#F0D678",
         "#CBD5EF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "metal stuff",
+        "shiny stuff",
+        "spooky stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "girafarig",
@@ -5131,8 +5881,15 @@
         "#EEAAB0",
         "#604A3B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "rides",
+        "slender objects",
+        "soft stuff",
+        "sour flavors",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "glaceon",
@@ -5178,8 +5935,15 @@
         "#32BFF5",
         "#03608A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "glass stuff",
+        "group activities",
+        "lots of water",
+        "shiny stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "glimmet",
@@ -5225,8 +5989,15 @@
         "#0545A4",
         "#0379F8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "garbage",
+        "hard stuff",
+        "shiny stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "glimmora",
@@ -5272,8 +6043,15 @@
         "#031860",
         "#1A59FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "garbage",
+        "hard stuff",
+        "shiny stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gloom",
@@ -5319,8 +6097,15 @@
         "#4C7799",
         "#A96049"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "garbage",
+        "lots of dirt",
+        "lots of nature",
+        "pretty flowers",
+        "soft stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "golbat",
@@ -5366,8 +6151,15 @@
         "#01C2FF",
         "#010001"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "nice breezes",
+        "noisy stuff",
+        "spicy flavors",
+        "spooky stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "golduck",
@@ -5413,8 +6205,15 @@
         "#4B77B3",
         "#F6938E"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "dry flavors",
+        "lots of water",
+        "ocean vibes",
+        "sharp stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "golem",
@@ -5460,8 +6259,15 @@
         "#66615F",
         "#DBB7A6"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "hard stuff",
+        "round stuff",
+        "sour flavors",
+        "spinning stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "goodra",
@@ -5507,8 +6313,15 @@
         "#FFEEFF",
         "#9078BC"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "exercise",
+        "healing",
+        "lots of water",
+        "luxury",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "goomy",
@@ -5554,8 +6367,15 @@
         "#A890D7",
         "#D9C1FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "healing",
+        "lots of nature",
+        "lots of water",
+        "luxury",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "graveler",
@@ -5601,8 +6421,15 @@
         "#C0C0B2",
         "#606660"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "exercise",
+        "hard stuff",
+        "round stuff",
+        "spinning stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "greedent",
@@ -5648,8 +6475,15 @@
         "#ABA6AD",
         "#8B6478"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "group activities",
+        "looks like food",
+        "luxury",
+        "metal stuff",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "greninja",
@@ -5695,8 +6529,15 @@
         "#FFABC0",
         "#D8D0AA"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cleanliness",
+        "exercise",
+        "lots of water",
+        "ocean vibes",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "grimer",
@@ -5742,8 +6583,15 @@
         "#DCD9FF",
         "#FDEAFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "containers",
+        "garbage",
+        "gatherings",
+        "shiny stuff",
+        "spooky stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "growlithe",
@@ -5789,8 +6637,15 @@
         "#FFFFF0",
         "#D7C1AA"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "letters and words",
+        "lots of fire",
+        "nice breezes",
+        "pretty flowers",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "grubbin",
@@ -5836,8 +6691,15 @@
         "#E5BF62",
         "#FF9A48"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "electronics",
+        "lots of dirt",
+        "lots of nature",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gulpin",
@@ -5883,8 +6745,15 @@
         "#D8F098",
         "#EDC14C"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "containers",
+        "cute stuff",
+        "looks like food",
+        "round stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gurdurr",
@@ -5930,8 +6799,15 @@
         "#CE7BAC",
         "#E692C7"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "group activities",
+        "metal stuff",
+        "slender objects",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "gyarados",
@@ -5977,8 +6853,15 @@
         "#F4E693",
         "#45DBFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "lots of water",
+        "nice breezes",
+        "ocean vibes",
+        "slender objects",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "happiny",
@@ -6024,8 +6907,15 @@
         "#D34C60",
         "#D8D7D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "fabric",
+        "healing",
+        "round stuff",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "hariyama",
@@ -6071,8 +6961,15 @@
         "#13487A",
         "#DED8D1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "fabric",
+        "rides",
+        "round stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "haunter",
@@ -6118,8 +7015,15 @@
         "#F1908E",
         "#E37878"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "garbage",
+        "group activities",
+        "spicy flavors",
+        "spooky stuff",
+        "strange stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "haxorus",
@@ -6165,8 +7069,15 @@
         "#F0DA00",
         "#A91A2F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of dirt",
+        "lots of fire",
+        "luxury",
+        "sharp stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "heracross",
@@ -6212,8 +7123,15 @@
         "#90D7FF",
         "#EFF0F0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "looks like food",
+        "lots of nature",
+        "pretty flowers",
+        "sweet flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "hitmonchan",
@@ -6259,8 +7177,15 @@
         "#FFD87D",
         "#F6D7F0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "fabric",
+        "group activities",
+        "round stuff",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "hitmonlee",
@@ -6306,8 +7231,15 @@
         "#8D624E",
         "#C9C061"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "fabric",
+        "group activities",
+        "round stuff",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "hitmontop",
@@ -6353,8 +7285,15 @@
         "#A68260",
         "#F0C091"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "fabric",
+        "group activities",
+        "round stuff",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ho-oh",
@@ -6400,8 +7339,15 @@
         "#DF3201",
         "#FFDB30"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of fire",
+        "lots of nature",
+        "nice breezes",
+        "spicy flavors",
+        "symbols",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "honchkrow",
@@ -6447,8 +7393,15 @@
         "#5B6061",
         "#DB1831"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "glass stuff",
+        "letters and words",
+        "nice breezes",
+        "shiny stuff",
+        "spooky stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "hoothoot",
@@ -6494,8 +7447,15 @@
         "#D8C0A1",
         "#A77851"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "fabric",
+        "nice breezes",
+        "soft stuff",
+        "watching stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "igglybuff",
@@ -6541,8 +7501,15 @@
         "#C2A4AB",
         "#C24D56"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "healing",
+        "noisy stuff",
+        "play spaces",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "illumise",
@@ -6588,8 +7555,15 @@
         "#60646F",
         "#62BADD"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "lots of nature",
+        "shiny stuff",
+        "sour flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ivysaur",
@@ -6635,8 +7609,15 @@
         "#73DEF0",
         "#60D8D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "cute stuff",
+        "lots of nature",
+        "pretty flowers",
+        "soft stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "jigglypuff",
@@ -6682,8 +7663,15 @@
         "#304348",
         "#EFF0F0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "healing",
+        "play spaces",
+        "soft stuff",
+        "sweet flavors",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "jolteon",
@@ -6729,8 +7717,15 @@
         "#F1F0F0",
         "#F0D322"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "sharp stuff",
+        "shiny stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "kadabra",
@@ -6776,8 +7771,15 @@
         "#8C604F",
         "#BC9B2B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "metal stuff",
+        "strange stuff",
+        "watching stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "kilowattrel",
@@ -6823,8 +7825,15 @@
         "#FFD833",
         "#A8902A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "electronics",
+        "gatherings",
+        "nice breezes",
+        "ocean vibes",
+        "slender objects"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "kirlia",
@@ -6870,8 +7879,15 @@
         "#E97EA8",
         "#78A86D"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "healing",
+        "strange stuff",
+        "sweet flavors",
+        "symbols",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "koffing",
@@ -6917,8 +7933,15 @@
         "#C0C0FF",
         "#7878BF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "garbage",
+        "gatherings",
+        "soft stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "kricketot",
@@ -6964,8 +7987,15 @@
         "#EFD88B",
         "#FD602A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "lots of nature",
+        "noisy stuff",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "kricketune",
@@ -7011,8 +8041,15 @@
         "#879093",
         "#5D6060"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "lots of nature",
+        "noisy stuff",
+        "spicy flavors",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "kyogre",
@@ -7058,8 +8095,15 @@
         "#FEFFFF",
         "#CAD4DD"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "glass stuff",
+        "lots of water",
+        "luxury",
+        "ocean vibes",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "lampent",
@@ -7105,8 +8149,15 @@
         "#47484F",
         "#70787C"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "containers",
+        "lots of fire",
+        "spooky stuff",
+        "strange stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "lapras",
@@ -7152,8 +8203,15 @@
         "#4990BD",
         "#A69DA4"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "healing",
+        "lots of water",
+        "ocean vibes",
+        "sour flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "larvesta",
@@ -7199,8 +8257,15 @@
         "#BD9660",
         "#47484D"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "lots of fire",
+        "lots of nature",
+        "sharp stuff",
+        "symbols",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "larvitar",
@@ -7246,8 +8311,15 @@
         "#D8F092",
         "#788F5F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "looks like food",
+        "lots of dirt",
+        "luxury",
+        "shiny stuff",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "leafeon",
@@ -7293,8 +8365,15 @@
         "#BE7A2B",
         "#D8BA6B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "fabric",
+        "healing",
+        "lots of nature",
+        "pretty flowers",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "litwick",
@@ -7340,8 +8419,15 @@
         "#FFFFFF",
         "#9090D0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "blocky stuff",
+        "lots of fire",
+        "spooky stuff",
+        "strange stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "lombre",
@@ -7387,8 +8473,15 @@
         "#9AF0D8",
         "#79BAAC"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cleanliness",
+        "containers",
+        "lots of nature",
+        "lots of water",
+        "noisy stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "lotad",
@@ -7434,8 +8527,15 @@
         "#FFEE7D",
         "#79BE61"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "containers",
+        "dry flavors",
+        "lots of nature",
+        "lots of water",
+        "noisy stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "lucario",
@@ -7481,8 +8581,15 @@
         "#0178BC",
         "#2290BF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "construction",
+        "dry flavors",
+        "exercise",
+        "healing",
+        "metal stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ludicolo",
@@ -7528,8 +8635,15 @@
         "#BB9584",
         "#EED86F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "lots of nature",
+        "lots of water",
+        "noisy stuff",
+        "play spaces"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "lugia",
@@ -7575,8 +8689,15 @@
         "#318CDC",
         "#031685"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "lots of water",
+        "nice breezes",
+        "ocean vibes",
+        "strange stuff",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "machamp",
@@ -7622,8 +8743,15 @@
         "#C0E2FF",
         "#F6E28C"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "group activities",
+        "hard stuff",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "machoke",
@@ -7669,8 +8797,15 @@
         "#8A90AC",
         "#171925"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "group activities",
+        "hard stuff",
+        "sour flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "machop",
@@ -7716,8 +8851,15 @@
         "#78A4A8",
         "#A8A8A4"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "group activities",
+        "hard stuff",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "magby",
@@ -7763,8 +8905,15 @@
         "#D6615F",
         "#FFFF90"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "lots of fire",
+        "stone stuff",
+        "sweet flavors",
+        "watching stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "magikarp",
@@ -7810,8 +8959,15 @@
         "#FFFF80",
         "#DCD8D9"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "group activities",
+        "lots of water",
+        "ocean vibes",
+        "rides",
+        "sweet flavors",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "magmar",
@@ -7857,8 +9013,15 @@
         "#FF2F48",
         "#F3B84F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "exercise",
+        "hard stuff",
+        "lots of fire",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "magmortar",
@@ -7904,8 +9067,15 @@
         "#FC7B36",
         "#E290A2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "electronics",
+        "exercise",
+        "hard stuff",
+        "lots of fire",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "magnemite",
@@ -7951,8 +9121,15 @@
         "#BCE4F4",
         "#FF474B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "electronics",
+        "group activities",
+        "hard stuff",
+        "metal stuff",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "magneton",
@@ -7998,8 +9175,15 @@
         "#D3D8DD",
         "#04D0FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "electronics",
+        "gatherings",
+        "group activities",
+        "metal stuff",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "magnezone",
@@ -8045,8 +9229,15 @@
         "#C1D5EF",
         "#E7F0F3"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "electronics",
+        "gatherings",
+        "hard stuff",
+        "luxury",
+        "metal stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "makuhita",
@@ -8092,8 +9283,15 @@
         "#466078",
         "#F0404B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "fabric",
+        "round stuff",
+        "sweet flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mareep",
@@ -8139,8 +9337,15 @@
         "#7EC0F0",
         "#DDBE49"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "fabric",
+        "glass stuff",
+        "shiny stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "marill",
@@ -8186,8 +9391,15 @@
         "#FF6077",
         "#CBD4DB"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "lots of water",
+        "round stuff",
+        "sour flavors",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "marowak",
@@ -8233,8 +9445,15 @@
         "#EDF0F0",
         "#BFC1C0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "dry flavors",
+        "exercise",
+        "lots of dirt",
+        "luxury",
+        "slender objects"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mawile",
@@ -8280,8 +9499,15 @@
         "#FFF091",
         "#984877"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "cute stuff",
+        "dry flavors",
+        "group activities",
+        "looks like food",
+        "metal stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "meowscarada",
@@ -8327,8 +9553,15 @@
         "#2D481C",
         "#1A6E2D"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "dry flavors",
+        "lots of nature",
+        "luxury",
+        "pretty flowers",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "meowth",
@@ -8374,8 +9607,15 @@
         "#FFFFB3",
         "#FFE448"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "glass stuff",
+        "group activities",
+        "luxury",
+        "shiny stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "metagross",
@@ -8421,8 +9661,15 @@
         "#66A8BE",
         "#5AD9FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "exercise",
+        "hard stuff",
+        "luxury",
+        "metal stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "metang",
@@ -8468,8 +9715,15 @@
         "#46A8D2",
         "#30A8C0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "hard stuff",
+        "metal stuff",
+        "stone stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mew",
@@ -8515,8 +9769,15 @@
         "#0992D1",
         "#00A8F0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "luxury",
+        "play spaces",
+        "strange stuff",
+        "sweet flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mewtwo",
@@ -8562,8 +9823,15 @@
         "#99758F",
         "#FFF0FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "dry flavors",
+        "letters and words",
+        "stone stuff",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mime-jr",
@@ -8609,8 +9877,15 @@
         "#1978A8",
         "#F66077"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "cute stuff",
+        "play spaces",
+        "rides",
+        "strange stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mimikyu",
@@ -8656,8 +9931,15 @@
         "#D8D7A8",
         "#FFFDC1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "electronics",
+        "fabric",
+        "group activities",
+        "spooky stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "minccino",
@@ -8703,8 +9985,15 @@
         "#F2F0F0",
         "#929390"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "fabric",
+        "rides",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "minun",
@@ -8750,8 +10039,15 @@
         "#D8C08D",
         "#64B5D1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "group activities",
+        "soft stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "misdreavus",
@@ -8797,8 +10093,15 @@
         "#5AA8C0",
         "#CE91A6"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "dry flavors",
+        "shiny stuff",
+        "spooky stuff",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mismagius",
@@ -8844,8 +10147,15 @@
         "#FEA8DB",
         "#F793BA"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "group activities",
+        "noisy stuff",
+        "spooky stuff",
+        "strange stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "moltres",
@@ -8891,8 +10201,15 @@
         "#F3A103",
         "#FF601D"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of fire",
+        "luxury",
+        "nice breezes",
+        "spicy flavors",
+        "stone stuff",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mosslax",
@@ -8938,8 +10255,15 @@
         "#77784C",
         "#A8AA63"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "fabric",
+        "looks like food",
+        "soft stuff",
+        "spicy flavors",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "mr-mime",
@@ -8985,8 +10309,15 @@
         "#FF7690",
         "#FFBEB4"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "rides",
+        "strange stuff",
+        "watching stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "muk",
@@ -9032,8 +10363,15 @@
         "#494893",
         "#C0C0FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "garbage",
+        "gatherings",
+        "shiny stuff",
+        "spooky stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "munchlax",
@@ -9079,8 +10417,15 @@
         "#C0B290",
         "#FFF9D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "group activities",
+        "looks like food",
+        "lots of nature",
+        "soft stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "murkrow",
@@ -9126,8 +10471,15 @@
         "#FFFF90",
         "#32527B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "fabric",
+        "group activities",
+        "luxury",
+        "nice breezes",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ninetales",
@@ -9173,8 +10525,15 @@
         "#E87D1D",
         "#C4A848"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "lots of fire",
+        "luxury",
+        "pretty flowers",
+        "soft stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "noctowl",
@@ -9220,8 +10579,15 @@
         "#F2D5A9",
         "#8C6748"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "letters and words",
+        "nice breezes",
+        "soft stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "noibat",
@@ -9267,8 +10633,15 @@
         "#FFE2FF",
         "#904B8F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "fabric",
+        "looks like food",
+        "luxury",
+        "nice breezes",
+        "spicy flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "noivern",
@@ -9314,8 +10687,15 @@
         "#78479F",
         "#B32E32"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "looks like food",
+        "lots of fire",
+        "nice breezes",
+        "play spaces",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "oddish",
@@ -9361,8 +10741,15 @@
         "#60A9C8",
         "#60A349"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "lots of dirt",
+        "lots of nature",
+        "lots of water",
+        "pretty flowers",
+        "soft stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "onix",
@@ -9408,8 +10795,15 @@
         "#77787C",
         "#F0F0F0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "blocky stuff",
+        "dry flavors",
+        "exercise",
+        "lots of dirt",
+        "slender objects",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "paras",
@@ -9455,8 +10849,15 @@
         "#D70340",
         "#97C0D2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "looks like food",
+        "lots of dirt",
+        "lots of nature",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "parasect",
@@ -9502,8 +10903,15 @@
         "#FFAC5F",
         "#FFC431"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "lots of dirt",
+        "lots of nature",
+        "strange stuff",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pawmi",
@@ -9549,8 +10957,15 @@
         "#FFF0C0",
         "#DDBA91"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "group activities",
+        "shiny stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pawmo",
@@ -9596,8 +11011,15 @@
         "#EFD9A5",
         "#FFFFD8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "exercise",
+        "glass stuff",
+        "group activities",
+        "shiny stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pawmot",
@@ -9643,8 +11065,15 @@
         "#C07801",
         "#F8D24A"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "electronics",
+        "exercise",
+        "group activities",
+        "healing",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "peakychu",
@@ -9690,8 +11119,15 @@
         "#D8C0B5",
         "#BD9E90"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "healing",
+        "letters and words",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pelipper",
@@ -9737,8 +11173,15 @@
         "#E3EEF0",
         "#F3FFFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "dry flavors",
+        "lots of water",
+        "nice breezes",
+        "ocean vibes",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "persian",
@@ -9784,8 +11227,15 @@
         "#534831",
         "#C09068"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "group activities",
+        "luxury",
+        "shiny stuff",
+        "sour flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pichu",
@@ -9831,8 +11281,15 @@
         "#E48F96",
         "#19180F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "fabric",
+        "glass stuff",
+        "pretty flowers",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pidgeot",
@@ -9878,8 +11335,15 @@
         "#AC7959",
         "#E44661"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of nature",
+        "luxury",
+        "nice breezes",
+        "soft stuff",
+        "sour flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pidgeotto",
@@ -9925,8 +11389,15 @@
         "#D5BF90",
         "#F0C363"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "looks like food",
+        "lots of nature",
+        "nice breezes",
+        "soft stuff",
+        "spicy flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pidgey",
@@ -9972,8 +11443,15 @@
         "#E1D8A9",
         "#905E18"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of nature",
+        "nice breezes",
+        "play spaces",
+        "soft stuff",
+        "sour flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pikachu",
@@ -10019,8 +11497,15 @@
         "#FFFF00",
         "#7C2F23"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "glass stuff",
+        "group activities",
+        "rides",
+        "round stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pinsir",
@@ -10066,8 +11551,15 @@
         "#BEC1C0",
         "#EFC0A8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of nature",
+        "pretty flowers",
+        "sharp stuff",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "piplup",
@@ -10113,8 +11605,15 @@
         "#89BFD9",
         "#EDF1F1"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "containers",
+        "lots of water",
+        "nice breezes",
+        "ocean vibes",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "plusle",
@@ -10160,8 +11659,15 @@
         "#D7C08E",
         "#FFFFC0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "electronics",
+        "glass stuff",
+        "group activities",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "politoed",
@@ -10207,8 +11713,15 @@
         "#FFFF53",
         "#90F033"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "gatherings",
+        "group activities",
+        "lots of water",
+        "noisy stuff",
+        "play spaces",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "poliwag",
@@ -10254,8 +11767,15 @@
         "#FCFFFF",
         "#81C1FB"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "lots of water",
+        "rides",
+        "round stuff",
+        "spinning stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "poliwhirl",
@@ -10301,8 +11821,15 @@
         "#BAC0C6",
         "#D5D8DB"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cleanliness",
+        "exercise",
+        "lots of nature",
+        "lots of water",
+        "spinning stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "poliwrath",
@@ -10348,8 +11875,15 @@
         "#BAC0C6",
         "#6DA7D6"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "construction",
+        "exercise",
+        "group activities",
+        "lots of water",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "porygon",
@@ -10395,8 +11929,15 @@
         "#8DEBF0",
         "#70D7D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "blocky stuff",
+        "colorful stuff",
+        "construction",
+        "soft stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "porygon-z",
@@ -10442,8 +11983,15 @@
         "#C5014A",
         "#D80560"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "dry flavors",
+        "fabric",
+        "soft stuff",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "porygon2",
@@ -10489,8 +12037,15 @@
         "#4AA8D5",
         "#CF4889"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "construction",
+        "round stuff",
+        "soft stuff",
+        "sour flavors",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "prinplup",
@@ -10536,8 +12091,15 @@
         "#82BED7",
         "#024578"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "containers",
+        "dry flavors",
+        "lots of water",
+        "nice breezes",
+        "ocean vibes"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "prof-tangrowth",
@@ -10583,8 +12145,15 @@
         "#BB6067",
         "#4A4749"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "dry flavors",
+        "group activities",
+        "letters and words",
+        "lots of nature",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "psyduck",
@@ -10630,8 +12199,15 @@
         "#FFFFDE",
         "#DBD7A9"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "dry flavors",
+        "healing",
+        "lots of water",
+        "ocean vibes",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "pupitar",
@@ -10677,8 +12253,15 @@
         "#181819",
         "#000000"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "hard stuff",
+        "luxury",
+        "shiny stuff",
+        "stone stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "quilava",
@@ -10724,8 +12307,15 @@
         "#027190",
         "#F09538"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "fabric",
+        "lots of fire",
+        "metal stuff",
+        "rides",
+        "slender objects",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "raboot",
@@ -10771,8 +12361,15 @@
         "#BD3100",
         "#FFEC60"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "group activities",
+        "lots of fire",
+        "play spaces",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "raichu",
@@ -10818,8 +12415,15 @@
         "#63472B",
         "#796036"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "glass stuff",
+        "group activities",
+        "play spaces",
+        "round stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "raikou",
@@ -10865,8 +12469,15 @@
         "#C0A503",
         "#8C7B99"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "electronics",
+        "glass stuff",
+        "luxury",
+        "nice breezes",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "ralts",
@@ -10912,8 +12523,15 @@
         "#C0D0D7",
         "#F0FAFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "healing",
+        "strange stuff",
+        "sweet flavors",
+        "symbols",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "rampardos",
@@ -10959,8 +12577,15 @@
         "#00B6FF",
         "#0190DD"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "exercise",
+        "hard stuff",
+        "luxury",
+        "metal stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "riolu",
@@ -11006,8 +12631,15 @@
         "#485E60",
         "#4B90BE"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "exercise",
+        "fabric",
+        "gatherings",
+        "spicy flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "rolycoly",
@@ -11053,8 +12685,15 @@
         "#AB3222",
         "#6A4830"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "lots of fire",
+        "metal stuff",
+        "rides",
+        "sour flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "rookidee",
@@ -11100,8 +12739,15 @@
         "#2F4B74",
         "#8E9091"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "nice breezes",
+        "shiny stuff",
+        "slender objects",
+        "sour flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "rotom",
@@ -11147,8 +12793,15 @@
         "#C4DBD7",
         "#F0904D"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "blocky stuff",
+        "glass stuff",
+        "group activities",
+        "noisy stuff",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "rowlet",
@@ -11194,8 +12847,15 @@
         "#F3F0EE",
         "#FFFFFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "lots of nature",
+        "nice breezes",
+        "spinning stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "scizor",
@@ -11241,8 +12901,15 @@
         "#A52932",
         "#565B61"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "exercise",
+        "hard stuff",
+        "lots of nature",
+        "metal stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "scorbunny",
@@ -11288,8 +12955,15 @@
         "#D56022",
         "#C2BFC7"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "group activities",
+        "lots of fire",
+        "sharp stuff",
+        "soft stuff",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "scyther",
@@ -11335,8 +13009,15 @@
         "#90FD65",
         "#D8C08F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "lots of nature",
+        "nice breezes",
+        "sharp stuff",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "serperior",
@@ -11382,8 +13063,15 @@
         "#7EA98B",
         "#EFC82F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "dry flavors",
+        "lots of nature",
+        "lots of water",
+        "slender objects",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "servine",
@@ -11429,8 +13117,15 @@
         "#FFFFB1",
         "#CEC079"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cleanliness",
+        "lots of nature",
+        "lots of water",
+        "shiny stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "shellos-east-sea",
@@ -11476,8 +13171,15 @@
         "#FFFC44",
         "#DBC735"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "colorful stuff",
+        "containers",
+        "dry flavors",
+        "lots of water",
+        "ocean vibes"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "shellos-west-sea",
@@ -11523,8 +13225,15 @@
         "#D7D8D7",
         "#F0DB3F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "colorful stuff",
+        "containers",
+        "lots of water",
+        "ocean vibes",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "shieldon",
@@ -11570,8 +13279,15 @@
         "#869090",
         "#EAF0F3"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "luxury",
+        "metal stuff",
+        "round stuff",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "skwovet",
@@ -11617,8 +13333,15 @@
         "#8E786C",
         "#CDC0AF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "looks like food",
+        "round stuff",
+        "soft stuff",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "sliggoo",
@@ -11664,8 +13387,15 @@
         "#A890D7",
         "#D8BEFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "healing",
+        "lots of water",
+        "luxury",
+        "soft stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "slowbro",
@@ -11711,8 +13441,15 @@
         "#F9F2C0",
         "#A6BFCF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "dry flavors",
+        "group activities",
+        "healing",
+        "lots of water",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "slowking",
@@ -11758,8 +13495,15 @@
         "#D9D8CF",
         "#C5C0C0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "group activities",
+        "healing",
+        "lots of water",
+        "sour flavors",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "slowpoke",
@@ -11805,8 +13549,15 @@
         "#E7D7AB",
         "#E17976"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "dry flavors",
+        "healing",
+        "lots of water",
+        "soft stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "smeargle",
@@ -11852,8 +13603,15 @@
         "#EFD7B9",
         "#D4C5CF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "dry flavors",
+        "fabric",
+        "shiny stuff",
+        "soft stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "smearguru",
@@ -11899,8 +13657,15 @@
         "#FFFFFF",
         "#AC8EA9"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "dry flavors",
+        "fabric",
+        "shiny stuff",
+        "soft stuff",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "snivy",
@@ -11946,8 +13711,15 @@
         "#CEC077",
         "#FFE330"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "lots of nature",
+        "lots of water",
+        "shiny stuff",
+        "sour flavors",
+        "wobbly stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "snorlax",
@@ -11993,8 +13765,15 @@
         "#055E78",
         "#C0BCA8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "fabric",
+        "looks like food",
+        "rides",
+        "soft stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "spinarak",
@@ -12040,8 +13819,15 @@
         "#ECD84C",
         "#C2FF78"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "garbage",
+        "lots of nature",
+        "rides",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "sprigatito",
@@ -12087,8 +13873,15 @@
         "#A7C594",
         "#48A400"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "colorful stuff",
+        "containers",
+        "cute stuff",
+        "lots of nature",
+        "pretty flowers",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "squirtle",
@@ -12134,8 +13927,15 @@
         "#4FA5C3",
         "#F7ECC2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "group activities",
+        "healing",
+        "lots of water",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "steelix",
@@ -12181,8 +13981,15 @@
         "#7F8FA7",
         "#5F6078"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "hard stuff",
+        "lots of dirt",
+        "metal stuff",
+        "slender objects",
+        "sour flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "sudowoodo",
@@ -12228,8 +14035,15 @@
         "#35AA30",
         "#E1A877"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "hard stuff",
+        "lots of nature",
+        "stone stuff",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "suicune",
@@ -12275,8 +14089,15 @@
         "#D8B6F2",
         "#A783C0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "healing",
+        "lots of water",
+        "ocean vibes",
+        "sour flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "swablu",
@@ -12322,8 +14143,15 @@
         "#2790C0",
         "#FFFFFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "nice breezes",
+        "soft stuff",
+        "sweet flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "swalot",
@@ -12369,8 +14197,15 @@
         "#FFE664",
         "#9190C0"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "containers",
+        "garbage",
+        "looks like food",
+        "round stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "sylveon",
@@ -12416,8 +14251,15 @@
         "#FFFFFF",
         "#91D3F4"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "fabric",
+        "lots of nature",
+        "noisy stuff",
+        "round stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tangela",
@@ -12463,8 +14305,15 @@
         "#CD3247",
         "#60DAFF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "gatherings",
+        "lots of nature",
+        "lots of water",
+        "pretty flowers",
+        "slender objects",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tangrowth",
@@ -12510,8 +14359,15 @@
         "#D23B4A",
         "#757983"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "gatherings",
+        "lots of nature",
+        "lots of water",
+        "pretty flowers",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tatsugiri-curly-form",
@@ -12557,8 +14413,15 @@
         "#D39074",
         "#D8D8D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "gatherings",
+        "group activities",
+        "lots of water",
+        "ocean vibes",
+        "slender objects",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tatsugiri-droopy-form",
@@ -12604,8 +14467,15 @@
         "#D8D8D8",
         "#D84E78"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "blocky stuff",
+        "group activities",
+        "lots of water",
+        "ocean vibes",
+        "spinning stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tatsugiri-stretchy-form",
@@ -12651,8 +14521,15 @@
         "#D8D8D7",
         "#DCBD39"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "group activities",
+        "letters and words",
+        "lots of water",
+        "ocean vibes",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "timburr",
@@ -12698,8 +14575,15 @@
         "#F3C078",
         "#F292A4"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "blocky stuff",
+        "construction",
+        "exercise",
+        "slender objects",
+        "spicy flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tinkatink",
@@ -12745,8 +14629,15 @@
         "#FF4890",
         "#FFAAD3"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "cute stuff",
+        "exercise",
+        "looks like food",
+        "metal stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tinkaton",
@@ -12792,8 +14683,15 @@
         "#624391",
         "#BFA7D7"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "blocky stuff",
+        "construction",
+        "cute stuff",
+        "exercise",
+        "metal stuff",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tinkatuff",
@@ -12839,8 +14737,15 @@
         "#FBD7D8",
         "#D5A7AA"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "construction",
+        "cute stuff",
+        "exercise",
+        "group activities",
+        "metal stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "torchic",
@@ -12886,8 +14791,15 @@
         "#E5BC60",
         "#FBBB02"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "cute stuff",
+        "lots of fire",
+        "pretty flowers",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "torkoal",
@@ -12933,8 +14845,15 @@
         "#EF9130",
         "#A89066"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "hard stuff",
+        "lots of fire",
+        "metal stuff",
+        "stone stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "toxel",
@@ -12980,8 +14899,15 @@
         "#C060D8",
         "#C6A9E3"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "garbage",
+        "glass stuff",
+        "noisy stuff",
+        "shiny stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "toxtricity-amped-form",
@@ -13027,8 +14953,15 @@
         "#FFFC5B",
         "#5D3778"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "noisy stuff",
+        "play spaces",
+        "sharp stuff",
+        "slender objects",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "toxtricity-low-key-form",
@@ -13074,8 +15007,15 @@
         "#D0EFF3",
         "#7BAFD7"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "electronics",
+        "noisy stuff",
+        "play spaces",
+        "sharp stuff",
+        "slender objects"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "trapinch",
@@ -13121,8 +15061,15 @@
         "#FF7847",
         "#EC9060"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "hard stuff",
+        "lots of dirt",
+        "spicy flavors",
+        "strange stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "trubbish",
@@ -13168,8 +15115,15 @@
         "#B5A778",
         "#8A7754"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "containers",
+        "garbage",
+        "gatherings",
+        "shiny stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "typhlosion",
@@ -13215,8 +15169,15 @@
         "#D81B34",
         "#052F3F"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "fabric",
+        "lots of fire",
+        "metal stuff",
+        "rides",
+        "slender objects"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tyranitar",
@@ -13262,8 +15223,15 @@
         "#78905A",
         "#788FC6"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "hard stuff",
+        "luxury",
+        "shiny stuff",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tyrantrum",
@@ -13309,8 +15277,15 @@
         "#F9D178",
         "#C06176"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "hard stuff",
+        "lots of fire",
+        "luxury",
+        "sour flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tyrogue",
@@ -13356,8 +15331,15 @@
         "#BFAAC6",
         "#FFF1FF"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "fabric",
+        "group activities",
+        "round stuff",
+        "spicy flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "tyrunt",
@@ -13403,8 +15385,15 @@
         "#D6D9D7",
         "#FFA230"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "exercise",
+        "hard stuff",
+        "lots of fire",
+        "luxury",
+        "stone stuff",
+        "sweet flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "umbreon",
@@ -13450,8 +15439,15 @@
         "#EFDC53",
         "#FFFF5E"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "letters and words",
+        "luxury",
+        "shiny stuff",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "vaporeon",
@@ -13497,8 +15493,15 @@
         "#318AA8",
         "#196296"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "cute stuff",
+        "lots of water",
+        "pretty flowers",
+        "sweet flavors",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "venomoth",
@@ -13544,8 +15547,15 @@
         "#CAC2C0",
         "#E0DAD8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "lots of nature",
+        "nice breezes",
+        "pretty flowers",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "venonat",
@@ -13591,8 +15601,15 @@
         "#F50033",
         "#D5A878"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "letters and words",
+        "lots of nature",
+        "watching stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "venusaur",
@@ -13638,8 +15655,15 @@
         "#5FC133",
         "#07A8BE"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "lots of nature",
+        "luxury",
+        "pretty flowers",
+        "soft stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "vespiquen",
@@ -13685,8 +15709,15 @@
         "#D46001",
         "#D8D8D9"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "gatherings",
+        "lots of nature",
+        "nice breezes",
+        "sweet flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "vibrava",
@@ -13732,8 +15763,15 @@
         "#D7DB7B",
         "#F0F28C"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "lots of dirt",
+        "lots of fire",
+        "lots of nature",
+        "luxury",
+        "noisy stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "victreebel",
@@ -13779,8 +15817,15 @@
         "#C0FFA5",
         "#78B360"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "lots of dirt",
+        "lots of nature",
+        "pretty flowers",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "vikavolt",
@@ -13826,8 +15871,15 @@
         "#F1F0F0",
         "#013046"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "electronics",
+        "exercise",
+        "glass stuff",
+        "lots of nature",
+        "nice breezes"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "vileplume",
@@ -13873,8 +15925,15 @@
         "#F29D2F",
         "#DD6570"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "lots of dirt",
+        "lots of nature",
+        "pretty flowers",
+        "soft stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "volbeat",
@@ -13920,8 +15979,15 @@
         "#7BA3C5",
         "#EEC24E"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "lots of nature",
+        "shiny stuff",
+        "sweet flavors",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "volcanion",
@@ -13967,8 +16033,15 @@
         "#EBB133",
         "#76272B"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "containers",
+        "lots of fire",
+        "lots of water",
+        "spicy flavors",
+        "stone stuff",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "volcarona",
@@ -14014,8 +16087,15 @@
         "#BA4D02",
         "#565C64"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "dry flavors",
+        "letters and words",
+        "lots of fire",
+        "lots of nature",
+        "symbols",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "voltorb",
@@ -14061,8 +16141,15 @@
         "#FE5A78",
         "#C0C0C2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "electronics",
+        "round stuff",
+        "shiny stuff",
+        "spinning stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "vulpix",
@@ -14108,8 +16195,15 @@
         "#EE9056",
         "#B36431"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "cute stuff",
+        "lots of fire",
+        "pretty flowers",
+        "round stuff",
+        "soft stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "wartortle",
@@ -14155,8 +16249,15 @@
         "#A9C6D7",
         "#FAF3C2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "exercise",
+        "hard stuff",
+        "healing",
+        "lots of water",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "wattrel",
@@ -14202,8 +16303,15 @@
         "#EBC030",
         "#667891"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "electronics",
+        "gatherings",
+        "nice breezes",
+        "ocean vibes",
+        "spicy flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "weepinbell",
@@ -14249,8 +16357,15 @@
         "#F0A2AB",
         "#94D077"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "colorful stuff",
+        "lots of dirt",
+        "lots of nature",
+        "pretty flowers",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "weezing",
@@ -14296,8 +16411,15 @@
         "#A9A864",
         "#9078A2"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "bitter flavors",
+        "complicated stuff",
+        "garbage",
+        "gatherings",
+        "soft stuff",
+        "wobbly stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "wigglytuff",
@@ -14343,8 +16465,15 @@
         "#D8D8DC",
         "#303848"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "group activities",
+        "healing",
+        "play spaces",
+        "soft stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "wingull",
@@ -14390,8 +16519,15 @@
         "#BFC1C2",
         "#6CC2E7"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "dry flavors",
+        "lots of water",
+        "nice breezes",
+        "ocean vibes",
+        "watching stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "wooper",
@@ -14437,8 +16573,15 @@
         "#DA7875",
         "#D5C1D8"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cleanliness",
+        "garbage",
+        "group activities",
+        "lots of dirt",
+        "sour flavors",
+        "stone stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "zapdos",
@@ -14484,8 +16627,15 @@
         "#BA9A38",
         "#FFA831"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "electronics",
+        "glass stuff",
+        "luxury",
+        "nice breezes",
+        "spicy flavors",
+        "symbols"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "zoroark",
@@ -14531,8 +16681,15 @@
         "#474754",
         "#B63148"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "glass stuff",
+        "group activities",
+        "luxury",
+        "shiny stuff",
+        "spicy flavors",
+        "strange stuff"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "zorua",
@@ -14578,8 +16735,15 @@
         "#E50030",
         "#FF0045"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "cute stuff",
+        "glass stuff",
+        "group activities",
+        "luxury",
+        "shiny stuff",
+        "sour flavors"
+      ],
+      "preferenceSource": "metadata"
     },
     {
       "slug": "zubat",
@@ -14625,8 +16789,15 @@
         "#01C7FF",
         "#25A6DC"
       ],
-      "preferenceTerms": [],
-      "preferenceSource": null
+      "preferenceTerms": [
+        "complicated stuff",
+        "nice breezes",
+        "noisy stuff",
+        "spicy flavors",
+        "spooky stuff",
+        "wooden stuff"
+      ],
+      "preferenceSource": "metadata"
     }
   ]
 }

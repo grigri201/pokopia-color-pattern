@@ -11,6 +11,7 @@ import {
 import { evaluateOklchHarmony } from "./color-harmony.js";
 import {
   buildRecommendationResults,
+  matchRecommendationPreferenceTerms,
   rankRecommendationEntries,
   toPokemonPreferenceProfile,
   type ItemColorLookup,
@@ -20,6 +21,34 @@ import {
 
 export const RECOMMENDATION_PAGE_SIZE = 10 as const;
 export const RECOMMENDATION_DIAGNOSTICS_SCHEMA_VERSION = "recommendation-diagnostics.v1" as const;
+
+const DYE_COLOR_HEX: Record<string, string> = {
+  aquamarine: "#5BC7B8",
+  beige: "#CBB99B",
+  black: "#2D2A2E",
+  blue: "#3478D9",
+  brown: "#8A5A3B",
+  cyan: "#35BFD0",
+  "dark blue": "#263E7A",
+  "dark purple": "#5A337D",
+  gray: "#8A8F98",
+  green: "#46A85D",
+  "light blue": "#82B7F0",
+  lime: "#9ACD32",
+  magenta: "#C83F92",
+  navy: "#263E7A",
+  orange: "#F2852E",
+  pink: "#F06A9B",
+  plum: "#6E3F8F",
+  purple: "#8B56D9",
+  red: "#D8323F",
+  rose: "#C83F92",
+  turquoise: "#2FB8A2",
+  white: "#F5F0E6",
+  yellow: "#F4D248",
+  "yellow green": "#9ACD32",
+  "yellow-green": "#9ACD32",
+};
 
 export type RecommendationDataBuildIssue = {
   file?: string;
@@ -35,6 +64,7 @@ export type RecommendationDataSetOptions = {
 };
 
 export type RecommendationDiagnosticsStatus = "empty" | "sparse" | "ready";
+export type RecommendationDiagnosticsStrategy = "preference_terms" | "dyeable_default" | "override" | "empty";
 
 export type RecommendationDiagnosticsReport = {
   schemaVersion: typeof RECOMMENDATION_DIAGNOSTICS_SCHEMA_VERSION;
@@ -53,6 +83,7 @@ export type RecommendationPokemonDiagnostics = {
   status: RecommendationDiagnosticsStatus;
   recommendationCount: number;
   automaticRecommendationCount: number;
+  defaultDyeableRecommendationCount: number;
   overrideRecommendationCount: number;
   candidateCount: number;
   excludedCount: number;
@@ -60,6 +91,7 @@ export type RecommendationPokemonDiagnostics = {
   pokemonPrimaryColor: string;
   preferenceTerms: string[];
   preferenceSource: PokemonIndexEntry["preferenceSource"];
+  recommendationStrategy: RecommendationDiagnosticsStrategy;
   recommendedItemsOverrideMode: PokemonRecommendedItemsOverride["mode"] | null;
   exclusionReasonCounts: Record<string, number>;
   harmonyRejectionReasonCounts: Record<string, number>;
@@ -106,18 +138,24 @@ export function buildRecommendationDataSet(
     preferenceTerms: item.recommendation.preferenceTerms,
     roleTags: item.recommendation.roleTags,
     isDyeable: item.recommendation.isDyeable,
+    dyeColorVariants: item.recommendation.dyeColorVariants,
   }));
+  const recommendationInputBySlug = new Map(recommendationInputs.map((item) => [item.slug, item]));
   const issues: RecommendationDataBuildIssue[] = [];
   const diagnostics: RecommendationPokemonDiagnostics[] = [];
 
   const recommendations = pokemon.map((pokemonEntry): RecommendationsData => {
-    const result = buildRecommendationResults(
-      toPokemonPreferenceProfile(pokemonEntry),
-      pokemonEntry.primaryColor,
-      recommendationInputs,
-      itemColorLookup,
-    );
-    const automaticDrafts: RecommendationEntryDraft[] = [];
+    const result =
+      pokemonEntry.preferenceTerms.length > 0
+        ? buildRecommendationResults(
+            toPokemonPreferenceProfile(pokemonEntry),
+            pokemonEntry.primaryColor,
+            recommendationInputs,
+            itemColorLookup,
+          )
+        : emptyRecommendationResult(pokemonEntry.slug);
+    const colorMatchedDrafts: RecommendationEntryDraft[] = [];
+    const colorMatchedDyeableSlugs = new Set<string>();
 
     result.recommendations.forEach((recommendation) => {
       const item = compactBySlug.get(recommendation.itemSlug);
@@ -130,7 +168,21 @@ export function buildRecommendationDataSet(
         return;
       }
 
-      automaticDrafts.push({
+      if (recommendation.isDyeable) {
+        const dyeableDraft = buildDyeableRecommendationDraft(
+          pokemonEntry,
+          item,
+          itemColorBySlug.get(item.slug) ?? null,
+          recommendation.matchedPreferenceTerms,
+        );
+        if (dyeableDraft.harmonyStatus === "passed") {
+          colorMatchedDyeableSlugs.add(item.slug);
+          colorMatchedDrafts.push(dyeableDraft);
+        }
+        return;
+      }
+
+      colorMatchedDrafts.push({
         itemSlug: recommendation.itemSlug,
         itemName: item.name,
         itemZhName: item.nameZh,
@@ -142,11 +194,19 @@ export function buildRecommendationDataSet(
         itemPrimaryColor: recommendation.itemPrimaryColor,
         harmonyStatus: recommendation.harmonyStatus,
         harmonyType: recommendation.harmonyType,
+        recommendedDyeColors: [],
         overrideSource: null,
         roleFitScore: recommendationRoleFitScore(recommendation.matchedPreferenceTerms, item),
       });
     });
 
+    const defaultDyeableDrafts = buildDefaultDyeableRecommendationDrafts(
+      pokemonEntry,
+      compactItems,
+      itemColorBySlug,
+      recommendationInputBySlug,
+      colorMatchedDyeableSlugs,
+    );
     const recommendationOverride = options.overrides?.[pokemonEntry.slug]?.recommendedItems;
     const overrideDrafts = recommendationOverride
       ? buildOverrideRecommendationDrafts(
@@ -158,6 +218,10 @@ export function buildRecommendationDataSet(
           issues,
         )
       : [];
+    const automaticDrafts = [
+      ...rankRecommendationEntries(colorMatchedDrafts),
+      ...rankRecommendationEntries(defaultDyeableDrafts),
+    ];
     const drafts = applyRecommendedItemsOverride(
       automaticDrafts,
       overrideDrafts,
@@ -167,7 +231,7 @@ export function buildRecommendationDataSet(
       issues,
     );
 
-    const recommendations = rankRecommendationEntries(drafts).map(({ roleFitScore: _roleFitScore, overrideField: _overrideField, ...entry }, index) => ({
+    const recommendations = drafts.map(({ roleFitScore: _roleFitScore, overrideField: _overrideField, ...entry }, index) => ({
       ...entry,
       rank: index + 1,
       pageIndex: Math.floor(index / RECOMMENDATION_PAGE_SIZE),
@@ -179,6 +243,7 @@ export function buildRecommendationDataSet(
       status,
       recommendationCount: recommendations.length,
       automaticRecommendationCount: automaticDrafts.length,
+      defaultDyeableRecommendationCount: defaultDyeableDrafts.length,
       overrideRecommendationCount: overrideDrafts.length,
       candidateCount: result.candidates.length,
       excludedCount: result.excluded.length,
@@ -186,6 +251,12 @@ export function buildRecommendationDataSet(
       pokemonPrimaryColor: pokemonEntry.primaryColor,
       preferenceTerms: pokemonEntry.preferenceTerms,
       preferenceSource: pokemonEntry.preferenceSource,
+      recommendationStrategy: recommendationStrategy(
+        colorMatchedDrafts.length,
+        defaultDyeableDrafts.length,
+        overrideDrafts.length,
+        recommendations.length,
+      ),
       recommendedItemsOverrideMode: recommendationOverride?.mode ?? null,
       exclusionReasonCounts: countReasons(result.excluded),
       harmonyRejectionReasonCounts: countReasons(result.rejected),
@@ -230,6 +301,116 @@ export function buildRecommendationDataSet(
     },
     issues,
   };
+}
+
+function emptyRecommendationResult(pokemonSlug: string): ReturnType<typeof buildRecommendationResults> {
+  return {
+    pokemonSlug,
+    candidates: [],
+    excluded: [],
+    recommendations: [],
+    rejected: [],
+  };
+}
+
+function buildDefaultDyeableRecommendationDrafts(
+  pokemon: PokemonIndexEntry,
+  compactItems: CompactItem[],
+  itemColorBySlug: Map<string, string>,
+  recommendationInputBySlug: Map<string, RecommendationItemInput>,
+  excludedSlugs: Set<string>,
+): RecommendationEntryDraft[] {
+  return compactItems.flatMap((item): RecommendationEntryDraft[] => {
+    if (item.recommendation.isDyeable !== true) {
+      return [];
+    }
+    if (excludedSlugs.has(item.slug)) {
+      return [];
+    }
+
+    const input = recommendationInputBySlug.get(item.slug);
+    const matchedPreferenceTerms = input
+      ? matchRecommendationPreferenceTerms(pokemon.preferenceTerms, input)
+      : [];
+    return [buildDyeableRecommendationDraft(pokemon, item, itemColorBySlug.get(item.slug) ?? null, matchedPreferenceTerms)];
+  });
+}
+
+function buildDyeableRecommendationDraft(
+  pokemon: PokemonIndexEntry,
+  item: CompactItem,
+  itemPrimaryColor: string | null,
+  matchedPreferenceTerms: string[],
+): RecommendationEntryDraft {
+  const dyeMatches = selectRecommendedDyeColors(pokemon.primaryColor, item.recommendation.dyeColorVariants);
+  const recommendedDyeColors = dyeMatches.length > 0
+    ? dyeMatches.map((match) => match.color)
+    : item.recommendation.dyeColorVariants.slice(0, 3);
+  const recommendationTerms = normalizePreferenceTerms(
+    matchedPreferenceTerms.length > 0
+      ? [...matchedPreferenceTerms, "dyeable"]
+      : ["dyeable", ...item.recommendation.roleTags, item.category ?? ""],
+  );
+  const firstHarmonyMatch = dyeMatches[0];
+
+  return {
+    itemSlug: item.slug,
+    itemName: item.name,
+    itemZhName: item.nameZh,
+    itemImagePath: item.imagePath,
+    category: item.category,
+    matchedPreferenceTerms: recommendationTerms,
+    isDyeable: true,
+    pokemonPrimaryColor: pokemon.primaryColor,
+    itemPrimaryColor,
+    harmonyStatus: firstHarmonyMatch ? "passed" : "not_required",
+    harmonyType: firstHarmonyMatch?.harmonyType ?? null,
+    recommendedDyeColors,
+    overrideSource: null,
+    roleFitScore: recommendationRoleFitScore(recommendationTerms, item),
+  };
+}
+
+function selectRecommendedDyeColors(
+  pokemonPrimaryColor: string,
+  dyeColorVariants: string[],
+): Array<{ color: string; harmonyType: NonNullable<RecommendationEntry["harmonyType"]> }> {
+  if (!isHexColor(pokemonPrimaryColor)) {
+    return [];
+  }
+
+  return dyeColorVariants
+    .flatMap((color) => {
+      const colorHex = DYE_COLOR_HEX[toPreferenceTerm(color)];
+      if (!colorHex) {
+        return [];
+      }
+      const harmony = evaluateOklchHarmony(pokemonPrimaryColor, colorHex);
+      if (harmony.harmonyStatus !== "passed" || !harmony.harmonyType) {
+        return [];
+      }
+      return [{ color, harmonyType: harmony.harmonyType }];
+    })
+    .sort((left, right) => harmonyPriority(left.harmonyType) - harmonyPriority(right.harmonyType) || left.color.localeCompare(right.color, "en"))
+    .slice(0, 4);
+}
+
+function recommendationStrategy(
+  colorMatchedRecommendationCount: number,
+  defaultDyeableRecommendationCount: number,
+  overrideRecommendationCount: number,
+  recommendationCount: number,
+): RecommendationDiagnosticsStrategy {
+  if (colorMatchedRecommendationCount > 0) {
+    return "preference_terms";
+  }
+  if (defaultDyeableRecommendationCount > 0) {
+    return "dyeable_default";
+  }
+  if (overrideRecommendationCount > 0) {
+    return "override";
+  }
+  return recommendationCount > 0 ? "override" : "empty";
 }
 
 function recommendationDiagnosticsStatus(recommendationCount: number): RecommendationDiagnosticsStatus {
@@ -294,6 +475,9 @@ function buildOverrideRecommendationDrafts(
         itemPrimaryColor,
         harmonyStatus: harmony.harmonyStatus,
         harmonyType: harmony.harmonyType,
+        recommendedDyeColors: item.recommendation.isDyeable
+          ? buildDyeableRecommendationDraft(pokemon, item, itemPrimaryColor, matchedPreferenceTerms).recommendedDyeColors
+          : [],
         overrideSource: `${overridePath}#pokemon.${pokemon.slug}.recommendedItems.${overrideItem.itemSlug}`,
         overrideField: field,
         roleFitScore: recommendationRoleFitScore(matchedPreferenceTerms, item),
@@ -354,6 +538,21 @@ function applyRecommendedItemsOverride(
 function recommendationRoleFitScore(matchedPreferenceTerms: string[], item: CompactItem): number {
   const itemRoleTerms = new Set(item.recommendation.roleTags.map(toPreferenceTerm));
   return matchedPreferenceTerms.filter((term) => itemRoleTerms.has(toPreferenceTerm(term))).length;
+}
+
+function harmonyPriority(type: NonNullable<RecommendationEntry["harmonyType"]>): number {
+  switch (type) {
+    case "complementary":
+      return 1;
+    case "splitComplementary":
+      return 2;
+    case "analogous":
+      return 3;
+    case "triadic":
+      return 4;
+    case "monochrome":
+      return 5;
+  }
 }
 
 function normalizePreferenceTerms(values: string[]): string[] {

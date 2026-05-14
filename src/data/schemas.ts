@@ -1,7 +1,7 @@
-export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v1" as const;
+export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v2" as const;
 export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v1" as const;
 export const ITEM_COLORS_SCHEMA_VERSION = "item-colors.v1" as const;
-export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v2" as const;
+export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v3" as const;
 export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overrides.v1" as const;
 
 export type CompactItemColorSource = "extracted" | "override" | "fallback";
@@ -13,6 +13,7 @@ export type RecommendationHarmonyType = "analogous" | "complementary" | "splitCo
 
 export type CompactItemRecommendationFields = {
   isDyeable: boolean | null;
+  dyeColorVariants: string[];
   itemPrimaryColor: string | null;
   colorSource: CompactItemColorSource | null;
   fallbackReason: string | null;
@@ -79,6 +80,7 @@ export type PokemonIndexData = {
   schemaVersion: typeof POKEMON_INDEX_SCHEMA_VERSION;
   generatedFrom: {
     pokemonManifestPath: string;
+    pokemonPreferencePath: string;
     overridePath: string;
     rawBoundary: string;
   };
@@ -122,6 +124,7 @@ export type RecommendationEntry = {
   itemPrimaryColor: string | null;
   harmonyStatus: RecommendationHarmonyStatus;
   harmonyType: RecommendationHarmonyType | null;
+  recommendedDyeColors: string[];
   overrideSource: string | null;
   rank: number;
   pageIndex: number;
@@ -275,6 +278,7 @@ function validateCompactItem(
   }
 
   requireNullableBoolean(item.recommendation, "isDyeable", `${path}.recommendation`, issues, slug);
+  requireStringArray(item.recommendation, "dyeColorVariants", `${path}.recommendation`, issues, slug);
   requireNullableHex(item.recommendation, "itemPrimaryColor", `${path}.recommendation`, issues, slug);
   requireNullableColorSource(item.recommendation, "colorSource", `${path}.recommendation`, issues, slug);
   requireNullableString(item.recommendation, "fallbackReason", `${path}.recommendation`, issues, slug);
@@ -526,6 +530,7 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
     requireNullableHex(entry, "itemPrimaryColor", path, issues, slug);
     requireRecommendationHarmonyStatus(entry, "harmonyStatus", path, issues, slug);
     requireNullableRecommendationHarmonyType(entry, "harmonyType", path, issues, slug);
+    requireStringArray(entry, "recommendedDyeColors", path, issues, slug);
     requireNullableString(entry, "overrideSource", path, issues, slug);
     requirePositiveInteger(entry, "rank", path, issues, slug);
     requireNonNegativeInteger(entry, "pageIndex", path, issues, slug);
@@ -552,6 +557,12 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
 
     if (entry.harmonyStatus === "not_required" && entry.harmonyType !== null) {
       issues.push({ path: `${path}.harmonyType`, message: "Expected null harmonyType when harmony is not required", slug });
+    }
+    if (entry.isDyeable === false && Array.isArray(entry.recommendedDyeColors) && entry.recommendedDyeColors.length > 0) {
+      issues.push({ path: `${path}.recommendedDyeColors`, message: "Expected no recommended dye colors for non-dyeable items", slug });
+    }
+    if (entry.isDyeable === true && entry.harmonyStatus === "passed" && (!Array.isArray(entry.recommendedDyeColors) || entry.recommendedDyeColors.length === 0)) {
+      issues.push({ path: `${path}.recommendedDyeColors`, message: "Expected dye color recommendations when a dyeable item passes harmony", slug });
     }
     if (entry.harmonyStatus === "passed" && entry.harmonyType === null) {
       issues.push({ path: `${path}.harmonyType`, message: "Expected harmonyType when harmony passed", slug });

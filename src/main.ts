@@ -2,7 +2,6 @@ import "./styles.css";
 import { filterPokemon, isPokemonRange, pokemonAltText, type PokemonRange } from "./app/pokemon-ui.js";
 import {
   DEFAULT_POKEMON_SLUG,
-  isPokemonCanonicalPathname,
   normalizePokemonSlug,
   parsePokemonSlugFromHash,
   parsePokemonSlugFromLocation,
@@ -12,13 +11,18 @@ import { GeneratedDataError, loadGeneratedData, loadRecommendationData } from ".
 import type { CompactItem, PokemonIndexEntry, RecommendationEntry, RecommendationsData } from "./data/schemas";
 
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
+const LOCALES = ["zh", "en"] as const;
+const DEFAULT_LOCALE: Locale = "zh";
+const LOCALE_STORAGE_KEY = "pokopia-color-pattern.locale";
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
+type Locale = (typeof LOCALES)[number];
 type Rgb = { r: number; g: number; b: number };
 type Hsl = { h: number; s: number; l: number };
 type Cmyk = { c: number; m: number; y: number; k: number };
 type PaletteColor = { rgb: Rgb; hex: string; percent: number };
 type NormalizedPaletteColor = PaletteColor & { ratio: number };
+type LocalizedLabel = Record<Locale, string>;
 
 type Pokemon = {
   sequence: string;
@@ -61,6 +65,7 @@ const state: {
   selected: SelectedPokemon | null;
   query: string;
   range: PokemonRange;
+  locale: Locale;
   itemCategory: ItemFilter;
   recommendations: RecommendationPanelState;
 } = {
@@ -70,6 +75,7 @@ const state: {
   selected: null,
   query: "",
   range: "all",
+  locale: readInitialLocale(),
   itemCategory: "全部",
   recommendations: {
     status: "idle",
@@ -93,6 +99,232 @@ function isItemFilter(value: string): value is ItemFilter {
   return ITEM_FILTER_KEYS.includes(value as ItemFilter);
 }
 
+function isLocale(value: string | null): value is Locale {
+  return value !== null && LOCALES.includes(value as Locale);
+}
+
+function readInitialLocale(): Locale {
+  try {
+    const stored = localStorage.getItem(LOCALE_STORAGE_KEY);
+    return isLocale(stored) ? stored : DEFAULT_LOCALE;
+  } catch {
+    return DEFAULT_LOCALE;
+  }
+}
+
+const ITEM_FILTER_LABELS: Record<Locale, Record<ItemFilter, string>> = {
+  zh: {
+    全部: "全部",
+    家具: "家具",
+    装饰: "装饰",
+    玩具: "玩具",
+    地块: "地块",
+    食物: "食物",
+  },
+  en: {
+    全部: "All",
+    家具: "Furniture",
+    装饰: "Decor",
+    玩具: "Toys",
+    地块: "Blocks",
+    食物: "Food",
+  },
+};
+
+const TEXT = {
+  zh: {
+    htmlLang: "zh-Hans",
+    currentPokemon: "当前宝可梦",
+    closeDrawer: "关闭搜索抽屉",
+    languageToggle: "English",
+    languageAria: "切换到英文",
+    searchPlaceholder: "搜索",
+    searchAria: "搜索 Pokemon 名称、英文名或编号",
+    rangeLabels: { all: "全部", early: "001-120", late: "121+" },
+    listRangeAria: "宝可梦列表范围",
+    pokemonListAria: "Pokopia 宝可梦",
+    paletteTitle: "色板",
+    patternTitle: "图案",
+    colorPatternAria: "颜色图案格",
+    primaryColorAria: "主色数值",
+    paletteCount: (count: number) => `${count} 种颜色`,
+    patternCount: (count: number) => `${count} 格`,
+    itemMatchTitle: "搭配道具",
+    itemFilterAria: "筛选搭配道具类型",
+    recommendationTitle: (filter: ItemFilter) => `推荐搭配 · ${ITEM_FILTER_LABELS.zh[filter]}`,
+    loadingRecommendations: "正在读取推荐搭配",
+    recommendationsUnavailable: "推荐搭配暂时不可用，可以切换 Pokemon 继续浏览。",
+    recommendationError: (error: string) => `推荐搭配暂时不可用：${error || "未知错误"}。可以重新读取，或切换 Pokemon 继续浏览。`,
+    emptyRecommendations: "当前数据和规则暂未产生推荐搭配。可以切换 Pokemon，或稍后补充 override 后重新生成数据。",
+    emptyFilter: "当前筛选下没有推荐搭配。可以显示全部推荐或切换 Pokemon。",
+    sparseRecommendations: (count: number) => `当前规则只产生 ${count} 个推荐搭配；结果基于现有数据和规则，可切换 Pokemon 继续比较。`,
+    retry: "重新读取",
+    switchPokemon: "切换 Pokemon",
+    resetFilter: "显示全部推荐",
+    paginationAria: "推荐搭配分页",
+    previousPageAria: "上一页推荐搭配",
+    nextPageAria: "下一页推荐搭配",
+    previousPage: "上一页",
+    nextPage: "下一页",
+    pageLabel: (page: number, total: number) => `第 ${page} / ${total} 页`,
+    fieldCategory: "分类",
+    fieldDyeable: "可染色",
+    fieldDyeColors: "建议染色",
+    fieldPrimaryColor: "主色",
+    fieldPreferenceTerms: "匹配依据",
+    yes: "是",
+    no: "否",
+    none: "无",
+    notFoundPokemon: "找不到 Pokemon",
+    route: "ROUTE",
+    status: "STATUS",
+    notFoundStatus: "NOT FOUND",
+    recovery: "RECOVERY",
+    searchRecovery: "SEARCH",
+    missingSlug: "这个 slug 不在当前 generated data 中。",
+    missingRoute: (routeLabel: string) => `未找到 ${routeLabel}。请打开搜索选择其他 Pokemon。`,
+    bootErrorTitle: (fileLabel: string) => `无法读取 Pokopia 生成数据${fileLabel}`,
+    bootErrorHint: "请重新运行 npm run generate:data 后刷新页面。",
+    reload: "重新载入",
+  },
+  en: {
+    htmlLang: "en",
+    currentPokemon: "Current Pokemon",
+    closeDrawer: "Close search drawer",
+    languageToggle: "中文",
+    languageAria: "Switch to Chinese",
+    searchPlaceholder: "Search",
+    searchAria: "Search by Pokemon name, English name, or number",
+    rangeLabels: { all: "All", early: "001-120", late: "121+" },
+    listRangeAria: "Pokemon list range",
+    pokemonListAria: "Pokopia Pokemon",
+    paletteTitle: "Swatches",
+    patternTitle: "Pattern",
+    colorPatternAria: "Color pattern cells",
+    primaryColorAria: "Primary color values",
+    paletteCount: (count: number) => `${count} colors`,
+    patternCount: (count: number) => `${count} cells`,
+    itemMatchTitle: "Item Match",
+    itemFilterAria: "Filter item type",
+    recommendationTitle: (filter: ItemFilter) => `Recommendations · ${ITEM_FILTER_LABELS.en[filter]}`,
+    loadingRecommendations: "Loading recommendations",
+    recommendationsUnavailable: "Recommendations are unavailable. Switch Pokemon to keep browsing.",
+    recommendationError: (error: string) => `Recommendations are unavailable: ${error || "unknown error"}. Retry or switch Pokemon to keep browsing.`,
+    emptyRecommendations: "No recommendations were generated from the current data and rules. Switch Pokemon or regenerate after adding overrides.",
+    emptyFilter: "No recommendations match this filter. Show all recommendations or switch Pokemon.",
+    sparseRecommendations: (count: number) => `Only ${count} recommendations were generated. Results are based on current data and rules.`,
+    retry: "Retry",
+    switchPokemon: "Switch Pokemon",
+    resetFilter: "Show all",
+    paginationAria: "Recommendation pagination",
+    previousPageAria: "Previous recommendations page",
+    nextPageAria: "Next recommendations page",
+    previousPage: "Previous",
+    nextPage: "Next",
+    pageLabel: (page: number, total: number) => `Page ${page} / ${total}`,
+    fieldCategory: "Category",
+    fieldDyeable: "Dyeable",
+    fieldDyeColors: "Suggested dye",
+    fieldPrimaryColor: "Primary color",
+    fieldPreferenceTerms: "Matched terms",
+    yes: "Yes",
+    no: "No",
+    none: "None",
+    notFoundPokemon: "Pokemon not found",
+    route: "ROUTE",
+    status: "STATUS",
+    notFoundStatus: "NOT FOUND",
+    recovery: "RECOVERY",
+    searchRecovery: "SEARCH",
+    missingSlug: "This slug is not in the current generated data.",
+    missingRoute: (routeLabel: string) => `${routeLabel} was not found. Open search to choose another Pokemon.`,
+    bootErrorTitle: (fileLabel: string) => `Unable to read Pokopia generated data${fileLabel}`,
+    bootErrorHint: "Run npm run generate:data again, then refresh.",
+    reload: "Reload",
+  },
+};
+
+const CATEGORY_LABELS: Record<string, LocalizedLabel> = {
+  Blocks: { zh: "地块", en: "Blocks" },
+  Buildings: { zh: "建筑", en: "Buildings" },
+  Decoration: { zh: "装饰", en: "Decoration" },
+  Food: { zh: "食物", en: "Food" },
+  Furniture: { zh: "家具", en: "Furniture" },
+  "Key Items": { zh: "重要道具", en: "Key Items" },
+  Kits: { zh: "建造套件", en: "Kits" },
+  Materials: { zh: "材料", en: "Materials" },
+  "Misc.": { zh: "杂货", en: "Misc." },
+  Nature: { zh: "自然", en: "Nature" },
+  Other: { zh: "其他", en: "Other" },
+  Outdoor: { zh: "户外", en: "Outdoor" },
+  Relaxation: { zh: "休闲", en: "Relaxation" },
+  Road: { zh: "道路", en: "Road" },
+  Toy: { zh: "玩具", en: "Toy" },
+  Utilities: { zh: "设施", en: "Utilities" },
+};
+
+const TERM_LABELS: Record<string, LocalizedLabel> = {
+  dyeable: { zh: "可染色", en: "dyeable" },
+  nature: { zh: "自然", en: "nature" },
+  "bitter flavors": { zh: "苦味", en: "bitter flavors" },
+  "blocky stuff": { zh: "方块感", en: "blocky stuff" },
+  "colorful stuff": { zh: "多彩物品", en: "colorful stuff" },
+  "complicated stuff": { zh: "复杂物品", en: "complicated stuff" },
+  construction: { zh: "建造", en: "construction" },
+  containers: { zh: "容器", en: "containers" },
+  "cute stuff": { zh: "可爱物品", en: "cute stuff" },
+  "dry flavors": { zh: "干燥风味", en: "dry flavors" },
+  electronics: { zh: "电子产品", en: "electronics" },
+  exercise: { zh: "运动", en: "exercise" },
+  fabric: { zh: "布料", en: "fabric" },
+  garbage: { zh: "垃圾", en: "garbage" },
+  gatherings: { zh: "聚会", en: "gatherings" },
+  "glass stuff": { zh: "玻璃物品", en: "glass stuff" },
+  "group activities": { zh: "集体活动", en: "group activities" },
+  "hard stuff": { zh: "坚硬物品", en: "hard stuff" },
+  healing: { zh: "疗愈", en: "healing" },
+  "letters and words": { zh: "字母与文字", en: "letters and words" },
+  "looks like food": { zh: "像食物", en: "looks like food" },
+  "lots of dirt": { zh: "大量泥土", en: "lots of dirt" },
+  "lots of fire": { zh: "大量火焰", en: "lots of fire" },
+  "lots of nature": { zh: "大量自然", en: "lots of nature" },
+  "lots of water": { zh: "大量水", en: "lots of water" },
+  luxury: { zh: "奢华", en: "luxury" },
+  "metal stuff": { zh: "金属物品", en: "metal stuff" },
+  "nice breezes": { zh: "宜人微风", en: "nice breezes" },
+  "noisy stuff": { zh: "吵闹物品", en: "noisy stuff" },
+  "ocean vibes": { zh: "海洋氛围", en: "ocean vibes" },
+  "play spaces": { zh: "游玩空间", en: "play spaces" },
+  "pretty flowers": { zh: "漂亮花朵", en: "pretty flowers" },
+  rides: { zh: "游乐设施", en: "rides" },
+  "round stuff": { zh: "圆形物品", en: "round stuff" },
+  "sharp stuff": { zh: "尖锐物品", en: "sharp stuff" },
+  "shiny stuff": { zh: "闪亮物品", en: "shiny stuff" },
+  "slender objects": { zh: "细长物体", en: "slender objects" },
+  "soft stuff": { zh: "柔软物品", en: "soft stuff" },
+  "sour flavors": { zh: "酸味", en: "sour flavors" },
+  "spicy flavors": { zh: "辣味", en: "spicy flavors" },
+  "spinning stuff": { zh: "旋转物品", en: "spinning stuff" },
+  "spooky stuff": { zh: "恐怖物品", en: "spooky stuff" },
+  "stone stuff": { zh: "石头物品", en: "stone stuff" },
+  "strange stuff": { zh: "奇怪物品", en: "strange stuff" },
+  "sweet flavors": { zh: "甜味", en: "sweet flavors" },
+  symbols: { zh: "符号", en: "symbols" },
+  "watching stuff": { zh: "观赏物品", en: "watching stuff" },
+  "wobbly stuff": { zh: "摇晃物品", en: "wobbly stuff" },
+  "wooden stuff": { zh: "木质物品", en: "wooden stuff" },
+};
+
+const DYE_COLOR_LABELS: Record<string, LocalizedLabel> = {
+  blue: { zh: "蓝色", en: "blue" },
+  orange: { zh: "橙色", en: "orange" },
+  pink: { zh: "粉色", en: "pink" },
+  purple: { zh: "紫色", en: "purple" },
+  red: { zh: "红色", en: "red" },
+  white: { zh: "白色", en: "white" },
+  yellow: { zh: "黄色", en: "yellow" },
+};
+
 const els = {
   app: queryElement<HTMLElement>("#app"),
   loading: queryElement<HTMLElement>("#loading"),
@@ -109,16 +341,98 @@ const els = {
   title: queryElement<HTMLElement>("#pokemonTitle"),
   selectedPortrait: queryElement<HTMLImageElement>("#selectedPortrait"),
   portraitNumber: queryElement<HTMLElement>("#portraitNumber"),
-  hashLabel: queryElement<HTMLElement>("#hashLabel"),
+  languageToggle: queryElement<HTMLButtonElement>("#languageToggle"),
   metricStrip: queryElement<HTMLElement>("#metricStrip"),
+  paletteTitle: queryElement<HTMLElement>("#paletteTitle"),
   swatchList: queryElement<HTMLElement>("#swatchList"),
   paletteTotal: queryElement<HTMLElement>("#paletteTotal"),
+  patternTitle: queryElement<HTMLElement>("#patternTitle"),
   patternTotal: queryElement<HTMLElement>("#patternTotal"),
   patternView: queryElement<HTMLElement>("#patternView"),
+  panelTitle: queryElement<HTMLElement>("#panelTitle"),
   furnitureGrid: queryElement<HTMLElement>("#furnitureGrid"),
   itemFilter: queryElement<HTMLSelectElement>("#itemFilter"),
   itemSectionTitle: queryElement<HTMLElement>("#itemSectionTitle"),
 };
+
+function text(): (typeof TEXT)[Locale] {
+  return TEXT[state.locale];
+}
+
+function nextLocale(locale: Locale): Locale {
+  return locale === "zh" ? "en" : "zh";
+}
+
+function setLocale(locale: Locale): void {
+  state.locale = locale;
+  try {
+    localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+  } catch {
+    // Storage can be unavailable in private contexts; the in-memory locale is enough.
+  }
+  renderLocaleChrome();
+  renderList();
+  if (state.selected) {
+    renderStage(state.selected);
+    renderFloatingPokemon(state.selected);
+    renderInspector(state.selected);
+  }
+}
+
+function renderLocaleChrome(): void {
+  const labels = text();
+  document.documentElement.lang = labels.htmlLang;
+  document.title = "Pokopia Color Pattern";
+  els.drawerBackdrop.setAttribute("aria-label", labels.closeDrawer);
+  els.drawerClose.setAttribute("aria-label", labels.closeDrawer);
+  els.languageToggle.textContent = labels.languageToggle;
+  els.languageToggle.setAttribute("aria-label", labels.languageAria);
+  els.searchInput.placeholder = labels.searchPlaceholder;
+  els.searchInput.setAttribute("aria-label", labels.searchAria);
+  document.querySelector("[aria-label='Pokemon list range'], [aria-label='宝可梦列表范围']")?.setAttribute("aria-label", labels.listRangeAria);
+  document.querySelectorAll<HTMLButtonElement>("[data-range]").forEach((button) => {
+    if (isPokemonRange(button.dataset.range)) {
+      button.textContent = labels.rangeLabels[button.dataset.range];
+    }
+  });
+  els.pokemonList.setAttribute("aria-label", labels.pokemonListAria);
+  els.metricStrip.setAttribute("aria-label", labels.primaryColorAria);
+  els.paletteTitle.textContent = labels.paletteTitle;
+  els.patternTitle.textContent = labels.patternTitle;
+  els.patternView.setAttribute("aria-label", labels.colorPatternAria);
+  els.panelTitle.textContent = labels.itemMatchTitle;
+  els.itemFilter.setAttribute("aria-label", labels.itemFilterAria);
+  renderItemFilterOptions();
+  els.itemSectionTitle.textContent = labels.recommendationTitle(state.itemCategory);
+}
+
+function renderItemFilterOptions(): void {
+  const selectedValue = state.itemCategory;
+  els.itemFilter.innerHTML = ITEM_FILTER_KEYS.map(
+    (key) => `<option value="${escapeHtml(key)}">${escapeHtml(filterLabel(key))}</option>`,
+  ).join("");
+  els.itemFilter.value = selectedValue;
+}
+
+function filterLabel(filter: ItemFilter): string {
+  return ITEM_FILTER_LABELS[state.locale][filter];
+}
+
+function labelFromMap(map: Record<string, LocalizedLabel>, value: string): string {
+  return map[value]?.[state.locale] ?? value;
+}
+
+function categoryLabel(value: string): string {
+  return labelFromMap(CATEGORY_LABELS, value);
+}
+
+function preferenceTermLabel(value: string): string {
+  return labelFromMap(TERM_LABELS, value);
+}
+
+function dyeColorLabel(value: string): string {
+  return labelFromMap(DYE_COLOR_LABELS, value);
+}
 
 async function boot(): Promise<void> {
   const generatedData = await loadGeneratedData();
@@ -128,6 +442,7 @@ async function boot(): Promise<void> {
 
   closeDrawer();
   bindEvents();
+  renderLocaleChrome();
   renderList();
 
   if (state.pokemon.length === 0) {
@@ -139,13 +454,16 @@ async function boot(): Promise<void> {
   els.loading.classList.add("is-hidden");
   els.app.classList.remove("is-hidden");
   els.drawerTrigger.classList.remove("is-hidden");
-  selectPokemon(route.slug, false, route.source);
+  if (selectPokemon(route.slug, false, route.source) && route.source !== "pathname") {
+    updatePokemonUrl(route.slug);
+  }
 }
 
 function bindEvents(): void {
   els.drawerTrigger.addEventListener("click", openDrawer);
   els.drawerBackdrop.addEventListener("click", closeDrawer);
   els.drawerClose.addEventListener("click", closeDrawer);
+  els.languageToggle.addEventListener("click", () => setLocale(nextLocale(state.locale)));
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeDrawer();
@@ -182,7 +500,7 @@ function bindEvents(): void {
   window.addEventListener("hashchange", () => {
     const slug = parsePokemonSlugFromHash(location.hash);
     if (slug && (!state.selected || slug !== state.selected.slug)) {
-      selectPokemon(slug, false, "hash");
+      selectPokemon(slug, true, "hash");
     }
   });
 }
@@ -247,7 +565,7 @@ function closeDrawer(): void {
   els.drawerTrigger.setAttribute("aria-expanded", "false");
 }
 
-function selectPokemon(slug: string, updateHash = true, unknownSource: PokemonRouteSource = "hash"): boolean {
+function selectPokemon(slug: string, updateUrl = true, unknownSource: PokemonRouteSource = "hash"): boolean {
   const normalizedSlug = normalizePokemonSlug(slug);
   const pokemon = state.pokemon.find((item) => item.slug === normalizedSlug);
   if (!pokemon) {
@@ -270,7 +588,7 @@ function selectPokemon(slug: string, updateHash = true, unknownSource: PokemonRo
     requestId,
   };
 
-  if (updateHash) {
+  if (updateUrl) {
     updatePokemonUrl(pokemon.slug);
   }
 
@@ -283,17 +601,14 @@ function selectPokemon(slug: string, updateHash = true, unknownSource: PokemonRo
 }
 
 function updatePokemonUrl(slug: string): void {
-  if (isPokemonCanonicalPathname(location.pathname)) {
-    history.replaceState(null, "", `/pokemon/${slug}/`);
-    return;
-  }
-  history.replaceState(null, "", `#${slug}`);
+  history.replaceState(null, "", `/pokemon/${slug}/`);
 }
 
 function renderRouteNotFound(slug: string, source: PokemonRouteSource): void {
   const requestId = state.recommendations.requestId + 1;
   const routeLabel = routeSourceLabel(slug, source);
   const fallback = fallbackColor(`not-found-${slug}`);
+  const labels = text();
   state.selected = null;
   state.recommendations = {
     status: "idle",
@@ -309,35 +624,34 @@ function renderRouteNotFound(slug: string, source: PokemonRouteSource): void {
   document.documentElement.style.setProperty("--accent", fallback.hex);
 
   renderList();
-  els.title.innerHTML = `找不到 Pokemon <em>${escapeHtml(slug || "unknown")}</em>`;
+  els.title.innerHTML = `${escapeHtml(labels.notFoundPokemon)} <em>${escapeHtml(slug || "unknown")}</em>`;
   els.selectedPortrait.removeAttribute("src");
   els.selectedPortrait.alt = "";
   els.portraitNumber.textContent = "404";
-  els.hashLabel.textContent = routeLabel;
   els.metricStrip.innerHTML = `
     <div class="metric">
-      <span>ROUTE</span>
+      <span>${escapeHtml(labels.route)}</span>
       <strong>${escapeHtml(routeLabel)}</strong>
     </div>
     <div class="metric">
-      <span>STATUS</span>
-      <strong>NOT FOUND</strong>
+      <span>${escapeHtml(labels.status)}</span>
+      <strong>${escapeHtml(labels.notFoundStatus)}</strong>
     </div>
     <div class="metric">
-      <span>RECOVERY</span>
-      <strong>SEARCH</strong>
+      <span>${escapeHtml(labels.recovery)}</span>
+      <strong>${escapeHtml(labels.searchRecovery)}</strong>
     </div>
   `;
-  els.paletteTotal.textContent = "0 colors";
+  els.paletteTotal.textContent = labels.paletteCount(0);
   els.swatchList.innerHTML = `
     <div class="recommendation-state is-inline">
-      <span>这个 slug 不在当前 generated data 中。</span>
+      <span>${escapeHtml(labels.missingSlug)}</span>
     </div>
   `;
-  els.patternTotal.textContent = "0 cells";
+  els.patternTotal.textContent = labels.patternCount(0);
   els.patternView.innerHTML = "";
-  els.itemSectionTitle.textContent = "推荐搭配";
-  renderRecommendationState(`未找到 ${routeLabel}。请打开搜索选择其他 Pokemon。`, "recommendation-state is-error", [
+  els.itemSectionTitle.textContent = labels.recommendationTitle(state.itemCategory);
+  renderRecommendationState(labels.missingRoute(routeLabel), "recommendation-state is-error", [
     "switch-pokemon",
   ]);
   renderFloatingRouteNotFound(slug);
@@ -400,7 +714,6 @@ function renderStage(pokemon: SelectedPokemon): void {
   els.selectedPortrait.src = pokemon.image;
   els.selectedPortrait.alt = pokemonAltText(pokemon);
   els.portraitNumber.textContent = pokemon.sequence;
-  els.hashLabel.textContent = `#${pokemon.slug}`;
 
   const metricData: Array<[string, string]> = [
     ["HEX", primary.hex.toUpperCase()],
@@ -432,7 +745,7 @@ function renderFloatingPokemon(pokemon: SelectedPokemon): void {
 function renderFloatingRouteNotFound(slug: string): void {
   els.floatPortrait.removeAttribute("src");
   els.floatPortrait.alt = "";
-  els.floatName.textContent = "未找到 Pokemon";
+  els.floatName.textContent = text().notFoundPokemon;
   els.floatMeta.innerHTML = `
     <span>${escapeHtml(slug || "unknown")}</span>
   `;
@@ -445,7 +758,7 @@ function renderInspector(pokemon: SelectedPokemon): void {
 }
 
 function renderPalette(palette: PaletteColor[]): void {
-  els.paletteTotal.textContent = `${palette.length} colors`;
+  els.paletteTotal.textContent = text().paletteCount(palette.length);
   els.swatchList.innerHTML = palette
     .map(
       (color, index) => `
@@ -466,6 +779,7 @@ function renderPattern(palette: PaletteColor[]): void {
   const cells = 40;
   const normalized = normalizePalette(palette.length ? palette : [fallbackColor("pattern")]);
   const colors: string[] = [];
+  els.patternTotal.textContent = text().patternCount(cells);
 
   normalized.forEach((item) => {
     const count = Math.max(1, Math.round((item.ratio / 100) * cells));
@@ -485,18 +799,19 @@ function renderPattern(palette: PaletteColor[]): void {
 }
 
 function renderRecommendations(): void {
-  els.itemSectionTitle.textContent = `推荐搭配 · ${state.itemCategory}`;
+  const labels = text();
+  els.itemSectionTitle.textContent = labels.recommendationTitle(state.itemCategory);
 
   const selected = state.selected;
   const panel = state.recommendations;
   if (!selected || panel.status === "idle" || panel.status === "loading" || panel.slug !== selected.slug) {
-    renderRecommendationState("正在读取推荐搭配", "recommendation-state");
+    renderRecommendationState(labels.loadingRecommendations, "recommendation-state");
     return;
   }
 
   if (panel.status === "error") {
     renderRecommendationState(
-      `推荐搭配暂时不可用：${panel.error || "未知错误"}。可以重新读取，或切换 Pokemon 继续浏览。`,
+      labels.recommendationError(panel.error || ""),
       "recommendation-state is-error",
       ["retry", "switch-pokemon"],
     );
@@ -504,7 +819,7 @@ function renderRecommendations(): void {
   }
 
   if (!panel.data) {
-    renderRecommendationState("推荐搭配暂时不可用，可以切换 Pokemon 继续浏览。", "recommendation-state is-error", [
+    renderRecommendationState(labels.recommendationsUnavailable, "recommendation-state is-error", [
       "switch-pokemon",
     ]);
     return;
@@ -521,8 +836,8 @@ function renderRecommendations(): void {
   if (filtered.length === 0) {
     const message =
       panel.data.recommendations.length === 0
-        ? "当前数据和规则暂未产生推荐搭配。可以切换 Pokemon，或稍后补充偏好词与 override 后重新生成数据。"
-        : "当前筛选下没有推荐搭配。可以显示全部推荐或切换 Pokemon。";
+        ? labels.emptyRecommendations
+        : labels.emptyFilter;
     renderRecommendationState(
       message,
       "recommendation-state",
@@ -535,7 +850,6 @@ function renderRecommendations(): void {
   const pageItems = filtered.slice(start, start + panel.data.pageSize);
   els.furnitureGrid.innerHTML = `
     <div class="recommendation-summary" aria-live="polite">
-      <span>${escapeHtml(selected.zh)} 的匹配度较高道具</span>
       <strong>${start + 1}-${start + pageItems.length} / ${filtered.length}</strong>
     </div>
     ${renderSparseRecommendationNotice(panel.data.recommendations.length)}
@@ -555,7 +869,7 @@ function renderSparseRecommendationNotice(recommendationCount: number): string {
 
   return `
     <div class="recommendation-state is-inline" role="status">
-      <span>当前规则只产生 ${recommendationCount} 个推荐搭配；结果基于现有数据和规则，可切换 Pokemon 继续比较。</span>
+      <span>${escapeHtml(text().sparseRecommendations(recommendationCount))}</span>
       ${renderRecommendationAction("switch-pokemon")}
     </div>
   `;
@@ -576,13 +890,14 @@ function renderRecommendationState(
 }
 
 function renderRecommendationAction(action: RecommendationRecoveryAction): string {
+  const labels = text();
   switch (action) {
     case "retry":
-      return '<button class="recommendation-retry" type="button" data-recommendation-action="retry">重新读取</button>';
+      return `<button class="recommendation-retry" type="button" data-recommendation-action="retry">${escapeHtml(labels.retry)}</button>`;
     case "switch-pokemon":
-      return '<button class="recommendation-retry" type="button" data-recommendation-action="switch-pokemon">切换 Pokemon</button>';
+      return `<button class="recommendation-retry" type="button" data-recommendation-action="switch-pokemon">${escapeHtml(labels.switchPokemon)}</button>`;
     case "reset-filter":
-      return '<button class="recommendation-retry" type="button" data-recommendation-action="reset-filter">显示全部推荐</button>';
+      return `<button class="recommendation-retry" type="button" data-recommendation-action="reset-filter">${escapeHtml(labels.resetFilter)}</button>`;
   }
 }
 
@@ -626,10 +941,14 @@ function retryRecommendations(): void {
 
 function renderRecommendationCard(entry: RecommendationEntry): string {
   const item = state.itemBySlug.get(entry.itemSlug);
+  const labels = text();
   const displayName = recommendationDisplayName(entry);
-  const category = entry.category || item?.category || "Other";
-  const terms = entry.matchedPreferenceTerms.map((term) => `<span>${escapeHtml(term)}</span>`).join("");
+  const category = categoryLabel(entry.category || item?.category || "Other");
+  const terms = entry.matchedPreferenceTerms.map((term) => `<span>${escapeHtml(preferenceTermLabel(term))}</span>`).join("");
   const color = entry.itemPrimaryColor;
+  const dyeColors = entry.recommendedDyeColors.length > 0
+    ? entry.recommendedDyeColors.map((dyeColor) => `<span>${escapeHtml(dyeColorLabel(dyeColor))}</span>`).join("")
+    : `<span>${escapeHtml(labels.none)}</span>`;
 
   return `
     <article class="recommendation-card">
@@ -645,33 +964,32 @@ function renderRecommendationCard(entry: RecommendationEntry): string {
           <h3>${escapeHtml(displayName)}</h3>
           <span>#${String(entry.rank).padStart(2, "0")}</span>
         </div>
-        <p>${escapeHtml(recommendationReason(entry))}</p>
         <dl class="recommendation-facts">
           <div>
-            <dt>分类</dt>
+            <dt>${escapeHtml(labels.fieldCategory)}</dt>
             <dd>${escapeHtml(category)}</dd>
           </div>
           <div>
-            <dt>可染色</dt>
-            <dd>${entry.isDyeable ? "是" : "否"}</dd>
+            <dt>${escapeHtml(labels.fieldDyeable)}</dt>
+            <dd>${entry.isDyeable ? escapeHtml(labels.yes) : escapeHtml(labels.no)}</dd>
           </div>
+          ${
+            entry.isDyeable
+              ? `<div class="preference-cell">
+                  <dt>${escapeHtml(labels.fieldDyeColors)}</dt>
+                  <dd class="preference-tags">${dyeColors}</dd>
+                </div>`
+              : ""
+          }
           <div>
-            <dt>主色</dt>
+            <dt>${escapeHtml(labels.fieldPrimaryColor)}</dt>
             <dd class="color-value">
-              ${color ? `<span class="color-chip" style="background:${escapeHtml(color)}"></span>${escapeHtml(color)}` : "无"}
+              ${color ? `<span class="color-chip" style="background:${escapeHtml(color)}"></span>${escapeHtml(color)}` : escapeHtml(labels.none)}
             </dd>
           </div>
-          <div>
-            <dt>OKLCH</dt>
-            <dd>${escapeHtml(harmonyLabel(entry))}</dd>
-          </div>
           <div class="preference-cell">
-            <dt>偏好词</dt>
+            <dt>${escapeHtml(labels.fieldPreferenceTerms)}</dt>
             <dd class="preference-tags">${terms}</dd>
-          </div>
-          <div>
-            <dt>数据页</dt>
-            <dd>${entry.pageIndex + 1}</dd>
           </div>
         </dl>
       </div>
@@ -682,22 +1000,23 @@ function renderRecommendationCard(entry: RecommendationEntry): string {
 function renderRecommendationPagination(pageIndex: number, totalPages: number): string {
   const hasPrevious = pageIndex > 0;
   const hasNext = pageIndex < totalPages - 1;
+  const labels = text();
   return `
-    <nav class="recommendation-pagination" aria-label="推荐搭配分页">
+    <nav class="recommendation-pagination" aria-label="${escapeHtml(labels.paginationAria)}">
       <button
         type="button"
         data-recommendation-page="previous"
-        aria-label="上一页推荐搭配"
+        aria-label="${escapeHtml(labels.previousPageAria)}"
         ${hasPrevious ? "" : "disabled"}>
-        上一页
+        ${escapeHtml(labels.previousPage)}
       </button>
-      <span>第 ${pageIndex + 1} / ${totalPages} 页</span>
+      <span>${escapeHtml(labels.pageLabel(pageIndex + 1, totalPages))}</span>
       <button
         type="button"
         data-recommendation-page="next"
-        aria-label="下一页推荐搭配"
+        aria-label="${escapeHtml(labels.nextPageAria)}"
         ${hasNext ? "" : "disabled"}>
-        下一页
+        ${escapeHtml(labels.nextPage)}
       </button>
     </nav>
   `;
@@ -737,45 +1056,10 @@ function recommendationMatchesFilter(entry: RecommendationEntry): boolean {
 }
 
 function recommendationDisplayName(entry: RecommendationEntry): string {
-  if (!entry.itemZhName || entry.itemZhName === entry.itemName) {
-    return entry.itemName;
+  if (state.locale === "zh") {
+    return entry.itemZhName || entry.itemName;
   }
-  return `${entry.itemZhName} / ${entry.itemName}`;
-}
-
-function recommendationReason(entry: RecommendationEntry): string {
-  const terms = entry.matchedPreferenceTerms.join(", ");
-  if (entry.isDyeable) {
-    return `命中偏好词：${terms}。可染色道具不需要 OKLCH 过滤。`;
-  }
-  return `命中偏好词：${terms}。${harmonyLabel(entry)}。`;
-}
-
-function harmonyLabel(entry: RecommendationEntry): string {
-  if (entry.harmonyStatus === "not_required") {
-    return "不需要 OKLCH";
-  }
-  if (entry.harmonyStatus === "override") {
-    return "Override";
-  }
-  return entry.harmonyType ? `通过 · ${harmonyTypeLabel(entry.harmonyType)}` : "通过";
-}
-
-function harmonyTypeLabel(type: RecommendationEntry["harmonyType"]): string {
-  switch (type) {
-    case "analogous":
-      return "Analogous";
-    case "complementary":
-      return "Complementary";
-    case "splitComplementary":
-      return "Split Complementary";
-    case "triadic":
-      return "Triadic";
-    case "monochrome":
-      return "Monochrome";
-    default:
-      return "";
-  }
+  return entry.itemName;
 }
 
 function rgbToHex(rgb: Rgb): string {

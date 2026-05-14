@@ -1,6 +1,7 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import {
+  RECOMMENDATIONS_SCHEMA_VERSION,
   validatePokemonIndexData,
   validateRecommendationsData,
   type PokemonIndexData,
@@ -210,7 +211,7 @@ function renderRecommendationSummary(entries: RecommendationEntry[], summary: Re
                     <img src="${escapeAttribute(entry.itemImagePath)}" alt="${escapeAttribute(entry.itemZhName || entry.itemName)}" />
                     <span>
                       <strong>${escapeHtml(entry.itemZhName || entry.itemName)}</strong>
-                      <small>${escapeHtml(entry.category || "Other")} · ${escapeHtml(entry.harmonyStatus)}</small>
+                      <small>${escapeHtml(recommendationSummaryLine(entry))}</small>
                     </span>
                   </li>
                 `,
@@ -218,6 +219,14 @@ function renderRecommendationSummary(entries: RecommendationEntry[], summary: Re
               .join("")}
           </ol>
   `;
+}
+
+function recommendationSummaryLine(entry: RecommendationEntry): string {
+  const base = `${entry.category || "Other"} · ${entry.harmonyStatus}`;
+  if (!entry.isDyeable || entry.recommendedDyeColors.length === 0) {
+    return base;
+  }
+  return `${base} · dye ${entry.recommendedDyeColors.join(", ")}`;
 }
 
 function buildRecommendationSummaryText(
@@ -277,7 +286,7 @@ async function writeSsgReport(results: SsgGenerationResult[]): Promise<void> {
 
 function emptyRecommendations(slug: string): RecommendationsData {
   return {
-    schemaVersion: "recommendations.v2",
+    schemaVersion: RECOMMENDATIONS_SCHEMA_VERSION,
     pokemonSlug: slug,
     pageSize: 10,
     totalPages: 0,

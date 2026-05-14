@@ -206,7 +206,7 @@ const rankedFixture: RecommendationRankingInput[] = [
   },
 ];
 const rankedSlugs = rankRecommendationEntries(rankedFixture).map((entry) => entry.itemSlug);
-const expectedRankedSlugs = ["override-item", "multi-term", "a-slug", "z-slug", "complementary-item"];
+const expectedRankedSlugs = ["multi-term", "a-slug", "z-slug", "complementary-item", "override-item"];
 if (rankedSlugs.join(",") !== expectedRankedSlugs.join(",")) {
   throw new Error(`Unexpected recommendation ranking order: ${rankedSlugs.join(",")}`);
 }
@@ -229,6 +229,7 @@ const recommendationDataFixture: RecommendationsData = {
       itemPrimaryColor: "#00FF00",
       harmonyStatus: "not_required",
       harmonyType: null,
+      recommendedDyeColors: ["red"],
       overrideSource: null,
       rank: 1,
       pageIndex: 0,
@@ -331,10 +332,11 @@ const appendRecommendations = appendOverrideData.recommendations[0].recommendati
 const appendedManualItem = appendRecommendations.find((entry) => entry.itemSlug === "manual-rock");
 if (
   !appendedManualItem ||
-  appendedManualItem.rank !== 1 ||
+  appendedManualItem.rank !== appendRecommendations.length ||
   appendedManualItem.pageIndex !== 0 ||
   appendedManualItem.overrideSource !== "fixture-overrides.json#pokemon.fixture-mon.recommendedItems.manual-rock" ||
   appendedManualItem.harmonyStatus !== "override" ||
+  appendRecommendations.at(-1)?.itemSlug !== "manual-rock" ||
   !appendRecommendations.some((entry) => entry.itemSlug === "flower-garden-lamp")
 ) {
   throw new Error(`Unexpected append override recommendations: ${JSON.stringify(appendRecommendations)}`);
@@ -442,7 +444,7 @@ if (
   sparseDiagnostics.recommendationCount !== 1 ||
   sparseRecommendationData.diagnostics.summary.sparseCount !== 1
 ) {
-  throw new Error(`sparse-mon fallback diagnostics branch failed: ${JSON.stringify(sparseRecommendationData.diagnostics)}`);
+  throw new Error(`sparse-mon diagnostics branch failed: ${JSON.stringify(sparseRecommendationData.diagnostics)}`);
 }
 
 const emptyRecommendationData = buildRecommendationDataSet(
@@ -459,12 +461,21 @@ const emptyRecommendationData = buildRecommendationDataSet(
 );
 const emptyDiagnostics = emptyRecommendationData.diagnostics.pokemon[0];
 if (
-  emptyRecommendationData.recommendations[0].recommendations.length !== 0 ||
-  emptyDiagnostics?.status !== "empty" ||
-  emptyDiagnostics.exclusionReasonCounts.pokemon_has_no_preference_terms !== 1 ||
-  emptyRecommendationData.diagnostics.summary.emptyCount !== 1
+  emptyRecommendationData.recommendations[0].recommendations.length !== 1 ||
+  emptyDiagnostics?.status !== "sparse" ||
+  emptyDiagnostics.recommendationStrategy !== "dyeable_default" ||
+  emptyDiagnostics.defaultDyeableRecommendationCount !== 1 ||
+  Object.keys(emptyDiagnostics.exclusionReasonCounts).length !== 0 ||
+  emptyRecommendationData.diagnostics.summary.sparseCount !== 1
 ) {
-  throw new Error(`empty-mon fallback diagnostics branch failed: ${JSON.stringify(emptyRecommendationData.diagnostics)}`);
+  throw new Error(`empty-mon dyeable default diagnostics branch failed: ${JSON.stringify(emptyRecommendationData.diagnostics)}`);
+}
+const emptyFallbackEntry = emptyRecommendationData.recommendations[0].recommendations[0];
+if (
+  emptyFallbackEntry?.itemSlug !== "flower-chair" ||
+  emptyFallbackEntry.matchedPreferenceTerms.join(",") !== "decoration,dyeable"
+) {
+  throw new Error(`empty-mon dyeable default recommendation failed: ${JSON.stringify(emptyFallbackEntry)}`);
 }
 
 console.log("Validated recommendation candidate, harmony, ranking, and schema fixtures.");
@@ -503,6 +514,7 @@ function compactItemFixture(slug: string, name: string, isDyeable: boolean, tags
     sourceRow: 1,
     recommendation: {
       isDyeable,
+      dyeColorVariants: isDyeable ? ["blue", "red"] : [],
       itemPrimaryColor: null,
       colorSource: null,
       fallbackReason: null,

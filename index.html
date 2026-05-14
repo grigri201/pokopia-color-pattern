@@ -51,7 +51,6 @@
           <div class="brand-copy">
             <div class="kicker">Pokopia / Color Index</div>
             <h1 class="brand-title">Pocket <em>Palette</em></h1>
-            <p class="brand-note">宝可梦头像色板、比例与家具搭配候选。</p>
           </div>
           <button id="drawerClose" class="drawer-close" type="button" aria-label="关闭搜索抽屉">×</button>
         </header>
@@ -61,13 +60,13 @@
             <input
               id="searchInput"
               type="search"
-              placeholder="Search / 搜索"
+              placeholder="搜索"
               autocomplete="off"
               aria-label="搜索 Pokemon 名称、英文名或编号" />
             <span id="resultCount" aria-live="polite">000</span>
           </label>
           <div class="filter-row" aria-label="Pokemon list range">
-            <button class="is-active" type="button" data-range="all" aria-pressed="true">All</button>
+            <button class="is-active" type="button" data-range="all" aria-pressed="true">全部</button>
             <button type="button" data-range="early" aria-pressed="false">001-120</button>
             <button type="button" data-range="late" aria-pressed="false">121+</button>
           </div>
@@ -77,14 +76,13 @@
 
         <footer class="source-block">
           <span>311 Pokemon</span>
-          <span>115 Furniture</span>
         </footer>
       </aside>
 
       <section class="stage" data-od-id="selected-pokemon">
         <div class="stage-inner">
           <div class="topline">
-            <div id="hashLabel" class="hash-pill">#ditto</div>
+            <button id="languageToggle" class="hash-pill" type="button" aria-label="切换到英文">English</button>
           </div>
 
           <div class="hero-grid">
@@ -105,16 +103,16 @@
             <div class="analysis-grid">
               <section class="analysis-card">
                 <div class="section-label">
-                  <h2>色板 / Swatches</h2>
-                  <span id="paletteTotal" class="tiny-label">0 colors</span>
+                  <h2 id="paletteTitle">色板</h2>
+                  <span id="paletteTotal" class="tiny-label">0 种颜色</span>
                 </div>
                 <div id="swatchList" class="swatch-list"></div>
               </section>
 
               <section class="analysis-card">
                 <div class="section-label">
-                  <h2>Pattern</h2>
-                  <span id="patternTotal" class="tiny-label">40 cells</span>
+                  <h2 id="patternTitle">图案</h2>
+                  <span id="patternTotal" class="tiny-label">40 格</span>
                 </div>
                 <div id="patternView" class="pattern-view" aria-label="Color pattern cells"></div>
               </section>
@@ -126,15 +124,14 @@
       <aside class="inspector" data-od-id="palette-inspector">
         <header class="panel-head">
           <div>
-            <div class="kicker">Item Match</div>
-            <h2 class="panel-title">搭配道具</h2>
+            <h2 id="panelTitle" class="panel-title">搭配道具</h2>
           </div>
         </header>
 
         <div class="panel-scroll">
           <section>
             <div class="section-label">
-              <h2 id="itemSectionTitle">家具</h2>
+              <h2 id="itemSectionTitle">推荐搭配 · 全部</h2>
               <select id="itemFilter" class="item-filter" aria-label="筛选搭配道具类型">
                 <option value="全部">全部</option>
                 <option value="家具">家具</option>

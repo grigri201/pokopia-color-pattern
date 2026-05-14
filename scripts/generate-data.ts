@@ -43,12 +43,39 @@ type RawJsonItem = {
   variantSrcs?: unknown;
 };
 
+type PokemonPreferenceSourceData = {
+  schemaVersion?: unknown;
+  pokemon?: unknown;
+  itemPreferenceTerms?: unknown;
+};
+
+type PokemonPreferenceSourceEntry = {
+  slug: string;
+  preferenceTerms: string[];
+};
+
+type ItemPreferenceSourceEntry = {
+  slug: string;
+  terms: string[];
+};
+
+type ItemTranslationSource = {
+  bySlug: Map<string, string>;
+  byName: Map<string, string>;
+};
+
 const projectRoot = process.cwd();
 
 const itemManifestPath = "docs/pokopia_image_sources/item_portraits/manifest.csv";
 const placeableCsvPath = "docs/pokopia_image_sources/pokopiadex_placeable_items.csv";
 const placeableJsonPath = "docs/pokopia_image_sources/pokopiadex_placeable_items.json";
+const itemTranslationCsvPaths = [
+  "docs/pokopia_image_sources/infipoke_items_zh_hans.csv",
+  "docs/pokopia_image_sources/decorative_item_images.csv",
+  "docs/pokopia_image_sources/item_furniture_images.csv",
+] as const;
 const pokemonManifestPath = "docs/pokopia_image_sources/pokemon_portraits/manifest.csv";
+const pokemonPreferencePath = "docs/pokopia_image_sources/pokopiadex_pokemon_preferences.json";
 const pokemonOverridePath = "data/overrides/pokemon-metadata.json";
 
 const compactItemsOutputPath = "generated/data/compact-items.json";
@@ -57,18 +84,21 @@ const pokemonIndexOutputPath = "generated/data/pokemon-index.json";
 const recommendationsOutputDir = "generated/data/recommendations";
 const recommendationDiagnosticsOutputPath = "generated/reports/recommendation-diagnostics.json";
 
-const maxCompactItemsGzipBytes = 50 * 1024;
+const maxCompactItemsGzipBytes = 70 * 1024;
 const maxItemColorsGzipBytes = 25 * 1024;
 const maxPokemonIndexGzipBytes = 40 * 1024;
-const maxRecommendationGzipBytes = 5 * 1024;
+const maxRecommendationGzipBytes = 12 * 1024;
 const recommendationPageSize = 10;
 const expectedItemCount = 1219;
 const expectedPokemonCount = 311;
+const pokemonAllowedWithoutPreferenceTerms = new Set(["ditto"]);
 
 const absoluteItemManifestPath = resolve(projectRoot, itemManifestPath);
 const absolutePlaceableCsvPath = resolve(projectRoot, placeableCsvPath);
 const absolutePlaceableJsonPath = resolve(projectRoot, placeableJsonPath);
+const absoluteItemTranslationCsvPaths = itemTranslationCsvPaths.map((path) => resolve(projectRoot, path));
 const absolutePokemonManifestPath = resolve(projectRoot, pokemonManifestPath);
+const absolutePokemonPreferencePath = resolve(projectRoot, pokemonPreferencePath);
 const absolutePokemonOverridePath = resolve(projectRoot, pokemonOverridePath);
 const absoluteCompactItemsOutputPath = resolve(projectRoot, compactItemsOutputPath);
 const absoluteItemColorsOutputPath = resolve(projectRoot, itemColorsOutputPath);
@@ -88,23 +118,35 @@ if (validateOnly) {
 
 async function generateData(): Promise<void> {
   const issues: GenerationIssue[] = [];
-  const [manifestCsv, placeableCsv, placeableJsonText, pokemonCsv, overrideText] = await Promise.all([
+  const [manifestCsv, placeableCsv, placeableJsonText, pokemonCsv, pokemonPreferenceText, overrideText] = await Promise.all([
     readFile(absoluteItemManifestPath, "utf8"),
     readFile(absolutePlaceableCsvPath, "utf8"),
     readFile(absolutePlaceableJsonPath, "utf8"),
     readFile(absolutePokemonManifestPath, "utf8"),
+    readFile(absolutePokemonPreferencePath, "utf8"),
     readFile(absolutePokemonOverridePath, "utf8"),
   ]);
+  const itemTranslationCsvs = await Promise.all(absoluteItemTranslationCsvPaths.map((path) => readFile(path, "utf8")));
 
   const overrides = parsePokemonOverrides(overrideText, issues);
-  const compactItems = buildCompactItems(manifestCsv, placeableCsv, placeableJsonText, issues);
+  const pokemonPreferenceSource = parsePokemonPreferenceSource(pokemonPreferenceText, issues);
+  const itemTranslationSource = parseItemTranslationSource(itemTranslationCsvs, issues);
+  const compactItems = buildCompactItems(
+    manifestCsv,
+    placeableCsv,
+    placeableJsonText,
+    pokemonPreferenceSource.itemTermsBySlug,
+    itemTranslationSource,
+    issues,
+  );
   const itemColors = await buildItemColors(compactItems.items, issues);
-  const pokemonIndex = await buildPokemonIndex(pokemonCsv, overrides, issues);
+  const pokemonIndex = await buildPokemonIndex(pokemonCsv, pokemonPreferenceSource.pokemonTermsBySlug, overrides, issues);
   const recommendationBuild = buildRecommendations(pokemonIndex, compactItems, itemColors, overrides, issues);
   const recommendations = recommendationBuild.recommendations;
   const recommendationDiagnostics = recommendationBuild.diagnostics;
 
   validateAllData(compactItems, itemColors, pokemonIndex, overrides, recommendations, issues);
+  validateRecommendationSourceCoverage(pokemonPreferenceSource, issues);
   validateRecommendationDiagnostics(recommendationDiagnostics, recommendations, issues);
 
   if (issues.length > 0) {
@@ -137,10 +179,11 @@ async function generateData(): Promise<void> {
 
 async function validateExistingOutputs(): Promise<void> {
   const issues: GenerationIssue[] = [];
-  const [compactText, itemColorsText, pokemonIndexText, overrideText, recommendationDiagnosticsText, recommendationFiles] = await Promise.all([
+  const [compactText, itemColorsText, pokemonIndexText, pokemonPreferenceText, overrideText, recommendationDiagnosticsText, recommendationFiles] = await Promise.all([
     readFile(absoluteCompactItemsOutputPath, "utf8"),
     readFile(absoluteItemColorsOutputPath, "utf8"),
     readFile(absolutePokemonIndexOutputPath, "utf8"),
+    readFile(absolutePokemonPreferencePath, "utf8"),
     readFile(absolutePokemonOverridePath, "utf8"),
     readFile(absoluteRecommendationDiagnosticsOutputPath, "utf8"),
     readRecommendationOutputFiles(issues),
@@ -149,12 +192,14 @@ async function validateExistingOutputs(): Promise<void> {
   const compactItems = parseJsonValue(compactText, compactItemsOutputPath, issues);
   const itemColors = parseJsonValue(itemColorsText, itemColorsOutputPath, issues);
   const pokemonIndex = parseJsonValue(pokemonIndexText, pokemonIndexOutputPath, issues);
+  const pokemonPreferenceSource = parsePokemonPreferenceSource(pokemonPreferenceText, issues);
   const overrides = parseJsonValue(overrideText, pokemonOverridePath, issues);
   const recommendationDiagnostics = parseJsonValue(recommendationDiagnosticsText, recommendationDiagnosticsOutputPath, issues);
   const recommendations = recommendationFiles.map((file) => parseJsonValue(file.text, file.path, issues));
   validateRecommendationOutputPaths(recommendationFiles, recommendations, issues);
 
   validateAllData(compactItems, itemColors, pokemonIndex, overrides, recommendations, issues);
+  validateRecommendationSourceCoverage(pokemonPreferenceSource, issues);
   validateRecommendationDiagnostics(recommendationDiagnostics, recommendations, issues);
 
   if (issues.length > 0) {
@@ -177,7 +222,14 @@ async function validateExistingOutputs(): Promise<void> {
   );
 }
 
-function buildCompactItems(manifestCsv: string, placeableCsv: string, placeableJsonText: string, issues: GenerationIssue[]): CompactItemsData {
+function buildCompactItems(
+  manifestCsv: string,
+  placeableCsv: string,
+  placeableJsonText: string,
+  itemPreferenceTermsBySlug: Map<string, string[]>,
+  itemTranslationSource: ItemTranslationSource,
+  issues: GenerationIssue[],
+): CompactItemsData {
   const manifest = parseCsv(manifestCsv);
   const placeable = parseCsv(placeableCsv);
   manifest.issues.forEach((message) => issues.push({ file: itemManifestPath, message }));
@@ -187,7 +239,16 @@ function buildCompactItems(manifestCsv: string, placeableCsv: string, placeableJ
   const rawJsonBySlug = parsePlaceableJson(placeableJsonText, issues);
   const compactRows = manifest.rows
     .filter((row) => row.values.status === "ok" && row.values.kind === "placeable_item")
-    .map((row) => toCompactItem(row, placeableBySlug.get(row.values.slug), rawJsonBySlug.get(row.values.slug), issues))
+    .map((row) =>
+      toCompactItem(
+        row,
+        placeableBySlug.get(row.values.slug),
+        rawJsonBySlug.get(row.values.slug),
+        itemPreferenceTermsBySlug.get(row.values.slug) ?? [],
+        itemTranslationSource,
+        issues,
+      ),
+    )
     .sort(compareCompactItems);
 
   return {
@@ -205,6 +266,62 @@ function buildCompactItems(manifestCsv: string, placeableCsv: string, placeableJ
     },
     items: compactRows,
   };
+}
+
+function parseItemTranslationSource(csvTexts: string[], issues: GenerationIssue[]): ItemTranslationSource {
+  const bySlug = new Map<string, string>();
+  const byName = new Map<string, string>();
+
+  csvTexts.forEach((text, index) => {
+    const file = itemTranslationCsvPaths[index] ?? "item translation source";
+    const parsed = parseCsv(text);
+    parsed.issues.forEach((message) => issues.push({ file, message }));
+    parsed.rows.forEach((row) => {
+      const zhName = nullable(row.values.name_zh_hans);
+      if (!zhName) {
+        return;
+      }
+
+      const slug = nullable(firstText(row.values.slug, row.values.pokopiadex_slug, row.values.infipoke_slug));
+      const name = nullable(row.values.name);
+      if (slug) {
+        setFirstTranslation(bySlug, itemSlugTranslationKey(slug), zhName);
+      }
+      if (name) {
+        setFirstTranslation(byName, itemNameTranslationKey(name), zhName);
+      }
+    });
+  });
+
+  return { bySlug, byName };
+}
+
+function setFirstTranslation(map: Map<string, string>, key: string, value: string): void {
+  if (key && !map.has(key)) {
+    map.set(key, value);
+  }
+}
+
+function resolveItemTranslation(source: ItemTranslationSource, slug: string, name: string): string | null {
+  return (
+    source.bySlug.get(itemSlugTranslationKey(slug)) ??
+    source.byName.get(itemNameTranslationKey(name)) ??
+    source.byName.get(itemNameTranslationKey(name.replace(/\s+\(interior\)$/i, " (wallpaper)"))) ??
+    null
+  );
+}
+
+function itemSlugTranslationKey(value: string): string {
+  return value.toLowerCase().replace(/[^a-z0-9]+/g, "");
+}
+
+function itemNameTranslationKey(value: string): string {
+  return value
+    .toLowerCase()
+    .replace(/é/g, "e")
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()
+    .replace(/\s+/g, " ");
 }
 
 async function buildItemColors(items: CompactItem[], issues: GenerationIssue[]): Promise<ItemColorsData> {
@@ -247,6 +364,7 @@ async function buildItemColors(items: CompactItem[], issues: GenerationIssue[]):
 
 async function buildPokemonIndex(
   pokemonCsv: string,
+  pokemonPreferenceTermsBySlug: Map<string, string[]>,
   overrides: PokemonMetadataOverridesData,
   issues: GenerationIssue[],
 ): Promise<PokemonIndexData> {
@@ -267,8 +385,9 @@ async function buildPokemonIndex(
     const imagePath = toRootAbsolutePath(requireField(row.values, "relative_path", pokemonManifestPath, row.rowNumber, issues, slug));
     const localImagePath = resolve(projectRoot, imagePath.slice(1));
     const overrideFields = resolvePokemonMetadataOverrideFields(slug, override, pokemonOverridePath, DEFAULT_FALLBACK_COLOR);
-    const preferenceTerms = overrideFields.preferenceTerms;
-    const preferenceSource = overrideFields.preferenceSource;
+    const metadataPreferenceTerms = pokemonPreferenceTermsBySlug.get(slug) ?? [];
+    const preferenceTerms = uniqueSorted([...metadataPreferenceTerms, ...overrideFields.preferenceTerms].map(toPreferenceTerm).filter(Boolean));
+    const preferenceSource = overrideFields.preferenceSource ?? (metadataPreferenceTerms.length > 0 ? "metadata" : null);
     const overrideSource = overrideFields.overrideSource;
 
     if (override?.primaryColor || override?.palette) {
@@ -349,6 +468,7 @@ async function buildPokemonIndex(
     schemaVersion: POKEMON_INDEX_SCHEMA_VERSION,
     generatedFrom: {
       pokemonManifestPath,
+      pokemonPreferencePath,
       overridePath: pokemonOverridePath,
       rawBoundary: "docs/pokopia_image_sources/**",
     },
@@ -539,8 +659,40 @@ function validateRecommendationDiagnostics(report: unknown, recommendations: unk
     compareSummaryNumber(report.summary, "readyCount", readyCount, issues);
     compareSummaryNumber(report.summary, "totalRecommendations", totalRecommendations, issues);
   }
+  if (report.pokemon.length > 0 && totalRecommendations === 0) {
+    issues.push({
+      file: recommendationDiagnosticsOutputPath,
+      field: "$.summary.totalRecommendations",
+      message: "Expected generated recommendations to contain at least one item",
+    });
+  }
 
   validateNoPrivatePaths(recommendationDiagnosticsOutputPath, report, issues);
+}
+
+function validateRecommendationSourceCoverage(
+  source: ReturnType<typeof parsePokemonPreferenceSource>,
+  issues: GenerationIssue[],
+): void {
+  const missingPokemonTerms = source.pokemonEntries.filter(
+    (entry) => entry.preferenceTerms.length === 0 && !pokemonAllowedWithoutPreferenceTerms.has(entry.slug),
+  );
+  missingPokemonTerms.slice(0, 10).forEach((entry) => {
+    issues.push({
+      file: pokemonPreferencePath,
+      slug: entry.slug,
+      field: "$.pokemon[].preferenceTerms",
+      message: "Expected original Pokemon preference source to include preference terms",
+    });
+  });
+
+  if (source.itemEntries.length === 0) {
+    issues.push({
+      file: pokemonPreferencePath,
+      field: "$.itemPreferenceTerms",
+      message: "Expected item preference source to include item keyword rows",
+    });
+  }
 }
 
 function diagnosticsStatusForCount(count: number): "empty" | "sparse" | "ready" {
@@ -569,11 +721,14 @@ function toCompactItem(
   manifestRow: CsvRow,
   placeableRow: CsvRow | undefined,
   rawJson: RawJsonItem | undefined,
+  itemPreferenceTerms: string[],
+  itemTranslationSource: ItemTranslationSource,
   issues: GenerationIssue[],
 ): CompactItem {
   const row = manifestRow.values;
   const placeable = placeableRow?.values;
   const slug = requireField(row, "slug", itemManifestPath, manifestRow.rowNumber, issues);
+  const name = requireField(row, "name", itemManifestPath, manifestRow.rowNumber, issues, slug);
   const category = nullable(firstText(row.category, placeable?.category, asString(rawJson?.menu_category)));
   const tags = parseStringArrayField(row.tags, "tags", itemManifestPath, manifestRow.rowNumber, slug, issues);
   const sources = parseStringArrayField(row.sources, "sources", itemManifestPath, manifestRow.rowNumber, slug, issues);
@@ -606,8 +761,8 @@ function toCompactItem(
   return {
     slug,
     id: nullable(firstText(row.id, asString(rawJson?.id))),
-    name: requireField(row, "name", itemManifestPath, manifestRow.rowNumber, issues, slug),
-    nameZh: null,
+    name,
+    nameZh: resolveItemTranslation(itemTranslationSource, slug, name),
     category,
     tags,
     event: nullable(row.event),
@@ -620,10 +775,11 @@ function toCompactItem(
     sourceRow: manifestRow.rowNumber,
     recommendation: {
       isDyeable: isDyeableItem(rawJson),
+      dyeColorVariants: normalizeDyeColorVariants(rawJson),
       itemPrimaryColor: null,
       colorSource: null,
       fallbackReason: null,
-      preferenceTerms: [],
+      preferenceTerms: uniqueSorted(itemPreferenceTerms.map(toPreferenceTerm).filter(Boolean)),
       roleTags: buildRoleTags(category, tags),
     },
   };
@@ -645,7 +801,25 @@ function isDyeableItem(rawJson: RawJsonItem | undefined): boolean | null {
   if (!rawJson) {
     return null;
   }
-  return hasNonEmptyArray(rawJson.color_variants) || hasNonEmptyArray(rawJson.variantSrcs);
+  return normalizeDyeColorVariants(rawJson).length > 0 || hasNonEmptyArray(rawJson.variantSrcs);
+}
+
+function normalizeDyeColorVariants(rawJson: RawJsonItem | undefined): string[] {
+  if (!rawJson) {
+    return [];
+  }
+  if (Array.isArray(rawJson.color_variants)) {
+    return uniqueSorted(rawJson.color_variants.map((value) => String(value).trim().toLowerCase()).filter(Boolean));
+  }
+  if (Array.isArray(rawJson.variantSrcs)) {
+    return uniqueSorted(
+      rawJson.variantSrcs
+        .map((entry) => (isRecord(entry) ? asString(entry.variant) : undefined))
+        .filter((value): value is string => Boolean(value))
+        .map((value) => value.trim().toLowerCase()),
+    );
+  }
+  return [];
 }
 
 function hasNonEmptyArray(value: unknown): boolean {
@@ -681,6 +855,60 @@ function parsePlaceableJson(text: string, issues: GenerationIssue[]): Map<string
   return bySlug;
 }
 
+function parsePokemonPreferenceSource(
+  text: string,
+  issues: GenerationIssue[],
+): {
+  pokemonTermsBySlug: Map<string, string[]>;
+  itemTermsBySlug: Map<string, string[]>;
+  pokemonEntries: PokemonPreferenceSourceEntry[];
+  itemEntries: ItemPreferenceSourceEntry[];
+} {
+  const parsed = parseJsonValue(text, pokemonPreferencePath, issues) as PokemonPreferenceSourceData;
+  const pokemonTermsBySlug = new Map<string, string[]>();
+  const itemTermsBySlug = new Map<string, string[]>();
+  const pokemonEntries: PokemonPreferenceSourceEntry[] = [];
+  const itemEntries: ItemPreferenceSourceEntry[] = [];
+
+  if (!isRecord(parsed)) {
+    issues.push({ file: pokemonPreferencePath, field: "$", message: "Expected Pokemon preference source object" });
+    return { pokemonTermsBySlug, itemTermsBySlug, pokemonEntries, itemEntries };
+  }
+  if (parsed.schemaVersion !== "pokopiadex-pokemon-preferences.v1") {
+    issues.push({ file: pokemonPreferencePath, field: "$.schemaVersion", message: "Expected pokopiadex-pokemon-preferences.v1" });
+  }
+  if (!Array.isArray(parsed.pokemon)) {
+    issues.push({ file: pokemonPreferencePath, field: "$.pokemon", message: "Expected Pokemon preference array" });
+  } else {
+    parsed.pokemon.forEach((entry, index) => {
+      const path = `$.pokemon[${index}]`;
+      if (!isRecord(entry) || typeof entry.slug !== "string" || !Array.isArray(entry.preferenceTerms)) {
+        issues.push({ file: pokemonPreferencePath, field: path, message: "Expected Pokemon preference entry with slug and preferenceTerms" });
+        return;
+      }
+      const terms = uniqueSorted(entry.preferenceTerms.map((term) => String(term)).map(toPreferenceTerm).filter(Boolean));
+      pokemonTermsBySlug.set(entry.slug, terms);
+      pokemonEntries.push({ slug: entry.slug, preferenceTerms: terms });
+    });
+  }
+  if (!Array.isArray(parsed.itemPreferenceTerms)) {
+    issues.push({ file: pokemonPreferencePath, field: "$.itemPreferenceTerms", message: "Expected item keyword array" });
+  } else {
+    parsed.itemPreferenceTerms.forEach((entry, index) => {
+      const path = `$.itemPreferenceTerms[${index}]`;
+      if (!isRecord(entry) || typeof entry.slug !== "string" || !Array.isArray(entry.terms)) {
+        issues.push({ file: pokemonPreferencePath, field: path, message: "Expected item keyword entry with slug and terms" });
+        return;
+      }
+      const terms = uniqueSorted(entry.terms.map((term) => String(term)).map(toPreferenceTerm).filter(Boolean));
+      itemTermsBySlug.set(entry.slug, terms);
+      itemEntries.push({ slug: entry.slug, terms });
+    });
+  }
+
+  return { pokemonTermsBySlug, itemTermsBySlug, pokemonEntries, itemEntries };
+}
+
 function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssue[]): void {
   const gzipBytes = gzipSync(serializeJsonForOutput(data)).length;
   if (gzipBytes >= maxCompactItemsGzipBytes) {
@@ -694,6 +922,14 @@ function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssu
   data.items.forEach((item) => {
     if (item.recommendation.isDyeable === null) {
       issues.push({ file: compactItemsOutputPath, slug: item.slug, field: "$.recommendation.isDyeable", message: "Expected derived dyeable status" });
+    }
+    if (item.recommendation.isDyeable === true && item.recommendation.dyeColorVariants.length === 0) {
+      issues.push({
+        file: compactItemsOutputPath,
+        slug: item.slug,
+        field: "$.recommendation.dyeColorVariants",
+        message: "Expected dyeable item to include dye color variants",
+      });
     }
     validateRootAbsoluteImagePath(
       item.imagePath,
@@ -831,6 +1067,17 @@ function validateRecommendationsShape(
           message: "Recommendation item primary color differs from item color data",
         });
       }
+      const dyeColorVariants = new Set(item.recommendation.dyeColorVariants);
+      entry.recommendedDyeColors.forEach((color) => {
+        if (!dyeColorVariants.has(color)) {
+          issues.push({
+            file,
+            slug: entry.itemSlug,
+            field: "$.recommendations[].recommendedDyeColors",
+            message: `Recommended dye color ${color} is not available on compact item`,
+          });
+        }
+      });
     });
   });
 
@@ -1061,6 +1308,10 @@ function buildRoleTags(category: string | null, tags: string[]): string[] {
 
 function toRoleTag(value: string): string {
   return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+function toPreferenceTerm(value: string): string {
+  return value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").replace(/\s+/g, " ").trim();
 }
 
 function uniqueSorted(values: string[]): string[] {

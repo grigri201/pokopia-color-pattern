@@ -19,6 +19,7 @@ export type RecommendationItemInput = {
   preferenceTerms: string[];
   roleTags: string[];
   isDyeable: boolean | null;
+  dyeColorVariants?: string[];
 };
 
 export type PokemonPreferenceProfile = {
@@ -145,6 +146,15 @@ export function toPokemonPreferenceProfile(metadata: PokemonPreferenceMetadata):
   };
 }
 
+export function matchRecommendationPreferenceTerms(preferenceTerms: string[], item: RecommendationItemInput): string[] {
+  const normalizedPreferenceTerms = normalizeTerms(preferenceTerms);
+  if (normalizedPreferenceTerms.length === 0) {
+    return [];
+  }
+
+  return matchPreferenceTerms(normalizedPreferenceTerms, item);
+}
+
 export function applyHarmonyToCandidates(
   pokemonSlug: string,
   pokemonPrimaryColor: string | null,
@@ -222,9 +232,7 @@ export function rankRecommendationEntries<T extends RecommendationRankingInput>(
 
 export function compareRecommendationRank(left: RecommendationRankingInput, right: RecommendationRankingInput): number {
   return (
-    overridePriority(left) - overridePriority(right) ||
     right.matchedPreferenceTerms.length - left.matchedPreferenceTerms.length ||
-    dyeablePriority(left) - dyeablePriority(right) ||
     harmonyPriority(left) - harmonyPriority(right) ||
     (right.roleFitScore ?? 0) - (left.roleFitScore ?? 0) ||
     left.itemSlug.localeCompare(right.itemSlug, "en")
@@ -257,6 +265,7 @@ function matchPreferenceTerms(preferenceTerms: string[], item: RecommendationIte
     ...item.tags,
     ...item.preferenceTerms,
     ...item.roleTags,
+    ...(item.dyeColorVariants ?? []),
   ]);
 
   return preferenceTerms.filter((term) => includesTerm(searchText, term));
@@ -282,14 +291,6 @@ function includesTerm(searchText: string, term: string): boolean {
 
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function overridePriority(entry: RecommendationRankingInput): number {
-  return entry.overrideSource ? 0 : 1;
-}
-
-function dyeablePriority(entry: RecommendationRankingInput): number {
-  return entry.isDyeable ? 0 : 1;
 }
 
 function harmonyPriority(entry: RecommendationRankingInput): number {

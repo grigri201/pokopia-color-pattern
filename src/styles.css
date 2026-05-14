@@ -472,13 +472,22 @@ body.drawer-open .selected-float {
 .hash-pill {
   max-width: 26ch;
   overflow: hidden;
+  border: 0;
   border-bottom: 1px solid currentColor;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
   font-family:
     "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
   font-size: 0.76rem;
   font-weight: 700;
+  padding: 0;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.hash-pill:hover {
+  opacity: 0.72;
 }
 
 .hero-grid {
@@ -771,7 +780,7 @@ body.drawer-open .selected-float {
 .recommendation-summary {
   display: flex;
   align-items: baseline;
-  justify-content: space-between;
+  justify-content: flex-end;
   gap: 12px;
   min-width: 0;
   color: var(--muted);

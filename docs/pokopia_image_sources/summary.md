@@ -10,6 +10,7 @@ Generated: 2026-05-12
 ## Output files
 - `pokemon_images.csv`: one image per cleaned Pokemon / Pokopia special Pokemon entry, with Simplified Chinese names.
 - `item_furniture_images.csv`: one image per furniture entry, with Simplified Chinese names.
+- `infipoke_items_zh_hans.csv`: Simplified Chinese item-name snapshot from the InfiPoke Pokopia item index.
 - `pokopia_image_urls.csv`: combined cleaned Pokemon + furniture rows.
 
 ## Columns
@@ -31,6 +32,7 @@ Generated: 2026-05-12
 - Standard Pokemon names: official Chinese Pokemon names as reflected in the public Chinese-name index.
 - Pokopia special Pokemon names: Simplified Chinese names from the official Pokopia `sc/pokemon` page.
 - Furniture names: Simplified Chinese in-game names from InfiPoke Pokopia item/crafting indexes; Nintendo's official store page confirms Pokopia supports Simplified Chinese, but I did not find an official public page that lists every furniture name one by one.
+- Full item-name snapshot: Simplified Chinese item names from InfiPoke's Pokopia item index, used to populate generated `nameZh` / `itemZhName` values when the English name or normalized slug matches.
 
 ## Source URLs used for translation checks
 - https://bulbapedia.bulbagarden.net/wiki/List_of_Chinese_Pok%C3%A9mon_names

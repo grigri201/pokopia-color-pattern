@@ -9,6 +9,7 @@ type CompactItem = {
   category: string | null;
   recommendation: {
     isDyeable: boolean | null;
+    dyeColorVariants: string[];
     itemPrimaryColor: string | null;
   };
 };
@@ -38,15 +39,26 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   const recommendationData = (await recommendationResponse.json()) as { pokemonSlug: string; recommendations: unknown[] };
   expect(recommendationData.pokemonSlug).toBe("ditto");
   expect(Array.isArray(recommendationData.recommendations)).toBe(true);
+  expect(recommendationData.recommendations.length).toBeGreaterThan(0);
 
   await expect(page.locator("#app")).toBeVisible();
   await expect(page.locator("#staticPage")).toHaveCount(0);
-  await expect(page.locator("#hashLabel")).toHaveText("#ditto");
+  await expect(page.locator("#languageToggle")).toHaveText("English");
   await expect(page.locator("#pokemonTitle")).toContainText("Ditto");
   await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /063-ditto\.png/);
   await expect(page.locator("#metricStrip")).toContainText("HEX");
   await expect(page.locator("#swatchList")).toContainText("#DCBFFF");
-  await expect(page.locator("#furnitureGrid")).toContainText("当前数据和规则暂未产生推荐搭配");
+  await expect(page.locator(".recommendation-summary")).toContainText("/");
+  await expect(page.locator(".recommendation-card").first()).toBeVisible();
+});
+
+test("legacy hash route canonicalizes to Pokemon pathname", async ({ page }) => {
+  await page.goto("/#abra");
+
+  await expect(page).toHaveURL(/\/pokemon\/abra\/$/);
+  await expect(page.locator("#app")).toBeVisible();
+  await expect(page.locator("#pokemonTitle")).toContainText("Abra");
+  await expect(page.locator("#languageToggle")).toHaveText("English");
 });
 
 test("hydrated Pokemon page keeps pagination, filters, search, and switching usable", async ({ page }) => {
@@ -63,7 +75,7 @@ test("hydrated Pokemon page keeps pagination, filters, search, and switching usa
 
   await expect(page.locator("#app")).toBeVisible();
   await expect(page.locator("#staticPage")).toHaveCount(0);
-  await expect(page.locator("#hashLabel")).toHaveText("#ditto");
+  await expect(page.locator("#languageToggle")).toHaveText("English");
   await expect(page.locator("#pokemonTitle")).toContainText("Ditto");
   await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /063-ditto\.png/);
   await expect(page.locator("#metricStrip")).toContainText("HEX");
@@ -85,6 +97,15 @@ test("hydrated Pokemon page keeps pagination, filters, search, and switching usa
   await page.locator("#itemFilter").selectOption("全部");
   await expect(page.locator("#itemSectionTitle")).toHaveText("推荐搭配 · 全部");
   await expect(page.locator(".recommendation-summary")).toContainText("1-10 / 12");
+  await page.getByRole("button", { name: "切换到英文" }).click();
+  await expect(page.locator("#paletteTitle")).toHaveText("Swatches");
+  await expect(page.locator("#panelTitle")).toHaveText("Item Match");
+  await expect(page.locator("#itemSectionTitle")).toHaveText("Recommendations · All");
+  await expect(page.locator("#itemFilter")).toContainText("All");
+  await expect(page.locator(".recommendation-card").first()).toContainText("Matched terms");
+  await page.getByRole("button", { name: "Switch to Chinese" }).click();
+  await expect(page.locator("#paletteTitle")).toHaveText("色板");
+  await expect(page.locator("#panelTitle")).toHaveText("搭配道具");
 
   await page.locator("#drawerTrigger").click();
   await expect(page.locator("#pokemonDrawer")).toHaveAttribute("aria-hidden", "false");
@@ -97,9 +118,9 @@ test("hydrated Pokemon page keeps pagination, filters, search, and switching usa
   await eeveeButton.click();
 
   await expect(page).toHaveURL(/\/pokemon\/eevee\/$/);
-  await expect(page.locator("#hashLabel")).toHaveText("#eevee");
   await expect(page.locator("#pokemonTitle")).toContainText("Eevee");
-  await expect(page.locator("#furnitureGrid")).toContainText("当前数据和规则暂未产生推荐搭配");
+  await expect(page.locator(".recommendation-summary")).toContainText("/");
+  await expect(page.locator(".recommendation-card").first()).toBeVisible();
 });
 
 function buildRecommendationFixture(pokemonSlug: string): unknown {
@@ -108,7 +129,7 @@ function buildRecommendationFixture(pokemonSlug: string): unknown {
   const furnitureItems = data.items.filter((item) => item.category === "Furniture").slice(0, 2);
   const items = [...foodItems, ...furnitureItems];
   return {
-    schemaVersion: "recommendations.v2",
+    schemaVersion: "recommendations.v3",
     pokemonSlug,
     pageSize: 10,
     totalPages: 2,
@@ -124,6 +145,7 @@ function buildRecommendationFixture(pokemonSlug: string): unknown {
       itemPrimaryColor: item.recommendation.itemPrimaryColor,
       harmonyStatus: "not_required",
       harmonyType: null,
+      recommendedDyeColors: item.recommendation.isDyeable ? item.recommendation.dyeColorVariants.slice(0, 2) : [],
       overrideSource: null,
       rank: index + 1,
       pageIndex: Math.floor(index / 10),
