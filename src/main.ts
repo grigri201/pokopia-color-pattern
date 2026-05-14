@@ -46,6 +46,9 @@ type PlaceableItem = {
   event: string;
   image: string;
   source: string;
+  isDyeable: boolean;
+  dyeColorVariants: string[];
+  itemPrimaryColor: string | null;
 };
 
 type RecommendationPanelState = {
@@ -968,19 +971,21 @@ function renderRecommendationCard(entry: RecommendationEntry): string {
   const item = state.itemBySlug.get(entry.itemSlug);
   const labels = text();
   const displayName = recommendationDisplayName(entry);
-  const category = categoryLabel(entry.category || item?.category || "Other");
+  const category = categoryLabel(item?.category || "Other");
   const terms = entry.matchedPreferenceTerms.map((term) => `<span>${escapeHtml(preferenceTermLabel(term))}</span>`).join("");
-  const color = entry.itemPrimaryColor;
+  const color = item?.itemPrimaryColor ?? null;
+  const isDyeable = item?.isDyeable ?? false;
   const dyeColors = entry.recommendedDyeColors.length > 0
     ? entry.recommendedDyeColors.map((dyeColor) => `<span>${escapeHtml(dyeColorLabel(dyeColor))}</span>`).join("")
     : `<span>${escapeHtml(labels.none)}</span>`;
+  const imagePath = item?.image ?? "";
 
   return `
     <article class="recommendation-card">
       <div class="recommendation-visual">
         ${
-          entry.itemImagePath
-            ? `<img src="${escapeHtml(entry.itemImagePath)}" alt="${escapeHtml(displayName)}" loading="lazy" />`
+          imagePath
+            ? `<img src="${escapeHtml(imagePath)}" alt="${escapeHtml(displayName)}" loading="lazy" />`
             : '<span class="recommendation-placeholder" aria-hidden="true"></span>'
         }
       </div>
@@ -996,10 +1001,10 @@ function renderRecommendationCard(entry: RecommendationEntry): string {
           </div>
           <div>
             <dt>${escapeHtml(labels.fieldDyeable)}</dt>
-            <dd>${entry.isDyeable ? escapeHtml(labels.yes) : escapeHtml(labels.no)}</dd>
+            <dd>${isDyeable ? escapeHtml(labels.yes) : escapeHtml(labels.no)}</dd>
           </div>
           ${
-            entry.isDyeable
+            isDyeable
               ? `<div class="preference-cell">
                   <dt>${escapeHtml(labels.fieldDyeColors)}</dt>
                   <dd class="preference-tags">${dyeColors}</dd>
@@ -1068,7 +1073,7 @@ function recommendationMatchesFilter(entry: RecommendationEntry): boolean {
   }
 
   const item = state.itemBySlug.get(entry.itemSlug);
-  const category = entry.category || item?.category || "";
+  const category = item?.category || "";
   const tags = item?.tags || [];
   switch (state.itemCategory) {
     case "家具":
@@ -1086,21 +1091,21 @@ function recommendationMatchesFilter(entry: RecommendationEntry): boolean {
 
 function isSeedRecommendation(entry: RecommendationEntry): boolean {
   const item = state.itemBySlug.get(entry.itemSlug);
-  const zhName = entry.itemZhName || item?.zh || "";
+  const zhName = item?.zh || "";
   if (zhName.endsWith("种子")) {
     return true;
   }
 
-  const englishName = (entry.itemName || item?.name || "").toLowerCase();
+  const englishName = (item?.name || "").toLowerCase();
   return /(?:^|[-\s])seeds?$/.test(englishName);
 }
 
 function recommendationDisplayName(entry: RecommendationEntry): string {
   const item = state.itemBySlug.get(entry.itemSlug);
   if (state.locale === "zh") {
-    return entry.itemZhName || item?.zh || entry.itemName || item?.name || entry.itemSlug;
+    return item?.zh || item?.name || entry.itemSlug;
   }
-  return entry.itemName || item?.name || entry.itemSlug;
+  return item?.name || entry.itemSlug;
 }
 
 function pokemonPrimaryDisplayName(pokemon: Pokemon): string {
@@ -1232,16 +1237,19 @@ function toPokemon(entry: PokemonIndexEntry): Pokemon {
 
 function toPlaceableItem(item: CompactItem, index: number): PlaceableItem {
   return {
-    index: item.sourceIndex ?? index,
-    id: item.id || item.slug,
+    index,
+    id: item.slug,
     name: item.name,
     zh: item.nameZh || item.name,
     slug: item.slug,
     category: item.category || "Other",
     tags: item.tags,
-    event: item.event || "",
+    event: "",
     image: item.imagePath,
-    source: item.sourceDataset || "generated",
+    source: "generated",
+    isDyeable: item.recommendation.isDyeable ?? false,
+    dyeColorVariants: item.recommendation.dyeColorVariants,
+    itemPrimaryColor: item.recommendation.itemPrimaryColor,
   };
 }
 

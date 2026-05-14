@@ -28,6 +28,19 @@ type StaticPokemonEntry = {
   primaryColor: string;
 };
 
+type StaticItemEntry = {
+  slug: string;
+  name: string;
+  nameZh: string | null;
+  category: string | null;
+  imagePath: string;
+  recommendation: {
+    isDyeable: boolean | null;
+    dyeColorVariants: string[];
+    itemPrimaryColor: string | null;
+  };
+};
+
 type DistRecommendationReadResult = {
   data: unknown | null;
   missing: boolean;
@@ -65,8 +78,10 @@ const ssgGenerationSummaryPath = "generated/reports/ssg-generation-summary.json"
 const runtimeAssetSourcesPath = "generated/reports/runtime-asset-sources.json";
 const runtimeAssetManifestPath = "dist/assets/runtime/asset-manifest.json";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
-const compactGzipLimit = 70 * 1024;
-const recommendationGzipLimit = 12 * 1024;
+const compactGzipLimit = 50 * 1024;
+const recommendationGzipLimit = 5 * 1024;
+const recommendationRawTotalLimit = 12 * 1024 * 1024;
+const recommendationGzipTotalLimit = 800 * 1024;
 const runtimeImageTotalLimit = 15 * 1024 * 1024;
 const runtimePokemonImageLimit = 64 * 1024;
 const runtimeItemImageLimit = 32 * 1024;
@@ -76,20 +91,29 @@ const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
 const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-color-pattern.local");
 const distOnly = process.argv.includes("--dist");
+const recommendationsOnly = process.argv.includes("--recommendations");
 const issues: ValidationIssue[] = [];
 
 if (distOnly) {
   await validateDistOutput();
+} else if (recommendationsOnly) {
+  await validateRecommendationDataBudget();
 } else {
   await validateGeneratedDataGate();
 }
 
 if (issues.length > 0) {
-  console.error(distOnly ? "Build output validation failed" : "Build validation failed");
+  console.error(distOnly ? "Build output validation failed" : recommendationsOnly ? "Recommendation validation failed" : "Build validation failed");
   issues.forEach((issue) => console.error(`- ${issue.file}: ${issue.message}`));
   process.exitCode = 1;
 } else {
-  console.log(distOnly ? "Validated dist output for private data and secrets." : "Validated compact data size, determinism, schemas, and runtime boundaries.");
+  console.log(
+    distOnly
+      ? "Validated dist output for private data and secrets."
+      : recommendationsOnly
+        ? "Validated recommendation schemas and size budgets."
+        : "Validated compact data size, determinism, schemas, and runtime boundaries.",
+  );
 }
 
 async function validateGeneratedDataGate(): Promise<void> {
@@ -120,6 +144,10 @@ async function validateGeneratedDataGate(): Promise<void> {
   compareSnapshots(firstSnapshot, secondSnapshot);
 }
 
+async function validateRecommendationDataBudget(): Promise<void> {
+  await validateSchemasAndSize();
+}
+
 async function validateDistOutput(): Promise<void> {
   if (!existsSync(resolve(projectRoot, "dist"))) {
     issues.push({ file: "dist", message: "Expected dist output to exist before dist validation" });
@@ -128,6 +156,7 @@ async function validateDistOutput(): Promise<void> {
   await validateNoForbiddenDistOutput();
   const ssgReport = await readSsgGenerationSummary();
   const distDataFiles = await validateRuntimeDataTree("dist/data", missingRecommendationFilesFromReport(ssgReport));
+  await validateRecommendationBundleSizeBudget("dist/data/recommendations");
   const runtimeAssetPaths = await validateRuntimeAssetManifest();
   await validateStaticPokemonPages(ssgReport);
   const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map"])).filter((file) => {
@@ -174,6 +203,7 @@ async function validateStaticPokemonPages(ssgReport: unknown | null): Promise<vo
     .sort((left, right) => left.slug.localeCompare(right.slug, "en"));
   const expectedSlugs = pokemonEntries.map((pokemon) => pokemon.slug);
   const pokemonBySlug = new Map(pokemonEntries.map((pokemon) => [pokemon.slug, pokemon]));
+  const itemBySlug = await readStaticItemEntries();
 
   if (expectedSlugs.length !== expectedPokemonCount) {
     issues.push({ file: pokemonIndexFile, message: `Expected ${expectedPokemonCount} Pokemon slugs for static pages, got ${expectedSlugs.length}` });
@@ -225,8 +255,8 @@ async function validateStaticPokemonPages(ssgReport: unknown | null): Promise<vo
         return;
       }
       const recommendationResult = await readDistRecommendations(slug);
-      const summary = expectedRecommendationSummary(pokemon, recommendationResult);
-      validateStaticPokemonPage(file, pokemon, text, recommendationResult, summary, metadataAccumulator);
+      const summary = expectedRecommendationSummary(pokemon, recommendationResult, itemBySlug);
+      validateStaticPokemonPage(file, pokemon, text, recommendationResult, summary, metadataAccumulator, itemBySlug);
       const fallbackType = expectedFallbackType(recommendationResult);
       expectedPages.push({
         pokemonSlug: slug,
@@ -256,6 +286,9 @@ async function validateNoForbiddenDistOutput(): Promise<void> {
     }
     if (entry.path.endsWith(".DS_Store")) {
       issues.push({ file: outputPath, message: ".DS_Store must not be present in dist" });
+    }
+    if (outputPath === "dist/data/item-colors.json") {
+      issues.push({ file: outputPath, message: "Build-only item color data must not be served as runtime data" });
     }
   });
 }
@@ -421,6 +454,57 @@ function toStaticPokemonEntry(value: unknown, index: number, file: string): Stat
   return { slug, sequence, name, zhName, imagePath, primaryColor };
 }
 
+async function readStaticItemEntries(): Promise<Map<string, StaticItemEntry>> {
+  const file = "dist/data/compact-items.json";
+  let text: string;
+  try {
+    text = await readFile(file, "utf8");
+  } catch (error) {
+    issues.push({ file, message: `Unable to read compact items for recommendation lookup: ${error instanceof Error ? error.message : String(error)}` });
+    return new Map();
+  }
+  const compactItems = parseJson(text, file);
+  if (!isRecord(compactItems) || !Array.isArray(compactItems.items)) {
+    issues.push({ file, message: "Expected compact item array for recommendation lookup" });
+    return new Map();
+  }
+  const entries = compactItems.items
+    .map((item, index) => toStaticItemEntry(item, index, file))
+    .filter((item): item is StaticItemEntry => item !== null);
+  return new Map(entries.map((item) => [item.slug, item]));
+}
+
+function toStaticItemEntry(value: unknown, index: number, file: string): StaticItemEntry | null {
+  if (!isRecord(value)) {
+    issues.push({ file, message: `Expected items[${index}] object for recommendation lookup` });
+    return null;
+  }
+  const recommendation = value.recommendation;
+  if (
+    typeof value.slug !== "string" ||
+    typeof value.name !== "string" ||
+    !("nameZh" in value) ||
+    typeof value.imagePath !== "string" ||
+    !isRecord(recommendation) ||
+    !Array.isArray(recommendation.dyeColorVariants)
+  ) {
+    issues.push({ file, message: `Invalid compact item lookup fields at items[${index}]` });
+    return null;
+  }
+  return {
+    slug: value.slug,
+    name: value.name,
+    nameZh: typeof value.nameZh === "string" ? value.nameZh : null,
+    category: typeof value.category === "string" ? value.category : null,
+    imagePath: value.imagePath,
+    recommendation: {
+      isDyeable: typeof recommendation.isDyeable === "boolean" ? recommendation.isDyeable : null,
+      dyeColorVariants: recommendation.dyeColorVariants.filter((color): color is string => typeof color === "string"),
+      itemPrimaryColor: typeof recommendation.itemPrimaryColor === "string" ? recommendation.itemPrimaryColor : null,
+    },
+  };
+}
+
 async function readDistRecommendations(slug: string): Promise<DistRecommendationReadResult> {
   const file = `dist/data/recommendations/${slug}.json`;
   let text: string;
@@ -443,6 +527,7 @@ function validateStaticPokemonPage(
   recommendationResult: DistRecommendationReadResult,
   summary: RecommendationSummaryText,
   metadataAccumulator: StaticMetadataAccumulator,
+  itemBySlug: Map<string, StaticItemEntry>,
 ): void {
   if (!text.includes('id="staticPage"')) {
     issues.push({ file, message: "Static Pokemon page is missing #staticPage no-JS content" });
@@ -454,7 +539,7 @@ function validateStaticPokemonPage(
     issues.push({ file, message: "Static Pokemon page must include readable text color variables" });
   }
   validateStaticMetadata(file, pokemon, text, summary, metadataAccumulator);
-  validateStaticRecommendationSummary(file, pokemon, text, recommendationResult, summary);
+  validateStaticRecommendationSummary(file, pokemon, text, recommendationResult, summary, itemBySlug);
   if (!text.includes("主色与色板") || !text.includes("推荐摘要") || !/<img\b[^>]*class="static-portrait"/.test(text)) {
     issues.push({ file, message: "Static Pokemon page is missing required no-JS readable content" });
   }
@@ -536,6 +621,7 @@ function validateStaticRecommendationSummary(
   text: string,
   recommendationResult: DistRecommendationReadResult,
   summary: RecommendationSummaryText,
+  itemBySlug: Map<string, StaticItemEntry>,
 ): void {
   const summaryAttribute = matchFirst(text, /data-recommendation-summary="([^"]*)"/);
   const expectedSummary = escapeHtmlForValidation(summary.text);
@@ -581,12 +667,16 @@ function validateStaticRecommendationSummary(
       issues.push({ file, message: `Recommendation ${index} must be an object for static page validation` });
       return null;
     }
-    const name = typeof entry.itemZhName === "string" && entry.itemZhName ? entry.itemZhName : entry.itemName;
-    if (typeof name !== "string") {
-      issues.push({ file, message: `Recommendation ${index} must include item name for static page validation` });
+    const itemSlug = typeof entry.itemSlug === "string" ? entry.itemSlug : "";
+    const item = itemBySlug.get(itemSlug);
+    if (!item) {
+      issues.push({ file, message: `Recommendation ${index} item ${itemSlug || "<missing>"} is missing from compact item lookup` });
       return null;
     }
-    return escapeHtmlForValidation(name);
+    if (item.recommendation.itemPrimaryColor && !text.includes(escapeHtmlForValidation(item.recommendation.itemPrimaryColor))) {
+      issues.push({ file, message: `Static recommendation ${index + 1} must render compact item primary color for ${item.slug}` });
+    }
+    return escapeHtmlForValidation(displayStaticItemName(item));
   });
   const summaryText = summaryAttribute ?? "";
   let lastIndex = -1;
@@ -755,6 +845,7 @@ function missingRecommendationFilesFromReport(report: unknown | null): Set<strin
 function expectedRecommendationSummary(
   pokemon: StaticPokemonEntry,
   recommendationResult: DistRecommendationReadResult,
+  itemBySlug: Map<string, StaticItemEntry>,
 ): RecommendationSummaryText {
   const displayName = displayPokemonName(pokemon);
   const slugLabel = `#${pokemon.slug}`;
@@ -768,7 +859,13 @@ function expectedRecommendationSummary(
   if (isRecord(recommendations) && Array.isArray(recommendations.recommendations) && recommendations.recommendations.length > 0) {
     const names = recommendations.recommendations
       .slice(0, 3)
-      .map((entry) => (isRecord(entry) && typeof entry.itemZhName === "string" && entry.itemZhName ? entry.itemZhName : isRecord(entry) ? entry.itemName : null))
+      .map((entry) => {
+        if (!isRecord(entry) || typeof entry.itemSlug !== "string") {
+          return null;
+        }
+        const item = itemBySlug.get(entry.itemSlug);
+        return item ? displayStaticItemName(item) : null;
+      })
       .filter((name): name is string => typeof name === "string")
       .join("、");
     return {
@@ -780,6 +877,10 @@ function expectedRecommendationSummary(
     status: "empty",
     text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前数据和规则暂未产生推荐搭配，可先查看色板。`,
   };
+}
+
+function displayStaticItemName(item: StaticItemEntry): string {
+  return item.nameZh || item.name;
 }
 
 function recommendationCount(recommendationResult: DistRecommendationReadResult): number {
@@ -905,8 +1006,30 @@ async function validateSchemasAndSize(): Promise<void> {
       });
     }
   });
+  validateRecommendationTextSizeBudget(recommendationTexts, recommendationsDir);
 
   validateRecommendationCoverage(pokemonIndex, recommendations);
+}
+
+async function validateRecommendationBundleSizeBudget(directory: string): Promise<void> {
+  if (!existsSync(resolve(projectRoot, directory))) {
+    issues.push({ file: directory, message: "Expected recommendation data directory to exist for size budget validation" });
+    return;
+  }
+  const files = await listFiles(resolve(projectRoot, directory), [".json"]);
+  const texts = await Promise.all(files.map(async (file) => [relative(projectRoot, file), await readFile(file, "utf8")] as const));
+  validateRecommendationTextSizeBudget(texts, directory);
+}
+
+function validateRecommendationTextSizeBudget(texts: Array<readonly [string, string]>, label: string): void {
+  const rawBytes = texts.reduce((sum, [, text]) => sum + Buffer.byteLength(text, "utf8"), 0);
+  const gzipBytes = texts.reduce((sum, [, text]) => sum + gzipSync(text).length, 0);
+  if (rawBytes >= recommendationRawTotalLimit) {
+    issues.push({ file: label, message: `Recommendation raw total exceeds ${recommendationRawTotalLimit} byte budget: ${rawBytes}` });
+  }
+  if (gzipBytes >= recommendationGzipTotalLimit) {
+    issues.push({ file: label, message: `Recommendation gzip total exceeds ${recommendationGzipTotalLimit} byte budget: ${gzipBytes}` });
+  }
 }
 
 function validateNoRuntimeManifestFetch(sourceFiles: Map<string, string>, label: string): void {
@@ -1201,7 +1324,10 @@ async function validateRuntimeDataTree(root: string, allowedMissingFiles: Set<st
 }
 
 async function expectedRuntimeDataAllowlist(root: string): Promise<{ directories: Set<string>; files: Set<string> }> {
-  const files = new Set(["compact-items.json", "item-colors.json", "pokemon-index.json"]);
+  const files = new Set(["compact-items.json", "pokemon-index.json"]);
+  if (root === "generated/data") {
+    files.add("item-colors.json");
+  }
   const directories = new Set(["recommendations"]);
   let pokemonIndexText: string;
 

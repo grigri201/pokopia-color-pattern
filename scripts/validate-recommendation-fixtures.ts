@@ -7,11 +7,11 @@ import {
   type RecommendationItemInput,
   type RecommendationRankingInput,
 } from "../src/domain/recommendation.js";
-import { buildRecommendationDataSet } from "../src/domain/recommendation-data.js";
+import { buildRecommendationDataSet, type RecommendationBuildCompactItem } from "../src/domain/recommendation-data.js";
 import {
   RECOMMENDATIONS_SCHEMA_VERSION,
+  validateCompactItemsData,
   validateRecommendationsData,
-  type CompactItem,
   type ItemColorEntry,
   type PokemonIndexEntry,
   type RecommendationsData,
@@ -219,14 +219,7 @@ const recommendationDataFixture: RecommendationsData = {
   recommendations: [
     {
       itemSlug: "flower-chair",
-      itemName: "Flower chair",
-      itemZhName: null,
-      itemImagePath: "/assets/runtime/items/flower-chair.webp",
-      category: "Furniture",
       matchedPreferenceTerms: ["flower"],
-      isDyeable: true,
-      pokemonPrimaryColor,
-      itemPrimaryColor: "#00FF00",
       harmonyStatus: "not_required",
       harmonyType: null,
       recommendedDyeColors: ["red"],
@@ -239,6 +232,23 @@ const recommendationDataFixture: RecommendationsData = {
 const schemaIssues = validateRecommendationsData(recommendationDataFixture);
 if (schemaIssues.length > 0) {
   throw new Error(`Expected recommendation data fixture to pass schema: ${JSON.stringify(schemaIssues)}`);
+}
+const legacyRecommendationIssues = validateRecommendationsData({
+  ...recommendationDataFixture,
+  recommendations: [
+    {
+      ...recommendationDataFixture.recommendations[0],
+      itemName: "Flower chair",
+      itemImagePath: "/assets/runtime/items/flower-chair.webp",
+      category: "Furniture",
+      isDyeable: true,
+      pokemonPrimaryColor,
+      itemPrimaryColor: "#00FF00",
+    },
+  ],
+});
+if (!legacyRecommendationIssues.some((issue) => issue.message === "Unexpected runtime field")) {
+  throw new Error(`Expected legacy recommendation fields to fail schema: ${JSON.stringify(legacyRecommendationIssues)}`);
 }
 
 const pokemonDataFixture: PokemonIndexEntry[] = [
@@ -258,13 +268,38 @@ const pokemonDataFixture: PokemonIndexEntry[] = [
     preferenceSource: "override",
   },
 ];
-const compactDataFixture: CompactItem[] = [
+const compactDataFixture: RecommendationBuildCompactItem[] = [
   compactItemFixture("flower-chair", "Flower chair", true),
   compactItemFixture("flower-garden-lamp", "Flower garden lamp", false, ["Garden"], ["decoration", "garden"]),
   compactItemFixture("flower-bad-stone", "Flower bad stone", false),
   compactItemFixture("flower-vase", "Flower vase", false),
   compactItemFixture("manual-rock", "Manual rock", false),
 ];
+const compactRuntimeFixture = {
+  schemaVersion: "compact-items.v3",
+  summary: { itemCount: 1, categoryCounts: { Decoration: 1 }, tagCounts: {} },
+  items: [
+    {
+      slug: "flower-chair",
+      name: "Flower chair",
+      nameZh: null,
+      category: "Decoration",
+      tags: [],
+      imagePath: "/assets/runtime/items/flower-chair.webp",
+      sourceRow: 1,
+      recommendation: {
+        isDyeable: true,
+        dyeColorVariants: ["red"],
+        itemPrimaryColor: "#00FF00",
+        preferenceTerms: ["flower"],
+      },
+    },
+  ],
+};
+const legacyCompactIssues = validateCompactItemsData(compactRuntimeFixture);
+if (!legacyCompactIssues.some((issue) => issue.message === "Unexpected runtime field")) {
+  throw new Error(`Expected legacy compact item fields to fail schema: ${JSON.stringify(legacyCompactIssues)}`);
+}
 const itemColorDataFixture: ItemColorEntry[] = [
   { slug: "flower-chair", itemPrimaryColor: "#00FF00", colorSource: "extracted", fallbackReason: null },
   { slug: "flower-garden-lamp", itemPrimaryColor: harmony.complementary, colorSource: "extracted", fallbackReason: null },
@@ -496,28 +531,24 @@ function assertCandidate(
   }
 }
 
-function compactItemFixture(slug: string, name: string, isDyeable: boolean, tags: string[] = [], roleTags: string[] = ["decoration"]): CompactItem {
+function compactItemFixture(
+  slug: string,
+  name: string,
+  isDyeable: boolean,
+  tags: string[] = [],
+  roleTags: string[] = ["decoration"],
+): RecommendationBuildCompactItem {
   return {
     slug,
-    id: null,
     name,
     nameZh: null,
     category: "Decoration",
     tags,
-    event: null,
-    sources: [],
-    habitatItemCategoryIds: [],
-    favoriteCategoryIds: [],
     imagePath: `/assets/runtime/items/${slug}.webp`,
-    sourceDataset: null,
-    sourceIndex: null,
-    sourceRow: 1,
     recommendation: {
       isDyeable,
       dyeColorVariants: isDyeable ? ["blue", "red"] : [],
       itemPrimaryColor: null,
-      colorSource: null,
-      fallbackReason: null,
       preferenceTerms: [],
       roleTags,
     },

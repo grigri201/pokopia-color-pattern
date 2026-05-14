@@ -11,7 +11,7 @@
     "validate:data": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-data.js --validate-only && node .tmp/data-scripts/scripts/validate-color-fixtures.js",
     "validate:build": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-build.js",
     "validate:dist": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-build.js --dist",
-    "validate:recommendations": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-recommendation-fixtures.js",
+    "validate:recommendations": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-recommendation-fixtures.js && node .tmp/data-scripts/scripts/validate-build.js --recommendations",
     "validate:routes": "npm run build:data-script && node .tmp/data-scripts/scripts/validate-router-fixtures.js",
     "generate:ssg": "npm run build:data-script && node .tmp/data-scripts/scripts/generate-ssg.js",
     "smoke:story-1-4": "npm run build:data-script && node .tmp/data-scripts/scripts/smoke-story-1-4.js",

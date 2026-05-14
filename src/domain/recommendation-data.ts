@@ -1,6 +1,7 @@
 import {
   RECOMMENDATIONS_SCHEMA_VERSION,
   type CompactItem,
+  type CompactItemRecommendationFields,
   type ItemColorEntry,
   type PokemonIndexEntry,
   type PokemonMetadataOverrideEntry,
@@ -118,9 +119,16 @@ type RecommendationEntryDraft = Omit<RecommendationEntry, "rank" | "pageIndex"> 
     overrideField?: string;
   };
 
+export type RecommendationBuildCompactItem = CompactItem & {
+  recommendation: CompactItemRecommendationFields & {
+    preferenceTerms: string[];
+    roleTags: string[];
+  };
+};
+
 export function buildRecommendationDataSet(
   pokemon: PokemonIndexEntry[],
-  compactItems: CompactItem[],
+  compactItems: RecommendationBuildCompactItem[],
   itemColors: ItemColorEntry[],
   options: RecommendationDataSetOptions = {},
 ): { recommendations: RecommendationsData[]; diagnostics: RecommendationDiagnosticsReport; issues: RecommendationDataBuildIssue[] } {
@@ -184,14 +192,8 @@ export function buildRecommendationDataSet(
 
       colorMatchedDrafts.push({
         itemSlug: recommendation.itemSlug,
-        itemName: item.name,
-        itemZhName: item.nameZh,
-        itemImagePath: item.imagePath,
-        category: item.category,
         matchedPreferenceTerms: recommendation.matchedPreferenceTerms,
         isDyeable: recommendation.isDyeable,
-        pokemonPrimaryColor: pokemonEntry.primaryColor,
-        itemPrimaryColor: recommendation.itemPrimaryColor,
         harmonyStatus: recommendation.harmonyStatus,
         harmonyType: recommendation.harmonyType,
         recommendedDyeColors: [],
@@ -231,7 +233,7 @@ export function buildRecommendationDataSet(
       issues,
     );
 
-    const recommendations = drafts.map(({ roleFitScore: _roleFitScore, overrideField: _overrideField, ...entry }, index) => ({
+    const recommendations = drafts.map(({ roleFitScore: _roleFitScore, overrideField: _overrideField, isDyeable: _isDyeable, ...entry }, index) => ({
       ...entry,
       rank: index + 1,
       pageIndex: Math.floor(index / RECOMMENDATION_PAGE_SIZE),
@@ -315,7 +317,7 @@ function emptyRecommendationResult(pokemonSlug: string): ReturnType<typeof build
 
 function buildDefaultDyeableRecommendationDrafts(
   pokemon: PokemonIndexEntry,
-  compactItems: CompactItem[],
+  compactItems: RecommendationBuildCompactItem[],
   itemColorBySlug: Map<string, string>,
   recommendationInputBySlug: Map<string, RecommendationItemInput>,
   excludedSlugs: Set<string>,
@@ -338,7 +340,7 @@ function buildDefaultDyeableRecommendationDrafts(
 
 function buildDyeableRecommendationDraft(
   pokemon: PokemonIndexEntry,
-  item: CompactItem,
+  item: RecommendationBuildCompactItem,
   itemPrimaryColor: string | null,
   matchedPreferenceTerms: string[],
 ): RecommendationEntryDraft {
@@ -355,14 +357,8 @@ function buildDyeableRecommendationDraft(
 
   return {
     itemSlug: item.slug,
-    itemName: item.name,
-    itemZhName: item.nameZh,
-    itemImagePath: item.imagePath,
-    category: item.category,
     matchedPreferenceTerms: recommendationTerms,
     isDyeable: true,
-    pokemonPrimaryColor: pokemon.primaryColor,
-    itemPrimaryColor,
     harmonyStatus: firstHarmonyMatch ? "passed" : "not_required",
     harmonyType: firstHarmonyMatch?.harmonyType ?? null,
     recommendedDyeColors,
@@ -429,7 +425,7 @@ function countReasons<T extends { reason: string }>(entries: T[]): Record<string
 function buildOverrideRecommendationDrafts(
   pokemon: PokemonIndexEntry,
   recommendationOverride: PokemonRecommendedItemsOverride,
-  compactBySlug: Map<string, CompactItem>,
+  compactBySlug: Map<string, RecommendationBuildCompactItem>,
   itemColorBySlug: Map<string, string>,
   overridePath: string,
   issues: RecommendationDataBuildIssue[],
@@ -465,14 +461,8 @@ function buildOverrideRecommendationDrafts(
     return [
       {
         itemSlug: item.slug,
-        itemName: item.name,
-        itemZhName: item.nameZh,
-        itemImagePath: item.imagePath,
-        category: item.category,
         matchedPreferenceTerms,
         isDyeable: item.recommendation.isDyeable,
-        pokemonPrimaryColor: pokemon.primaryColor,
-        itemPrimaryColor,
         harmonyStatus: harmony.harmonyStatus,
         harmonyType: harmony.harmonyType,
         recommendedDyeColors: item.recommendation.isDyeable
@@ -535,7 +525,7 @@ function applyRecommendedItemsOverride(
   return Array.from(draftsBySlug.values());
 }
 
-function recommendationRoleFitScore(matchedPreferenceTerms: string[], item: CompactItem): number {
+function recommendationRoleFitScore(matchedPreferenceTerms: string[], item: RecommendationBuildCompactItem): number {
   const itemRoleTerms = new Set(item.recommendation.roleTags.map(toPreferenceTerm));
   return matchedPreferenceTerms.filter((term) => itemRoleTerms.has(toPreferenceTerm(term))).length;
 }

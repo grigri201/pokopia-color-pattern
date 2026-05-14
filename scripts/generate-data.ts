@@ -21,7 +21,11 @@ import {
   validatePokemonMetadataOverridesData,
   validateRecommendationsData,
 } from "../src/data/schemas.js";
-import { buildRecommendationDataSet, type RecommendationDiagnosticsReport } from "../src/domain/recommendation-data.js";
+import {
+  buildRecommendationDataSet,
+  type RecommendationBuildCompactItem,
+  type RecommendationDiagnosticsReport,
+} from "../src/domain/recommendation-data.js";
 import { resolvePokemonMetadataOverrideFields } from "../src/domain/pokemon-metadata.js";
 import { DEFAULT_FALLBACK_COLOR, extractImagePalette } from "./lib/image-colors.js";
 import { parseCsv, type CsvRow } from "./lib/csv.js";
@@ -91,6 +95,7 @@ type RuntimeAssetSourcesData = {
 
 type CompactItemsBuildResult = {
   data: CompactItemsData;
+  recommendationItems: RecommendationBuildCompactItem[];
   assetSources: RuntimeAssetSourceEntry[];
 };
 
@@ -101,7 +106,9 @@ type PokemonIndexBuildResult = {
 
 type CompactItemBuildResult = {
   item: CompactItem;
+  recommendationItem: RecommendationBuildCompactItem;
   assetSource: RuntimeAssetSourceEntry;
+  sortIndex: number | null;
 };
 
 const projectRoot = process.cwd();
@@ -125,10 +132,10 @@ const recommendationsOutputDir = "generated/data/recommendations";
 const recommendationDiagnosticsOutputPath = "generated/reports/recommendation-diagnostics.json";
 const runtimeAssetSourcesOutputPath = "generated/reports/runtime-asset-sources.json";
 
-const maxCompactItemsGzipBytes = 70 * 1024;
+const maxCompactItemsGzipBytes = 50 * 1024;
 const maxItemColorsGzipBytes = 25 * 1024;
 const maxPokemonIndexGzipBytes = 40 * 1024;
-const maxRecommendationGzipBytes = 12 * 1024;
+const maxRecommendationGzipBytes = 5 * 1024;
 const recommendationPageSize = 10;
 const expectedItemCount = 1219;
 const expectedPokemonCount = 311;
@@ -185,7 +192,7 @@ async function generateData(): Promise<void> {
   applyItemColorsToCompactItems(compactItems, itemColors);
   const pokemonIndexBuild = await buildPokemonIndex(pokemonCsv, pokemonPreferenceSource.pokemonTermsBySlug, overrides, issues);
   const pokemonIndex = pokemonIndexBuild.data;
-  const recommendationBuild = buildRecommendations(pokemonIndex, compactItems, itemColors, overrides, issues);
+  const recommendationBuild = buildRecommendations(pokemonIndex, compactItemsBuild.recommendationItems, itemColors, overrides, issues);
   const recommendations = recommendationBuild.recommendations;
   const recommendationDiagnostics = recommendationBuild.diagnostics;
   const runtimeAssetSources = buildRuntimeAssetSources(
@@ -305,17 +312,11 @@ function buildCompactItems(
         issues,
       ),
     )
-    .sort((left, right) => compareCompactItems(left.item, right.item));
+    .sort(compareCompactBuildRows);
 
   return {
     data: {
       schemaVersion: COMPACT_ITEMS_SCHEMA_VERSION,
-      generatedFrom: {
-        itemManifestPath,
-        placeableCsvPath,
-        placeableJsonPath,
-        rawBoundary: "docs/pokopia_image_sources/**",
-      },
       summary: {
         itemCount: compactBuildRows.length,
         categoryCounts: countBy(compactBuildRows.map((row) => row.item), (item) => item.category ?? "Uncategorized"),
@@ -323,6 +324,7 @@ function buildCompactItems(
       },
       items: compactBuildRows.map((row) => row.item),
     },
+    recommendationItems: compactBuildRows.map((row) => row.recommendationItem),
     assetSources: compactBuildRows.map((row) => row.assetSource),
   };
 }
@@ -434,8 +436,6 @@ function applyItemColorsToCompactItems(compactItems: CompactItemsData, itemColor
       return;
     }
     item.recommendation.itemPrimaryColor = color.itemPrimaryColor;
-    item.recommendation.colorSource = color.colorSource;
-    item.recommendation.fallbackReason = color.fallbackReason;
   });
 }
 
@@ -556,12 +556,6 @@ async function buildPokemonIndex(
   return {
     data: {
       schemaVersion: POKEMON_INDEX_SCHEMA_VERSION,
-      generatedFrom: {
-        pokemonManifestPath,
-        pokemonPreferencePath,
-        overridePath: pokemonOverridePath,
-        rawBoundary: "docs/pokopia_image_sources/**",
-      },
       summary: {
         pokemonCount: sortedPokemon.length,
         fallbackCount,
@@ -575,12 +569,12 @@ async function buildPokemonIndex(
 
 function buildRecommendations(
   pokemonIndex: PokemonIndexData,
-  compactItems: CompactItemsData,
+  recommendationItems: RecommendationBuildCompactItem[],
   itemColors: ItemColorsData,
   overrides: PokemonMetadataOverridesData,
   issues: GenerationIssue[],
 ): { recommendations: RecommendationsData[]; diagnostics: RecommendationDiagnosticsReport } {
-  const result = buildRecommendationDataSet(pokemonIndex.pokemon, compactItems.items, itemColors.items, {
+  const result = buildRecommendationDataSet(pokemonIndex.pokemon, recommendationItems, itemColors.items, {
     overrides: overrides.pokemon,
     overridePath: pokemonOverridePath,
   });
@@ -933,23 +927,6 @@ function toCompactItem(
   const name = requireField(row, "name", itemManifestPath, manifestRow.rowNumber, issues, slug);
   const category = nullable(firstText(row.category, placeable?.category, asString(rawJson?.menu_category)));
   const tags = parseStringArrayField(row.tags, "tags", itemManifestPath, manifestRow.rowNumber, slug, issues);
-  const sources = parseStringArrayField(row.sources, "sources", itemManifestPath, manifestRow.rowNumber, slug, issues);
-  const habitatItemCategoryIds = parseNumberArrayField(
-    row.habitat_item_category_ids,
-    "habitat_item_category_ids",
-    itemManifestPath,
-    manifestRow.rowNumber,
-    slug,
-    issues,
-  );
-  const favoriteCategoryIds = parseNumberArrayField(
-    row.favorite_category_ids,
-    "favorite_category_ids",
-    itemManifestPath,
-    manifestRow.rowNumber,
-    slug,
-    issues,
-  );
 
   if (!placeableRow) {
     issues.push({ file: placeableCsvPath, slug, message: "No matching placeable source row found for compact item" });
@@ -961,34 +938,32 @@ function toCompactItem(
   const sourceIndex = parseNumberField(row.sequence, "sequence", itemManifestPath, manifestRow.rowNumber, slug, issues);
   const sourceImagePath = toRootAbsolutePath(requireField(row, "relative_path", itemManifestPath, manifestRow.rowNumber, issues, slug));
   const runtimeImagePath = runtimeAssetPath("item", slug, sourceImagePath);
+  const runtimeItem: CompactItem = {
+    slug,
+    name,
+    nameZh: resolveItemTranslation(itemTranslationSource, slug, name),
+    category,
+    tags,
+    imagePath: runtimeImagePath,
+    recommendation: {
+      isDyeable: isDyeableItem(rawJson),
+      dyeColorVariants: normalizeDyeColorVariants(rawJson),
+      itemPrimaryColor: null,
+    },
+  };
 
   return {
-    item: {
-      slug,
-      id: nullable(firstText(row.id, asString(rawJson?.id))),
-      name,
-      nameZh: resolveItemTranslation(itemTranslationSource, slug, name),
-      category,
-      tags,
-      event: nullable(row.event),
-      sources,
-      habitatItemCategoryIds,
-      favoriteCategoryIds,
-      imagePath: runtimeImagePath,
-      sourceDataset: nullable(row.source),
-      sourceIndex,
-      sourceRow: manifestRow.rowNumber,
+    item: runtimeItem,
+    recommendationItem: {
+      ...runtimeItem,
       recommendation: {
-        isDyeable: isDyeableItem(rawJson),
-        dyeColorVariants: normalizeDyeColorVariants(rawJson),
-        itemPrimaryColor: null,
-        colorSource: null,
-        fallbackReason: null,
+        ...runtimeItem.recommendation,
         preferenceTerms: uniqueSorted(itemPreferenceTerms.map(toPreferenceTerm).filter(Boolean)),
         roleTags: buildRoleTags(category, tags),
       },
     },
     assetSource: runtimeAssetSource("item", slug, sourceImagePath, runtimeImagePath),
+    sortIndex: sourceIndex,
   };
 }
 
@@ -1118,6 +1093,9 @@ function parsePokemonPreferenceSource(
 
 function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssue[]): void {
   const gzipBytes = gzipSync(serializeJsonForOutput(data)).length;
+  if ("generatedFrom" in data) {
+    issues.push({ file: compactItemsOutputPath, field: "$.generatedFrom", message: "Build-only traceability must not enter runtime compact item data" });
+  }
   if (gzipBytes >= maxCompactItemsGzipBytes) {
     issues.push({
       file: compactItemsOutputPath,
@@ -1127,6 +1105,16 @@ function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssu
   }
 
   data.items.forEach((item) => {
+    ["id", "event", "sources", "habitatItemCategoryIds", "favoriteCategoryIds", "sourceDataset", "sourceIndex", "sourceRow"].forEach((field) => {
+      if (field in item) {
+        issues.push({ file: compactItemsOutputPath, slug: item.slug, field: `$.${field}`, message: "Build-only compact item field must not enter runtime JSON" });
+      }
+    });
+    ["colorSource", "fallbackReason", "preferenceTerms", "roleTags"].forEach((field) => {
+      if (field in item.recommendation) {
+        issues.push({ file: compactItemsOutputPath, slug: item.slug, field: `$.recommendation.${field}`, message: "Build-only recommendation field must not enter runtime JSON" });
+      }
+    });
     if (item.recommendation.isDyeable === null) {
       issues.push({ file: compactItemsOutputPath, slug: item.slug, field: "$.recommendation.isDyeable", message: "Expected derived dyeable status" });
     }
@@ -1240,22 +1228,23 @@ function validateRecommendationsShape(
     seenPokemonSlugs.add(data.pokemonSlug);
 
     data.recommendations.forEach((entry) => {
+      ["itemName", "itemZhName", "itemImagePath", "category", "isDyeable", "pokemonPrimaryColor", "itemPrimaryColor"].forEach((field) => {
+        if (field in entry) {
+          issues.push({
+            file,
+            slug: entry.itemSlug,
+            field: `$.recommendations[].${field}`,
+            message: "Recommendation entry must resolve this field from runtime lookup instead of duplicating it",
+          });
+        }
+      });
       const item = compactBySlug.get(entry.itemSlug);
       if (!item) {
         issues.push({ file, slug: entry.itemSlug, field: "$.recommendations[].itemSlug", message: "Recommendation item missing from compact data" });
         return;
       }
-      if (entry.itemName !== item.name) {
-        issues.push({ file, slug: entry.itemSlug, field: "$.recommendations[].itemName", message: "Recommendation item name differs from compact data" });
-      }
-      if (entry.itemZhName !== item.nameZh) {
-        issues.push({ file, slug: entry.itemSlug, field: "$.recommendations[].itemZhName", message: "Recommendation item zhName differs from compact data" });
-      }
-      if (entry.itemImagePath !== item.imagePath) {
-        issues.push({ file, slug: entry.itemSlug, field: "$.recommendations[].itemImagePath", message: "Recommendation item image differs from compact data" });
-      }
       validateRootAbsoluteImagePath(
-        entry.itemImagePath,
+        item.imagePath,
         "/assets/runtime/items/",
         file,
         entry.itemSlug,
@@ -1263,12 +1252,12 @@ function validateRecommendationsShape(
       );
 
       const expectedItemPrimaryColor = itemColorsBySlug.get(entry.itemSlug);
-      if (itemColorsBySlug.has(entry.itemSlug) && entry.itemPrimaryColor !== expectedItemPrimaryColor) {
+      if (itemColorsBySlug.has(entry.itemSlug) && item.recommendation.itemPrimaryColor !== expectedItemPrimaryColor) {
         issues.push({
-          file,
+          file: compactItemsOutputPath,
           slug: entry.itemSlug,
-          field: "$.recommendations[].itemPrimaryColor",
-          message: "Recommendation item primary color differs from item color data",
+          field: "$.items[].recommendation.itemPrimaryColor",
+          message: "Runtime item primary color differs from item color data",
         });
       }
       const dyeColorVariants = new Set(item.recommendation.dyeColorVariants);
@@ -1282,6 +1271,22 @@ function validateRecommendationsShape(
           });
         }
       });
+      if (item.recommendation.isDyeable === false && entry.recommendedDyeColors.length > 0) {
+        issues.push({
+          file,
+          slug: entry.itemSlug,
+          field: "$.recommendations[].recommendedDyeColors",
+          message: "Expected no recommended dye colors for non-dyeable item",
+        });
+      }
+      if (item.recommendation.isDyeable === true && entry.harmonyStatus === "passed" && entry.recommendedDyeColors.length === 0) {
+        issues.push({
+          file,
+          slug: entry.itemSlug,
+          field: "$.recommendations[].recommendedDyeColors",
+          message: "Expected dye color recommendations when a dyeable item passes harmony",
+        });
+      }
     });
   });
 
@@ -1591,10 +1596,10 @@ function uniqueSorted(values: string[]): string[] {
   return Array.from(new Set(values)).sort((left, right) => left.localeCompare(right, "en"));
 }
 
-function compareCompactItems(left: CompactItem, right: CompactItem): number {
+function compareCompactBuildRows(left: CompactItemBuildResult, right: CompactItemBuildResult): number {
   return (
-    (left.sourceIndex ?? Number.MAX_SAFE_INTEGER) - (right.sourceIndex ?? Number.MAX_SAFE_INTEGER) ||
-    left.slug.localeCompare(right.slug, "en")
+    (left.sortIndex ?? Number.MAX_SAFE_INTEGER) - (right.sortIndex ?? Number.MAX_SAFE_INTEGER) ||
+    left.item.slug.localeCompare(right.item.slug, "en")
   );
 }
 

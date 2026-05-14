@@ -1,23 +1,16 @@
 {
-  "schemaVersion": "recommendations.v3",
+  "schemaVersion": "recommendations.v4",
   "pokemonSlug": "mawile",
   "pageSize": 10,
   "totalPages": 13,
   "recommendations": [
     {
       "itemSlug": "pop-art-sofa",
-      "itemName": "Pop art sofa",
-      "itemZhName": "波普艺术沙发",
-      "itemImagePath": "/assets/runtime/items/pop-art-sofa.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "cute stuff",
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7DCFEF",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -27,17 +20,10 @@
     },
     {
       "itemSlug": "berry-case",
-      "itemName": "Berry case",
-      "itemZhName": "树果箱",
-      "itemImagePath": "/assets/runtime/items/berry-case.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "cute stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F85B69",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -47,17 +33,10 @@
     },
     {
       "itemSlug": "berry-chair",
-      "itemName": "Berry chair",
-      "itemZhName": "树果椅",
-      "itemImagePath": "/assets/runtime/items/berry-chair.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "cute stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F97558",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -67,17 +46,10 @@
     },
     {
       "itemSlug": "cute-flower",
-      "itemName": "Cute flower",
-      "itemZhName": "可爱花",
-      "itemImagePath": "/assets/runtime/items/cute-flower.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "cute stuff",
         "dyeable"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F55A64",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -89,17 +61,10 @@
     },
     {
       "itemSlug": "iron-bench",
-      "itemName": "Iron bench",
-      "itemZhName": "铁长椅",
-      "itemImagePath": "/assets/runtime/items/iron-bench.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#5D4A48",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -109,17 +74,10 @@
     },
     {
       "itemSlug": "pop-art-chair",
-      "itemName": "Pop art chair",
-      "itemZhName": "波普艺术椅",
-      "itemImagePath": "/assets/runtime/items/pop-art-chair.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F5707B",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -129,17 +87,10 @@
     },
     {
       "itemSlug": "vending-machine",
-      "itemName": "Vending machine",
-      "itemZhName": "自动贩卖机",
-      "itemImagePath": "/assets/runtime/items/vending-machine.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#CF605D",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -149,17 +100,10 @@
     },
     {
       "itemSlug": "afternoon-tea-set",
-      "itemName": "Afternoon tea set",
-      "itemZhName": "下午茶套餐",
-      "itemImagePath": "/assets/runtime/items/afternoon-tea-set.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7B716A",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -169,17 +113,10 @@
     },
     {
       "itemSlug": "berry-wall-decoration",
-      "itemName": "Berry wall decoration",
-      "itemZhName": "树果墙饰",
-      "itemImagePath": "/assets/runtime/items/berry-wall-decoration.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7D746C",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -189,17 +126,10 @@
     },
     {
       "itemSlug": "chocolate-cookies",
-      "itemName": "Chocolate cookies",
-      "itemZhName": "巧克力曲奇",
-      "itemImagePath": "/assets/runtime/items/chocolate-cookies.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7B430A",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -209,17 +139,10 @@
     },
     {
       "itemSlug": "garden-bench",
-      "itemName": "Garden bench",
-      "itemZhName": "庭院长椅",
-      "itemImagePath": "/assets/runtime/items/garden-bench.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#C7BDAA",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -229,17 +152,10 @@
     },
     {
       "itemSlug": "industrial-bed",
-      "itemName": "Industrial bed",
-      "itemZhName": "工业风床",
-      "itemImagePath": "/assets/runtime/items/industrial-bed.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#BE97A4",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -249,17 +165,10 @@
     },
     {
       "itemSlug": "industrial-bench",
-      "itemName": "Industrial bench",
-      "itemZhName": "工业风长椅",
-      "itemImagePath": "/assets/runtime/items/industrial-bench.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#BF8C4E",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -269,17 +178,10 @@
     },
     {
       "itemSlug": "knitting-supplies",
-      "itemName": "Knitting supplies",
-      "itemZhName": "编织用品",
-      "itemImagePath": "/assets/runtime/items/knitting-supplies.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#8B633C",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -289,17 +191,10 @@
     },
     {
       "itemSlug": "pizza",
-      "itemName": "Pizza",
-      "itemZhName": "披萨",
-      "itemImagePath": "/assets/runtime/items/pizza.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#915406",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -309,17 +204,10 @@
     },
     {
       "itemSlug": "pokemetal",
-      "itemName": "Pokémetal",
-      "itemZhName": "宝可梦金属",
-      "itemImagePath": "/assets/runtime/items/pokemetal.webp",
-      "category": "Materials",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#DBB877",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -329,17 +217,10 @@
     },
     {
       "itemSlug": "antique-sofa",
-      "itemName": "Antique sofa",
-      "itemZhName": "古董沙发",
-      "itemImagePath": "/assets/runtime/items/antique-sofa.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#6A8570",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -349,17 +230,10 @@
     },
     {
       "itemSlug": "berry-clock",
-      "itemName": "Berry clock",
-      "itemZhName": "树果钟",
-      "itemImagePath": "/assets/runtime/items/berry-clock.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "cute stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#319BDE",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -369,17 +243,10 @@
     },
     {
       "itemSlug": "small-stage",
-      "itemName": "Small stage",
-      "itemZhName": "小型舞台",
-      "itemImagePath": "/assets/runtime/items/small-stage.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#605B62",
       "harmonyStatus": "passed",
       "harmonyType": "triadic",
       "recommendedDyeColors": [],
@@ -389,17 +256,10 @@
     },
     {
       "itemSlug": "gaming-pc",
-      "itemName": "Gaming PC",
-      "itemZhName": "游戏电脑",
-      "itemImagePath": "/assets/runtime/items/gaming-pc.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#89FFF2",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -409,17 +269,10 @@
     },
     {
       "itemSlug": "shaved-ice",
-      "itemName": "Shaved ice",
-      "itemZhName": "刨冰",
-      "itemImagePath": "/assets/runtime/items/shaved-ice.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff",
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#6EE7F8",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -429,17 +282,10 @@
     },
     {
       "itemSlug": "television",
-      "itemName": "Television",
-      "itemZhName": "电视机",
-      "itemImagePath": "/assets/runtime/items/television.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#8AFFF7",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -449,17 +295,10 @@
     },
     {
       "itemSlug": "wall-monitor",
-      "itemName": "Wall monitor",
-      "itemZhName": "壁挂显示器",
-      "itemImagePath": "/assets/runtime/items/wall-monitor.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "group activities",
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#8FFFF6",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -469,16 +308,9 @@
     },
     {
       "itemSlug": "antique-chair",
-      "itemName": "Antique chair",
-      "itemZhName": "古董椅",
-      "itemImagePath": "/assets/runtime/items/antique-chair.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4F322D",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -488,16 +320,9 @@
     },
     {
       "itemSlug": "excavation-tools",
-      "itemName": "Excavation tools",
-      "itemZhName": "挖掘工具",
-      "itemImagePath": "/assets/runtime/items/excavation-tools.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#E96660",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -507,16 +332,9 @@
     },
     {
       "itemSlug": "fire-hydrant",
-      "itemName": "Fire hydrant",
-      "itemZhName": "消防栓",
-      "itemImagePath": "/assets/runtime/items/fire-hydrant.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#D84A45",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -526,16 +344,9 @@
     },
     {
       "itemSlug": "iron-deposit",
-      "itemName": "Iron deposit",
-      "itemZhName": "铁矿石",
-      "itemImagePath": "/assets/runtime/items/iron-deposit.webp",
-      "category": "Blocks",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#663129",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -545,16 +356,9 @@
     },
     {
       "itemSlug": "iron-ingot",
-      "itemName": "Iron ingot",
-      "itemZhName": "铁锭",
-      "itemImagePath": "/assets/runtime/items/iron-ingot.webp",
-      "category": "Materials",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7C7778",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -564,16 +368,9 @@
     },
     {
       "itemSlug": "iron-ore",
-      "itemName": "Iron ore",
-      "itemZhName": "铁矿石",
-      "itemImagePath": "/assets/runtime/items/iron-ore.webp",
-      "category": "Materials",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#817B7B",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -583,16 +380,9 @@
     },
     {
       "itemSlug": "iron-table",
-      "itemName": "Iron table",
-      "itemZhName": "铁桌",
-      "itemImagePath": "/assets/runtime/items/iron-table.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#6F605F",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -602,16 +392,9 @@
     },
     {
       "itemSlug": "leftovers",
-      "itemName": "Leftovers",
-      "itemZhName": "吃剩的东西",
-      "itemImagePath": "/assets/runtime/items/leftovers.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#DA3648",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -621,16 +404,9 @@
     },
     {
       "itemSlug": "luxury-bed",
-      "itemName": "Luxury bed",
-      "itemZhName": "豪华床",
-      "itemImagePath": "/assets/runtime/items/luxury-bed.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#655D5E",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -640,16 +416,9 @@
     },
     {
       "itemSlug": "luxury-sofa",
-      "itemName": "Luxury sofa",
-      "itemZhName": "豪华沙发",
-      "itemImagePath": "/assets/runtime/items/luxury-sofa.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7B7676",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -659,16 +428,9 @@
     },
     {
       "itemSlug": "paint-balloon-red",
-      "itemName": "Paint balloon (red)",
-      "itemZhName": "颜料气球（红）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-red.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#EE603E",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -678,16 +440,9 @@
     },
     {
       "itemSlug": "paint-balloon-rose",
-      "itemName": "Paint balloon (rose)",
-      "itemZhName": "颜料气球（玫瑰红）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-rose.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#D45178",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -697,16 +452,9 @@
     },
     {
       "itemSlug": "public-seat",
-      "itemName": "Public seat",
-      "itemZhName": "公共座椅",
-      "itemImagePath": "/assets/runtime/items/public-seat.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F8785B",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -716,16 +464,9 @@
     },
     {
       "itemSlug": "punching-game",
-      "itemName": "Punching game",
-      "itemZhName": "拳击游戏机",
-      "itemImagePath": "/assets/runtime/items/punching-game.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F0605C",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -735,16 +476,9 @@
     },
     {
       "itemSlug": "weather-vane",
-      "itemName": "Weather vane",
-      "itemZhName": "风向标",
-      "itemImagePath": "/assets/runtime/items/weather-vane.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#5A4A48",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -754,16 +488,9 @@
     },
     {
       "itemSlug": "wheelbarrow",
-      "itemName": "Wheelbarrow",
-      "itemZhName": "独轮车",
-      "itemImagePath": "/assets/runtime/items/wheelbarrow.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#D66046",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [],
@@ -773,16 +500,9 @@
     },
     {
       "itemSlug": "balloons",
-      "itemName": "Balloons",
-      "itemZhName": "气球",
-      "itemImagePath": "/assets/runtime/items/balloons.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#FF7AD4",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -792,16 +512,9 @@
     },
     {
       "itemSlug": "barrel",
-      "itemName": "Barrel",
-      "itemZhName": "木桶",
-      "itemImagePath": "/assets/runtime/items/barrel.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#E4A962",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -811,16 +524,9 @@
     },
     {
       "itemSlug": "berry-basket",
-      "itemName": "Berry basket",
-      "itemZhName": "树果篮",
-      "itemImagePath": "/assets/runtime/items/berry-basket.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "looks like food"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#D1904C",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -830,16 +536,9 @@
     },
     {
       "itemSlug": "bike",
-      "itemName": "Bike",
-      "itemZhName": "自行车",
-      "itemImagePath": "/assets/runtime/items/bike.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4E4944",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -849,16 +548,9 @@
     },
     {
       "itemSlug": "bonfire",
-      "itemName": "Bonfire",
-      "itemZhName": "篝火",
-      "itemImagePath": "/assets/runtime/items/bonfire.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#8F603A",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -868,16 +560,9 @@
     },
     {
       "itemSlug": "bookcase",
-      "itemName": "Bookcase",
-      "itemZhName": "书柜",
-      "itemImagePath": "/assets/runtime/items/bookcase.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#685B51",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -887,16 +572,9 @@
     },
     {
       "itemSlug": "campfire",
-      "itemName": "Campfire",
-      "itemZhName": "篝火",
-      "itemImagePath": "/assets/runtime/items/campfire.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F0943D",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -906,16 +584,9 @@
     },
     {
       "itemSlug": "cd-rack",
-      "itemName": "CD rack",
-      "itemZhName": "CD架",
-      "itemImagePath": "/assets/runtime/items/cd-rack.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#E1A978",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -925,16 +596,9 @@
     },
     {
       "itemSlug": "chic-sofa",
-      "itemName": "Chic sofa",
-      "itemZhName": "时尚沙发",
-      "itemImagePath": "/assets/runtime/items/chic-sofa.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#E19134",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -944,16 +608,9 @@
     },
     {
       "itemSlug": "eevee-doll",
-      "itemName": "Eevee doll",
-      "itemZhName": "伊布玩偶",
-      "itemImagePath": "/assets/runtime/items/eevee-doll.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#C48B49",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -963,16 +620,9 @@
     },
     {
       "itemSlug": "fairy-feather",
-      "itemName": "Fairy Feather",
-      "itemZhName": "妖精之羽",
-      "itemImagePath": "/assets/runtime/items/fairy-feather.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#EF8CBA",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -982,16 +632,9 @@
     },
     {
       "itemSlug": "firepit",
-      "itemName": "Firepit",
-      "itemZhName": "火坑",
-      "itemImagePath": "/assets/runtime/items/firepit.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F58E38",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1001,16 +644,9 @@
     },
     {
       "itemSlug": "folding-chair",
-      "itemName": "Folding chair",
-      "itemZhName": "折叠椅",
-      "itemImagePath": "/assets/runtime/items/folding-chair.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#665E64",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1020,16 +656,9 @@
     },
     {
       "itemSlug": "gold-ingot",
-      "itemName": "Gold ingot",
-      "itemZhName": "金锭",
-      "itemImagePath": "/assets/runtime/items/gold-ingot.webp",
-      "category": "Materials",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#AB781D",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1039,16 +668,9 @@
     },
     {
       "itemSlug": "industrial-chair",
-      "itemName": "Industrial chair",
-      "itemZhName": "工业风椅",
-      "itemImagePath": "/assets/runtime/items/industrial-chair.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#C1905F",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1058,16 +680,9 @@
     },
     {
       "itemSlug": "industrial-desk",
-      "itemName": "Industrial desk",
-      "itemZhName": "工业风书桌",
-      "itemImagePath": "/assets/runtime/items/industrial-desk.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#D79660",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1077,16 +692,9 @@
     },
     {
       "itemSlug": "iron-chair",
-      "itemName": "Iron chair",
-      "itemZhName": "铁椅",
-      "itemImagePath": "/assets/runtime/items/iron-chair.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#584E48",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1096,16 +704,9 @@
     },
     {
       "itemSlug": "iron-ladder",
-      "itemName": "Iron ladder",
-      "itemZhName": "铁制梯子",
-      "itemImagePath": "/assets/runtime/items/iron-ladder.webp",
-      "category": "Buildings",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#261A0E",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1115,16 +716,9 @@
     },
     {
       "itemSlug": "iron-stand",
-      "itemName": "Iron stand",
-      "itemZhName": "铁架",
-      "itemImagePath": "/assets/runtime/items/iron-stand.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#5D524A",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1134,16 +728,9 @@
     },
     {
       "itemSlug": "log-bed",
-      "itemName": "Log bed",
-      "itemZhName": "原木床",
-      "itemImagePath": "/assets/runtime/items/log-bed.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#815C3A",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1153,16 +740,9 @@
     },
     {
       "itemSlug": "mini-bookcase",
-      "itemName": "Mini bookcase",
-      "itemZhName": "迷你书柜",
-      "itemImagePath": "/assets/runtime/items/mini-bookcase.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#EBB273",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1172,16 +752,9 @@
     },
     {
       "itemSlug": "mirror-ball",
-      "itemName": "Mirror ball",
-      "itemZhName": "镜球",
-      "itemImagePath": "/assets/runtime/items/mirror-ball.webp",
-      "category": "Utilities",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#8B7C6E",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1191,16 +764,9 @@
     },
     {
       "itemSlug": "paint-balloon-black",
-      "itemName": "Paint balloon (black)",
-      "itemZhName": "颜料气球（黑）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-black.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4C4744",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1210,16 +776,9 @@
     },
     {
       "itemSlug": "paint-balloon-brown",
-      "itemName": "Paint balloon (brown)",
-      "itemZhName": "颜料气球（棕）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-brown.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#AA784A",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1229,16 +788,9 @@
     },
     {
       "itemSlug": "paint-balloon-orange",
-      "itemName": "Paint balloon (orange)",
-      "itemZhName": "颜料气球（橙）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-orange.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F0A537",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1248,16 +800,9 @@
     },
     {
       "itemSlug": "paint-balloon-pink",
-      "itemName": "Paint balloon (pink)",
-      "itemZhName": "颜料气球（粉）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-pink.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F096DE",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1267,16 +812,9 @@
     },
     {
       "itemSlug": "paint-balloon-plum",
-      "itemName": "Paint balloon (plum)",
-      "itemZhName": "颜料气球（梅子色）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-plum.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4C0C48",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1286,16 +824,9 @@
     },
     {
       "itemSlug": "picnic-basket",
-      "itemName": "Picnic basket",
-      "itemZhName": "野餐篮",
-      "itemImagePath": "/assets/runtime/items/picnic-basket.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F4A34F",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1305,16 +836,9 @@
     },
     {
       "itemSlug": "raichu-sign",
-      "itemName": "Raichu sign",
-      "itemZhName": "雷丘看板",
-      "itemImagePath": "/assets/runtime/items/raichu-sign.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#ECA352",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1324,16 +848,9 @@
     },
     {
       "itemSlug": "resort-light",
-      "itemName": "Resort light",
-      "itemZhName": "度假村灯",
-      "itemImagePath": "/assets/runtime/items/resort-light.webp",
-      "category": "Utilities",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4E4232",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1343,16 +860,9 @@
     },
     {
       "itemSlug": "shower",
-      "itemName": "Shower",
-      "itemZhName": "淋浴器",
-      "itemImagePath": "/assets/runtime/items/shower.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4A453F",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1362,16 +872,9 @@
     },
     {
       "itemSlug": "standing-mic",
-      "itemName": "Standing mic",
-      "itemZhName": "立式麦克风",
-      "itemImagePath": "/assets/runtime/items/standing-mic.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#494847",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1381,16 +884,9 @@
     },
     {
       "itemSlug": "stone-bench",
-      "itemName": "Stone bench",
-      "itemZhName": "石长椅",
-      "itemImagePath": "/assets/runtime/items/stone-bench.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#81767B",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1400,16 +896,9 @@
     },
     {
       "itemSlug": "water-basin",
-      "itemName": "Water basin",
-      "itemZhName": "水盆",
-      "itemImagePath": "/assets/runtime/items/water-basin.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#A87A52",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1419,16 +908,9 @@
     },
     {
       "itemSlug": "wooden-bench",
-      "itemName": "Wooden bench",
-      "itemZhName": "木长椅",
-      "itemImagePath": "/assets/runtime/items/wooden-bench.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#D7925B",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [],
@@ -1438,16 +920,9 @@
     },
     {
       "itemSlug": "antique-bed",
-      "itemName": "Antique bed",
-      "itemZhName": "古董床",
-      "itemImagePath": "/assets/runtime/items/antique-bed.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#577161",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1457,16 +932,9 @@
     },
     {
       "itemSlug": "bathtime-set",
-      "itemName": "Bathtime set",
-      "itemZhName": "沐浴套装",
-      "itemImagePath": "/assets/runtime/items/bathtime-set.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4EC3EB",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1476,16 +944,9 @@
     },
     {
       "itemSlug": "bouncy-blue-bathtub",
-      "itemName": "Bouncy blue bathtub",
-      "itemZhName": "弹弹蓝浴缸",
-      "itemImagePath": "/assets/runtime/items/bouncy-blue-bathtub.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#3CD7F0",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1495,16 +956,9 @@
     },
     {
       "itemSlug": "cash-register",
-      "itemName": "Cash register",
-      "itemZhName": "收银机",
-      "itemImagePath": "/assets/runtime/items/cash-register.webp",
-      "category": "Utilities",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#067AA4",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1514,16 +968,9 @@
     },
     {
       "itemSlug": "cyan-paint",
-      "itemName": "Cyan paint",
-      "itemZhName": "青色颜料",
-      "itemImagePath": "/assets/runtime/items/cyan-paint.webp",
-      "category": "Materials",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#61BDE6",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1533,16 +980,9 @@
     },
     {
       "itemSlug": "indigo-meteor-lamp",
-      "itemName": "Indigo meteor lamp",
-      "itemZhName": "靛色流星灯",
-      "itemImagePath": "/assets/runtime/items/indigo-meteor-lamp.webp",
-      "category": "Utilities",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#55C7F5",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1552,16 +992,9 @@
     },
     {
       "itemSlug": "town-streetlight",
-      "itemName": "Town streetlight",
-      "itemZhName": "城镇路灯",
-      "itemImagePath": "/assets/runtime/items/town-streetlight.webp",
-      "category": "Utilities",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#3E474D",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1571,16 +1004,9 @@
     },
     {
       "itemSlug": "wobbuffet-wobbler",
-      "itemName": "Wobbuffet wobbler",
-      "itemZhName": "果然翁不倒翁",
-      "itemImagePath": "/assets/runtime/items/wobbuffet-wobbler.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7AC0F9",
       "harmonyStatus": "passed",
       "harmonyType": "analogous",
       "recommendedDyeColors": [],
@@ -1590,16 +1016,9 @@
     },
     {
       "itemSlug": "fishing-rod",
-      "itemName": "Fishing rod",
-      "itemZhName": "钓竿",
-      "itemImagePath": "/assets/runtime/items/fishing-rod.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#615A63",
       "harmonyStatus": "passed",
       "harmonyType": "triadic",
       "recommendedDyeColors": [],
@@ -1609,16 +1028,9 @@
     },
     {
       "itemSlug": "iron-door",
-      "itemName": "Iron door",
-      "itemZhName": "铁门",
-      "itemImagePath": "/assets/runtime/items/iron-door.webp",
-      "category": "Buildings",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4D4851",
       "harmonyStatus": "passed",
       "harmonyType": "triadic",
       "recommendedDyeColors": [],
@@ -1628,16 +1040,9 @@
     },
     {
       "itemSlug": "team-rocket-wall-hanging",
-      "itemName": "Team Rocket Wall Hanging",
-      "itemZhName": "火箭队挂饰",
-      "itemImagePath": "/assets/runtime/items/team-rocket-wall-hanging.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#333036",
       "harmonyStatus": "passed",
       "harmonyType": "triadic",
       "recommendedDyeColors": [],
@@ -1647,16 +1052,9 @@
     },
     {
       "itemSlug": "violet-meteor-lamp",
-      "itemName": "Violet meteor lamp",
-      "itemZhName": "紫罗兰流星灯",
-      "itemImagePath": "/assets/runtime/items/violet-meteor-lamp.webp",
-      "category": "Utilities",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#D89BF3",
       "harmonyStatus": "passed",
       "harmonyType": "triadic",
       "recommendedDyeColors": [],
@@ -1666,16 +1064,9 @@
     },
     {
       "itemSlug": "arcade-machine",
-      "itemName": "Arcade machine",
-      "itemZhName": "街机",
-      "itemImagePath": "/assets/runtime/items/arcade-machine.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#80FFF4",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1685,16 +1076,9 @@
     },
     {
       "itemSlug": "card-reader",
-      "itemName": "Card reader",
-      "itemZhName": "读卡器",
-      "itemImagePath": "/assets/runtime/items/card-reader.webp",
-      "category": "Utilities",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#EBFFFF",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1704,16 +1088,9 @@
     },
     {
       "itemSlug": "cell-phone",
-      "itemName": "Cell phone",
-      "itemZhName": "手机",
-      "itemImagePath": "/assets/runtime/items/cell-phone.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7BF8F0",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1723,16 +1100,9 @@
     },
     {
       "itemSlug": "computer",
-      "itemName": "Computer",
-      "itemZhName": "电脑",
-      "itemImagePath": "/assets/runtime/items/computer.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#90FFF4",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1742,16 +1112,9 @@
     },
     {
       "itemSlug": "garbage-bin",
-      "itemName": "Garbage bin",
-      "itemZhName": "垃圾桶",
-      "itemImagePath": "/assets/runtime/items/garbage-bin.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#8A908F",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1761,16 +1124,9 @@
     },
     {
       "itemSlug": "laptop",
-      "itemName": "Laptop",
-      "itemZhName": "笔记本电脑",
-      "itemImagePath": "/assets/runtime/items/laptop.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#90FFF4",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1780,16 +1136,9 @@
     },
     {
       "itemSlug": "paint-balloon-aquamarine",
-      "itemName": "Paint balloon (aquamarine)",
-      "itemZhName": "颜料气球（海蓝）",
-      "itemImagePath": "/assets/runtime/items/paint-balloon-aquamarine.webp",
-      "category": "Other",
       "matchedPreferenceTerms": [
         "colorful stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#4CD2C7",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1799,16 +1148,9 @@
     },
     {
       "itemSlug": "photo-frame",
-      "itemName": "Photo frame",
-      "itemZhName": "相框",
-      "itemImagePath": "/assets/runtime/items/photo-frame.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#BBF0F8",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1818,16 +1160,9 @@
     },
     {
       "itemSlug": "polygonal-shelf",
-      "itemName": "Polygonal Shelf",
-      "itemZhName": "多边形架子",
-      "itemImagePath": "/assets/runtime/items/polygonal-shelf.webp",
-      "category": "Furniture",
       "matchedPreferenceTerms": [
         "cute stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#78E5EC",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1837,16 +1172,9 @@
     },
     {
       "itemSlug": "spaceship",
-      "itemName": "Spaceship",
-      "itemZhName": "宇宙飞船",
-      "itemImagePath": "/assets/runtime/items/spaceship.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#EEF0F0",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1856,16 +1184,9 @@
     },
     {
       "itemSlug": "tablet",
-      "itemName": "Tablet",
-      "itemZhName": "平板电脑",
-      "itemImagePath": "/assets/runtime/items/tablet.webp",
-      "category": "Misc.",
       "matchedPreferenceTerms": [
         "metal stuff"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#53D9ED",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1875,16 +1196,9 @@
     },
     {
       "itemSlug": "tire-toy",
-      "itemName": "Tire toy",
-      "itemZhName": "轮胎玩具",
-      "itemImagePath": "/assets/runtime/items/tire-toy.webp",
-      "category": "Outdoor",
       "matchedPreferenceTerms": [
         "group activities"
       ],
-      "isDyeable": false,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#36BFC0",
       "harmonyStatus": "passed",
       "harmonyType": "monochrome",
       "recommendedDyeColors": [],
@@ -1894,17 +1208,10 @@
     },
     {
       "itemSlug": "adorable-hedge",
-      "itemName": "Adorable hedge",
-      "itemZhName": "可爱树篱",
-      "itemImagePath": "/assets/runtime/items/adorable-hedge.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#01A06C",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -1917,17 +1224,10 @@
     },
     {
       "itemSlug": "adorable-hedge-seeds",
-      "itemName": "Adorable-hedge seeds",
-      "itemZhName": "可爱树篱种子",
-      "itemImagePath": "/assets/runtime/items/adorable-hedge-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#01A06C",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -1940,17 +1240,10 @@
     },
     {
       "itemSlug": "beautiful-flower",
-      "itemName": "Beautiful flower",
-      "itemZhName": "美丽花",
-      "itemImagePath": "/assets/runtime/items/beautiful-flower.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F05142",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -1962,17 +1255,10 @@
     },
     {
       "itemSlug": "beautiful-flower-seeds",
-      "itemName": "Beautiful-flower seeds",
-      "itemZhName": "美丽花种子",
-      "itemImagePath": "/assets/runtime/items/beautiful-flower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#E3283B",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -1984,17 +1270,10 @@
     },
     {
       "itemSlug": "cute-flower-seeds",
-      "itemName": "Cute-flower seeds",
-      "itemZhName": "可爱花种子",
-      "itemImagePath": "/assets/runtime/items/cute-flower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F55A65",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2006,17 +1285,10 @@
     },
     {
       "itemSlug": "damp-hedge",
-      "itemName": "Damp hedge",
-      "itemZhName": "湿润树篱",
-      "itemImagePath": "/assets/runtime/items/damp-hedge.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#B086E6",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2029,17 +1301,10 @@
     },
     {
       "itemSlug": "damp-hedge-seeds",
-      "itemName": "Damp-hedge seeds",
-      "itemZhName": "湿润树篱种子",
-      "itemImagePath": "/assets/runtime/items/damp-hedge-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#AF86E6",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2052,17 +1317,10 @@
     },
     {
       "itemSlug": "elegant-flower",
-      "itemName": "Elegant flower",
-      "itemZhName": "优雅花",
-      "itemImagePath": "/assets/runtime/items/elegant-flower.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F0F0D5",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2076,17 +1334,10 @@
     },
     {
       "itemSlug": "elegant-flower-seeds",
-      "itemName": "Elegant-flower seeds",
-      "itemZhName": "优雅花种子",
-      "itemImagePath": "/assets/runtime/items/elegant-flower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F0F0D5",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2100,17 +1351,10 @@
     },
     {
       "itemSlug": "healthy-hedge",
-      "itemName": "Healthy hedge",
-      "itemZhName": "健康树篱",
-      "itemImagePath": "/assets/runtime/items/healthy-hedge.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#0B6F4D",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2124,17 +1368,10 @@
     },
     {
       "itemSlug": "healthy-hedge-seeds",
-      "itemName": "Healthy-hedge seeds",
-      "itemZhName": "健康树篱种子",
-      "itemImagePath": "/assets/runtime/items/healthy-hedge-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#209754",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2148,17 +1385,10 @@
     },
     {
       "itemSlug": "mountain-flower-seeds",
-      "itemName": "Mountain-flower seeds",
-      "itemZhName": "岩场花种子",
-      "itemImagePath": "/assets/runtime/items/mountain-flower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7180E6",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2171,17 +1401,10 @@
     },
     {
       "itemSlug": "mountain-flowers",
-      "itemName": "Mountain flowers",
-      "itemZhName": "岩场花",
-      "itemImagePath": "/assets/runtime/items/mountain-flowers.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#7080E6",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2194,17 +1417,10 @@
     },
     {
       "itemSlug": "skyland-flower-seeds",
-      "itemName": "Skyland-flower seeds",
-      "itemZhName": "浮岛花种子",
-      "itemImagePath": "/assets/runtime/items/skyland-flower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#EFF2CF",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2217,17 +1433,10 @@
     },
     {
       "itemSlug": "skyland-flowers",
-      "itemName": "Skyland flowers",
-      "itemZhName": "浮岛花",
-      "itemImagePath": "/assets/runtime/items/skyland-flowers.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#F0F2CF",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2240,17 +1449,10 @@
     },
     {
       "itemSlug": "wildflower-seeds",
-      "itemName": "Wildflower seeds",
-      "itemZhName": "野花种子",
-      "itemImagePath": "/assets/runtime/items/wildflower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#EB9EB6",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2263,17 +1465,10 @@
     },
     {
       "itemSlug": "wildflowers",
-      "itemName": "Wildflowers",
-      "itemZhName": "野花",
-      "itemImagePath": "/assets/runtime/items/wildflowers.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#424A46",
       "harmonyStatus": "passed",
       "harmonyType": "complementary",
       "recommendedDyeColors": [
@@ -2286,17 +1481,10 @@
     },
     {
       "itemSlug": "robust-flower",
-      "itemName": "Robust flower",
-      "itemZhName": "坚韧花",
-      "itemImagePath": "/assets/runtime/items/robust-flower.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#525342",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [
@@ -2308,17 +1496,10 @@
     },
     {
       "itemSlug": "robust-flower-seeds",
-      "itemName": "Robust-flower seeds",
-      "itemZhName": "坚韧花种子",
-      "itemImagePath": "/assets/runtime/items/robust-flower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#90A931",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [
@@ -2330,17 +1511,10 @@
     },
     {
       "itemSlug": "seashore-flower-seeds",
-      "itemName": "Seashore-flower seeds",
-      "itemZhName": "海边花种子",
-      "itemImagePath": "/assets/runtime/items/seashore-flower-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#DEA9F2",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [
@@ -2352,17 +1526,10 @@
     },
     {
       "itemSlug": "seashore-flowers",
-      "itemName": "Seashore flowers",
-      "itemZhName": "海边花",
-      "itemImagePath": "/assets/runtime/items/seashore-flowers.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#DEA9F2",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [
@@ -2374,17 +1541,10 @@
     },
     {
       "itemSlug": "stylish-hedge",
-      "itemName": "Stylish hedge",
-      "itemZhName": "时尚树篱",
-      "itemImagePath": "/assets/runtime/items/stylish-hedge.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#5EA534",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [
@@ -2396,17 +1556,10 @@
     },
     {
       "itemSlug": "stylish-hedge-seeds",
-      "itemName": "Stylish-hedge seeds",
-      "itemZhName": "时尚树篱种子",
-      "itemImagePath": "/assets/runtime/items/stylish-hedge-seeds.webp",
-      "category": "Nature",
       "matchedPreferenceTerms": [
         "dyeable",
         "nature"
       ],
-      "isDyeable": true,
-      "pokemonPrimaryColor": "#5D6060",
-      "itemPrimaryColor": "#5DA436",
       "harmonyStatus": "passed",
       "harmonyType": "splitComplementary",
       "recommendedDyeColors": [

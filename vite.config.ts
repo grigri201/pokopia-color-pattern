@@ -7,7 +7,8 @@ const generatedDataSource = resolve(__dirname, "generated/data");
 const generatedDataTarget = resolve(__dirname, "dist/data");
 const generatedRuntimeAssetsSource = resolve(__dirname, "generated/assets/runtime");
 const generatedRuntimeAssetsTarget = resolve(__dirname, "dist/assets/runtime");
-const requiredGeneratedDataFiles = ["pokemon-index.json", "compact-items.json", "item-colors.json"];
+const requiredGeneratedDataFiles = ["pokemon-index.json", "compact-items.json"];
+const buildOnlyGeneratedDataFiles = ["item-colors.json"];
 const requiredGeneratedDataDirectories = ["recommendations"];
 const requiredRuntimeAssetManifest = "asset-manifest.json";
 
@@ -121,7 +122,7 @@ function assertRequiredGeneratedDataFiles(): Set<string> {
       throw new Error(`Missing generated data directory: generated/data/${directoryName}. Run \`npm run generate:data\`.`);
     }
   });
-  validateGeneratedDataTree(allowlist);
+  validateGeneratedDataTree(new Set([...allowlist, ...buildOnlyGeneratedDataFiles]));
   return allowlist;
 }
 

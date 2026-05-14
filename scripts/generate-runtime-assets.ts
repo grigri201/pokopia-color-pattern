@@ -47,10 +47,6 @@ if (totalBytes >= runtimeImageTotalLimit) {
 }
 const manifest: RuntimeAssetManifestData = {
   schemaVersion: RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION,
-  generatedFrom: {
-    sourceReportPath,
-    rawBoundary: "docs/pokopia_image_sources/**",
-  },
   summary: {
     assetCount: sortedEntries.length,
     pokemonCount: sortedEntries.filter((entry) => entry.sourceCategory === "pokemon").length,

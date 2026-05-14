@@ -2,8 +2,11 @@ import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import {
   RECOMMENDATIONS_SCHEMA_VERSION,
+  validateCompactItemsData,
   validatePokemonIndexData,
   validateRecommendationsData,
+  type CompactItem,
+  type CompactItemsData,
   type PokemonIndexData,
   type PokemonIndexEntry,
   type RecommendationEntry,
@@ -12,6 +15,7 @@ import {
 
 const projectRoot = process.cwd();
 const distIndexPath = resolve(projectRoot, "dist/index.html");
+const compactItemsPath = resolve(projectRoot, "generated/data/compact-items.json");
 const pokemonIndexPath = resolve(projectRoot, "generated/data/pokemon-index.json");
 const recommendationsDir = resolve(projectRoot, "generated/data/recommendations");
 const ssgReportPath = resolve(projectRoot, "generated/reports/ssg-generation-summary.json");
@@ -19,8 +23,11 @@ const expectedPokemonCount = 311;
 const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-color-pattern.local");
 
 const template = await readFile(distIndexPath, "utf8");
+const compactItems = await readJson<CompactItemsData>(compactItemsPath);
 const pokemonIndex = await readJson<PokemonIndexData>(pokemonIndexPath);
+assertNoSchemaIssues("generated/data/compact-items.json", validateCompactItemsData(compactItems));
 assertNoSchemaIssues("generated/data/pokemon-index.json", validatePokemonIndexData(pokemonIndex));
+const itemBySlug = new Map(compactItems.items.map((item) => [item.slug, item]));
 
 if (pokemonIndex.pokemon.length !== expectedPokemonCount) {
   throw new Error(`Expected ${expectedPokemonCount} Pokemon static pages, got ${pokemonIndex.pokemon.length}`);
@@ -201,29 +208,31 @@ function renderRecommendationSummary(entries: RecommendationEntry[], summary: Re
     return `<p class="static-empty">${escapeHtml(recoveryText(summary.status))}</p>`;
   }
 
-  entries.forEach((entry) => assertRootAbsolutePath(entry.itemImagePath, `recommendation image for ${entry.itemSlug}`));
+  entries.forEach((entry) => assertRootAbsolutePath(requireRecommendationItem(entry).imagePath, `recommendation image for ${entry.itemSlug}`));
   return `
           <ol class="static-recommendations">
             ${entries
-              .map(
-                (entry) => `
+              .map((entry) => {
+                const item = requireRecommendationItem(entry);
+                return `
                   <li>
-                    <img src="${escapeAttribute(entry.itemImagePath)}" alt="${escapeAttribute(entry.itemZhName || entry.itemName)}" />
+                    <img src="${escapeAttribute(item.imagePath)}" alt="${escapeAttribute(displayItemName(item))}" />
                     <span>
-                      <strong>${escapeHtml(entry.itemZhName || entry.itemName)}</strong>
-                      <small>${escapeHtml(recommendationSummaryLine(entry))}</small>
+                      <strong>${escapeHtml(displayItemName(item))}</strong>
+                      <small>${escapeHtml(recommendationSummaryLine(entry, item))}</small>
                     </span>
                   </li>
-                `,
-              )
+                `;
+              })
               .join("")}
           </ol>
   `;
 }
 
-function recommendationSummaryLine(entry: RecommendationEntry): string {
-  const base = `${entry.category || "Other"} · ${entry.harmonyStatus}`;
-  if (!entry.isDyeable || entry.recommendedDyeColors.length === 0) {
+function recommendationSummaryLine(entry: RecommendationEntry, item: CompactItem): string {
+  const color = item.recommendation.itemPrimaryColor ?? "no color";
+  const base = `${item.category || "Other"} · ${color} · ${entry.harmonyStatus}`;
+  if (item.recommendation.isDyeable !== true || entry.recommendedDyeColors.length === 0) {
     return base;
   }
   return `${base} · dye ${entry.recommendedDyeColors.join(", ")}`;
@@ -237,7 +246,7 @@ function buildRecommendationSummaryText(
   const slugLabel = `#${pokemon.slug}`;
   const entries = recommendationResult.data.recommendations.slice(0, 3);
   if (entries.length > 0) {
-    const names = entries.map((entry) => entry.itemZhName || entry.itemName).join("、");
+    const names = entries.map((entry) => displayItemName(requireRecommendationItem(entry))).join("、");
     return {
       status: "ready",
       text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}，推荐搭配：${names}。`,
@@ -253,6 +262,18 @@ function buildRecommendationSummaryText(
     status: "empty",
     text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前数据和规则暂未产生推荐搭配，可先查看色板。`,
   };
+}
+
+function requireRecommendationItem(entry: RecommendationEntry): CompactItem {
+  const item = itemBySlug.get(entry.itemSlug);
+  if (!item) {
+    throw new Error(`Recommendation item ${entry.itemSlug} is missing from generated/data/compact-items.json`);
+  }
+  return item;
+}
+
+function displayItemName(item: CompactItem): string {
+  return item.nameZh || item.name;
 }
 
 async function writeSsgReport(results: SsgGenerationResult[]): Promise<void> {

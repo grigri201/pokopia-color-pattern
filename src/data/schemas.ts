@@ -1,7 +1,7 @@
-export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v2" as const;
+export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v3" as const;
 export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v1" as const;
 export const ITEM_COLORS_SCHEMA_VERSION = "item-colors.v1" as const;
-export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v3" as const;
+export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v4" as const;
 export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overrides.v1" as const;
 export const RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION = "runtime-asset-manifest.v1" as const;
 
@@ -17,38 +17,20 @@ export type CompactItemRecommendationFields = {
   isDyeable: boolean | null;
   dyeColorVariants: string[];
   itemPrimaryColor: string | null;
-  colorSource: CompactItemColorSource | null;
-  fallbackReason: string | null;
-  preferenceTerms: string[];
-  roleTags: string[];
 };
 
 export type CompactItem = {
   slug: string;
-  id: string | null;
   name: string;
   nameZh: string | null;
   category: string | null;
   tags: string[];
-  event: string | null;
-  sources: string[];
-  habitatItemCategoryIds: number[];
-  favoriteCategoryIds: number[];
   imagePath: string;
-  sourceDataset: string | null;
-  sourceIndex: number | null;
-  sourceRow: number;
   recommendation: CompactItemRecommendationFields;
 };
 
 export type CompactItemsData = {
   schemaVersion: typeof COMPACT_ITEMS_SCHEMA_VERSION;
-  generatedFrom: {
-    itemManifestPath: string;
-    placeableCsvPath: string;
-    placeableJsonPath: string;
-    rawBoundary: string;
-  };
   summary: {
     itemCount: number;
     categoryCounts: Record<string, number>;
@@ -80,12 +62,6 @@ export type PokemonIndexEntry = {
 
 export type PokemonIndexData = {
   schemaVersion: typeof POKEMON_INDEX_SCHEMA_VERSION;
-  generatedFrom: {
-    pokemonManifestPath: string;
-    pokemonPreferencePath: string;
-    overridePath: string;
-    rawBoundary: string;
-  };
   summary: {
     pokemonCount: number;
     fallbackCount: number;
@@ -116,14 +92,7 @@ export type ItemColorsData = {
 
 export type RecommendationEntry = {
   itemSlug: string;
-  itemName: string;
-  itemZhName: string | null;
-  itemImagePath: string;
-  category: string | null;
   matchedPreferenceTerms: string[];
-  isDyeable: boolean;
-  pokemonPrimaryColor: string;
-  itemPrimaryColor: string | null;
   harmonyStatus: RecommendationHarmonyStatus;
   harmonyType: RecommendationHarmonyType | null;
   recommendedDyeColors: string[];
@@ -175,10 +144,6 @@ export type RuntimeAssetManifestEntry = {
 
 export type RuntimeAssetManifestData = {
   schemaVersion: typeof RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION;
-  generatedFrom: {
-    sourceReportPath: string;
-    rawBoundary: string;
-  };
   summary: {
     assetCount: number;
     pokemonCount: number;
@@ -206,16 +171,7 @@ export function validateCompactItemsData(value: unknown): SchemaIssue[] {
   }
 
   requireLiteral(value, "schemaVersion", COMPACT_ITEMS_SCHEMA_VERSION, "$", issues);
-
-  const generatedFrom = value.generatedFrom;
-  if (isRecord(generatedFrom)) {
-    requireString(generatedFrom, "itemManifestPath", "$.generatedFrom", issues);
-    requireString(generatedFrom, "placeableCsvPath", "$.generatedFrom", issues);
-    requireString(generatedFrom, "placeableJsonPath", "$.generatedFrom", issues);
-    requireString(generatedFrom, "rawBoundary", "$.generatedFrom", issues);
-  } else {
-    issues.push({ path: "$.generatedFrom", message: "Expected source traceability object" });
-  }
+  requireAllowedKeys(value, ["schemaVersion", "summary", "items"], "$", issues);
 
   const summary = value.summary;
   if (isRecord(summary)) {
@@ -284,33 +240,23 @@ function validateCompactItem(
   issues: SchemaIssue[],
   slug: string | undefined,
 ): void {
+  requireAllowedKeys(item, ["slug", "name", "nameZh", "category", "tags", "imagePath", "recommendation"], path, issues, slug);
   requireSlug(item, "slug", path, issues);
-  requireNullableString(item, "id", path, issues, slug);
   requireString(item, "name", path, issues, slug);
   requireNullableString(item, "nameZh", path, issues, slug);
   requireNullableString(item, "category", path, issues, slug);
   requireStringArray(item, "tags", path, issues, slug);
-  requireNullableString(item, "event", path, issues, slug);
-  requireStringArray(item, "sources", path, issues, slug);
-  requireNumberArray(item, "habitatItemCategoryIds", path, issues, slug);
-  requireNumberArray(item, "favoriteCategoryIds", path, issues, slug);
   requireRuntimeDataImagePath(item, "imagePath", path, issues, "item", slug);
-  requireNullableString(item, "sourceDataset", path, issues, slug);
-  requireNullableNumber(item, "sourceIndex", path, issues, slug);
-  requireNumber(item, "sourceRow", path, issues, slug);
 
   if (!isRecord(item.recommendation)) {
     issues.push({ path: `${path}.recommendation`, message: "Expected recommendation fields object", slug });
     return;
   }
 
+  requireAllowedKeys(item.recommendation, ["isDyeable", "dyeColorVariants", "itemPrimaryColor"], `${path}.recommendation`, issues, slug);
   requireNullableBoolean(item.recommendation, "isDyeable", `${path}.recommendation`, issues, slug);
   requireStringArray(item.recommendation, "dyeColorVariants", `${path}.recommendation`, issues, slug);
   requireNullableHex(item.recommendation, "itemPrimaryColor", `${path}.recommendation`, issues, slug);
-  requireNullableColorSource(item.recommendation, "colorSource", `${path}.recommendation`, issues, slug);
-  requireNullableString(item.recommendation, "fallbackReason", `${path}.recommendation`, issues, slug);
-  requireStringArray(item.recommendation, "preferenceTerms", `${path}.recommendation`, issues, slug);
-  requireStringArray(item.recommendation, "roleTags", `${path}.recommendation`, issues, slug);
 }
 
 export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
@@ -321,10 +267,7 @@ export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
   }
 
   requireLiteral(value, "schemaVersion", POKEMON_INDEX_SCHEMA_VERSION, "$", issues);
-
-  if (!isRecord(value.generatedFrom)) {
-    issues.push({ path: "$.generatedFrom", message: "Expected source traceability object" });
-  }
+  requireAllowedKeys(value, ["schemaVersion", "summary", "pokemon"], "$", issues);
 
   const summary = value.summary;
   if (isRecord(summary)) {
@@ -520,6 +463,7 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
   }
 
   requireLiteral(value, "schemaVersion", RECOMMENDATIONS_SCHEMA_VERSION, "$", issues);
+  requireAllowedKeys(value, ["schemaVersion", "pokemonSlug", "pageSize", "totalPages", "recommendations"], "$", issues);
   requireSlug(value, "pokemonSlug", "$", issues);
   requireLiteralNumber(value, "pageSize", 10, "$", issues);
   requireNonNegativeInteger(value, "totalPages", "$", issues);
@@ -539,6 +483,13 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
     }
 
     const slug = typeof entry.itemSlug === "string" ? entry.itemSlug : undefined;
+    requireAllowedKeys(
+      entry,
+      ["itemSlug", "matchedPreferenceTerms", "harmonyStatus", "harmonyType", "recommendedDyeColors", "overrideSource", "rank", "pageIndex"],
+      path,
+      issues,
+      slug,
+    );
     requireSlug(entry, "itemSlug", path, issues);
     if (slug) {
       if (seenItemSlugs.has(slug)) {
@@ -546,15 +497,8 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
       }
       seenItemSlugs.add(slug);
     }
-    requireString(entry, "itemName", path, issues, slug);
-    requireNullableString(entry, "itemZhName", path, issues, slug);
-    requireRuntimeDataImagePath(entry, "itemImagePath", path, issues, "item", slug);
-    requireNullableString(entry, "category", path, issues, slug);
     requireStringArray(entry, "matchedPreferenceTerms", path, issues, slug);
     requireNonEmptyNormalizedStringArray(entry, "matchedPreferenceTerms", path, issues, slug);
-    requireBoolean(entry, "isDyeable", path, issues, slug);
-    requireHex(entry, "pokemonPrimaryColor", path, issues, slug);
-    requireNullableHex(entry, "itemPrimaryColor", path, issues, slug);
     requireRecommendationHarmonyStatus(entry, "harmonyStatus", path, issues, slug);
     requireNullableRecommendationHarmonyType(entry, "harmonyType", path, issues, slug);
     requireStringArray(entry, "recommendedDyeColors", path, issues, slug);
@@ -585,17 +529,8 @@ export function validateRecommendationsData(value: unknown): SchemaIssue[] {
     if (entry.harmonyStatus === "not_required" && entry.harmonyType !== null) {
       issues.push({ path: `${path}.harmonyType`, message: "Expected null harmonyType when harmony is not required", slug });
     }
-    if (entry.isDyeable === false && Array.isArray(entry.recommendedDyeColors) && entry.recommendedDyeColors.length > 0) {
-      issues.push({ path: `${path}.recommendedDyeColors`, message: "Expected no recommended dye colors for non-dyeable items", slug });
-    }
-    if (entry.isDyeable === true && entry.harmonyStatus === "passed" && (!Array.isArray(entry.recommendedDyeColors) || entry.recommendedDyeColors.length === 0)) {
-      issues.push({ path: `${path}.recommendedDyeColors`, message: "Expected dye color recommendations when a dyeable item passes harmony", slug });
-    }
     if (entry.harmonyStatus === "passed" && entry.harmonyType === null) {
       issues.push({ path: `${path}.harmonyType`, message: "Expected harmonyType when harmony passed", slug });
-    }
-    if (entry.harmonyStatus === "passed" && entry.itemPrimaryColor === null) {
-      issues.push({ path: `${path}.itemPrimaryColor`, message: "Expected item primary color when harmony passed", slug });
     }
     if (entry.harmonyStatus === "override") {
       if (typeof entry.overrideSource !== "string" || entry.overrideSource.trim() === "") {
@@ -631,12 +566,7 @@ export function validateRuntimeAssetManifestData(value: unknown): SchemaIssue[] 
   }
 
   requireLiteral(value, "schemaVersion", RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION, "$", issues);
-  if (isRecord(value.generatedFrom)) {
-    requireString(value.generatedFrom, "sourceReportPath", "$.generatedFrom", issues);
-    requireString(value.generatedFrom, "rawBoundary", "$.generatedFrom", issues);
-  } else {
-    issues.push({ path: "$.generatedFrom", message: "Expected generatedFrom object" });
-  }
+  requireAllowedKeys(value, ["schemaVersion", "summary", "assets"], "$", issues);
 
   const summary = value.summary;
   if (isRecord(summary)) {
@@ -665,6 +595,7 @@ export function validateRuntimeAssetManifestData(value: unknown): SchemaIssue[] 
     }
 
     const slug = typeof asset.slug === "string" ? asset.slug : undefined;
+    requireAllowedKeys(asset, ["slug", "sourceCategory", "runtimePath", "byteSize", "contentType", "width", "height"], path, issues, slug);
     requireSlug(asset, "slug", path, issues);
     requireRuntimeAssetSourceCategory(asset, "sourceCategory", path, issues, slug);
     requireRuntimeAssetPath(asset, "runtimePath", path, issues, slug);
@@ -760,6 +691,21 @@ function requireString(
   if (typeof record[key] !== "string" || record[key] === "") {
     issue(path, key, "Expected non-empty string", issues, slug);
   }
+}
+
+function requireAllowedKeys(
+  record: UnknownRecord,
+  allowedKeys: string[],
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const allowed = new Set(allowedKeys);
+  Object.keys(record).forEach((key) => {
+    if (!allowed.has(key)) {
+      issues.push({ path: `${path}.${key}`, message: "Unexpected runtime field", slug });
+    }
+  });
 }
 
 function requireSlug(record: UnknownRecord, key: string, path: string, issues: SchemaIssue[]): void {

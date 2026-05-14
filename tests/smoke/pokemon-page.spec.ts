@@ -178,20 +178,13 @@ function buildRecommendationFixture(pokemonSlug: string): unknown {
   const furnitureItems = data.items.filter((item) => item.category === "Furniture").slice(0, 2);
   const items = [seedItem, ...foodItems, ...furnitureItems].filter((item): item is CompactItem => Boolean(item));
   return {
-    schemaVersion: "recommendations.v3",
+    schemaVersion: "recommendations.v4",
     pokemonSlug,
     pageSize: 10,
     totalPages: 2,
     recommendations: items.map((item, index) => ({
       itemSlug: item.slug,
-      itemName: item.name,
-      itemZhName: item.nameZh,
-      itemImagePath: item.imagePath,
-      category: item.category,
       matchedPreferenceTerms: ["smoke"],
-      isDyeable: item.recommendation.isDyeable ?? false,
-      pokemonPrimaryColor: "#DCBFFF",
-      itemPrimaryColor: item.recommendation.itemPrimaryColor,
       harmonyStatus: "not_required",
       harmonyType: null,
       recommendedDyeColors: item.recommendation.isDyeable ? item.recommendation.dyeColorVariants.slice(0, 2) : [],
