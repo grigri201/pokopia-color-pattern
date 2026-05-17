@@ -10,6 +10,7 @@ type FavoriteLink = {
 
 type DexDetail = {
   sourceSlug: string;
+  dexNumber: string;
   sourcePage: string;
   favorites: FavoriteLink[];
   lovedItems: Array<{
@@ -23,6 +24,7 @@ type OutputPokemonEntry = {
   slug: string;
   name: string;
   sourceSlug: string;
+  dexNumber: string;
   sourcePage: string;
   sourceKind: "direct" | "species_alias";
   favorites: FavoriteLink[];
@@ -97,6 +99,7 @@ async function buildPreferenceSource(): Promise<OutputData> {
         slug,
         name: row.values.name,
         sourceSlug,
+        dexNumber: detail.dexNumber,
         sourcePage: detail.sourcePage,
         sourceKind: sourceSlug === slug ? "direct" : "species_alias",
         favorites: detail.favorites,
@@ -126,13 +129,22 @@ async function buildPreferenceSource(): Promise<OutputData> {
 async function parseDexDetail(detailUrl: string, html: string): Promise<DexDetail> {
   const urlSlug = detailUrl.split("/").pop() ?? "";
   const sourceSlug = urlSlug.replace(/-\d+$/, "");
+  const dexNumber = extractDexNumberFromPokedexUrl(detailUrl);
+  if (!dexNumber) {
+    throw new Error(`Unable to extract PokopiaDex number from ${detailUrl}`);
+  }
 
   return {
     sourceSlug,
+    dexNumber,
     sourcePage: detailUrl,
     favorites: extractFavoriteLinks(html),
     lovedItems: extractLovedItems(html),
   };
+}
+
+function extractDexNumberFromPokedexUrl(value: string): string | null {
+  return value.match(/\/pokedex\/[^/?#]+-(\d+)(?:[?#].*)?$/)?.[1] ?? null;
 }
 
 function extractPokedexDetailUrls(html: string): string[] {

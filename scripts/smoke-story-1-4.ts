@@ -21,11 +21,12 @@ const pokemon = pokemonIndex.pokemon.map((entry) => ({
 
 assertSearch("百变怪", "all", "ditto");
 assertSearch("Ditto", "all", "ditto");
-assertSearch("063", "all", "ditto");
-assertSearch("Abra", "early", "abra");
+assertSearch("047", "all", "ditto");
+assertSearch("Ditto", "early", "ditto");
+assertSearch("Abra", "late", "abra");
 assertSearch("Greninja", "late", "greninja");
-assertExcludes("Greninja", "early", "greninja");
-assertExcludes("Abra", "late", "abra");
+assertExcludes("Abra", "early", "abra");
+assertExcludes("Ditto", "late", "ditto");
 
 ["ditto", "abra", "greninja"].forEach((slug) => {
   const entry = pokemon.find((item) => item.slug === slug);
