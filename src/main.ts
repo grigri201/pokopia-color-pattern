@@ -32,7 +32,10 @@ type Pokemon = {
   zh: string;
   slug: string;
   image: string;
+  primaryColor: PaletteColor;
   palette: PaletteColor[];
+  pattern: string[];
+  preferenceTerms: string[];
 };
 
 type SelectedPokemon = Pokemon;
@@ -179,7 +182,11 @@ const TEXT = {
     fullscreenBrand: "Pokopia 装饰图鉴",
     fullscreenCloseAria: "关闭全屏",
     fullscreenCloseTitle: "关闭全屏",
-    fullscreenCurrentView: "当前 Pokemon 全屏展示",
+    fullscreenPaletteTitle: "色板",
+    fullscreenPatternTitle: "图案",
+    fullscreenPatternAria: (name: string) => `${name} 色彩图案`,
+    fullscreenPreferencesTitle: "偏好档案",
+    fullscreenPreferencesEmpty: "暂无偏好词",
     searchPlaceholder: "搜索",
     searchAria: "搜索 Pokemon 名称、英文名或编号",
     rangeLabels: { all: "全部", early: "001-120", late: "121+" },
@@ -240,7 +247,11 @@ const TEXT = {
     fullscreenBrand: "Pokopia Decor Dex",
     fullscreenCloseAria: "Close fullscreen view",
     fullscreenCloseTitle: "Close fullscreen view",
-    fullscreenCurrentView: "Current Pokemon fullscreen view",
+    fullscreenPaletteTitle: "Swatches",
+    fullscreenPatternTitle: "Pattern",
+    fullscreenPatternAria: (name: string) => `${name} color pattern`,
+    fullscreenPreferencesTitle: "Preference Profile",
+    fullscreenPreferencesEmpty: "No preference terms yet",
     searchPlaceholder: "Search",
     searchAria: "Search by Pokemon name, English name, or number",
     rangeLabels: { all: "All", early: "001-120", late: "121+" },
@@ -396,7 +407,15 @@ const els = {
   fullscreenClose: queryElement<HTMLButtonElement>("#fullscreenClose"),
   fullscreenMeta: queryElement<HTMLElement>("#fullscreenMeta"),
   fullscreenTitle: queryElement<HTMLElement>("#fullscreenTitle"),
-  fullscreenStateNote: queryElement<HTMLElement>("#fullscreenStateNote"),
+  fullscreenPrimaryValues: queryElement<HTMLElement>("#fullscreenPrimaryValues"),
+  fullscreenPaletteTitle: queryElement<HTMLElement>("#fullscreenPaletteTitle"),
+  fullscreenPalette: queryElement<HTMLElement>("#fullscreenPalette"),
+  fullscreenPatternTitle: queryElement<HTMLElement>("#fullscreenPatternTitle"),
+  fullscreenPattern: queryElement<HTMLElement>("#fullscreenPattern"),
+  fullscreenPreferencesTitle: queryElement<HTMLElement>("#fullscreenPreferencesTitle"),
+  fullscreenPreferences: queryElement<HTMLElement>("#fullscreenPreferences"),
+  fullscreenPortrait: queryElement<HTMLImageElement>("#fullscreenPortrait"),
+  fullscreenPortraitNumber: queryElement<HTMLElement>("#fullscreenPortraitNumber"),
   languageToggle: queryElement<HTMLButtonElement>("#languageToggle"),
   metricStrip: queryElement<HTMLElement>("#metricStrip"),
   paletteTitle: queryElement<HTMLElement>("#paletteTitle"),
@@ -450,7 +469,10 @@ function renderLocaleChrome(): void {
   els.fullscreenClose.setAttribute("title", labels.fullscreenCloseTitle);
   els.fullscreenLanguageToggle.textContent = labels.languageToggle;
   els.fullscreenLanguageToggle.setAttribute("aria-label", labels.languageAria);
-  els.fullscreenStateNote.textContent = labels.fullscreenCurrentView;
+  els.fullscreenPrimaryValues.setAttribute("aria-label", labels.primaryColorAria);
+  els.fullscreenPaletteTitle.textContent = labels.fullscreenPaletteTitle;
+  els.fullscreenPatternTitle.textContent = labels.fullscreenPatternTitle;
+  els.fullscreenPreferencesTitle.textContent = labels.fullscreenPreferencesTitle;
   els.searchInput.placeholder = labels.searchPlaceholder;
   els.searchInput.setAttribute("aria-label", labels.searchAria);
   document.querySelector("[aria-label='Pokemon list range'], [aria-label='宝可梦列表范围']")?.setAttribute("aria-label", labels.listRangeAria);
@@ -866,10 +888,110 @@ function closeFullscreenOverlay(options: { restoreFocus?: boolean } = {}): void 
 }
 
 function renderFullscreenShell(pokemon: SelectedPokemon): void {
+  const labels = text();
+  const primary = pokemon.primaryColor;
+  const cmyk = rgbToCmyk(primary.rgb);
   els.fullscreenOverlay.dataset.selectedSlug = pokemon.slug;
   els.fullscreenMeta.textContent = `No. ${pokemon.sequence} / #${pokemon.slug}`;
   els.fullscreenTitle.textContent = pokemonPrimaryDisplayName(pokemon);
-  els.fullscreenStateNote.textContent = text().fullscreenCurrentView;
+  renderFullscreenPrimaryValues([
+    ["HEX", primary.hex.toUpperCase()],
+    ["RGB", `${primary.rgb.r}, ${primary.rgb.g}, ${primary.rgb.b}`],
+    ["CMYK", `${cmyk.c}, ${cmyk.m}, ${cmyk.y}, ${cmyk.k}`],
+  ]);
+  renderFullscreenPalette(pokemon.palette);
+  renderFullscreenPattern(pokemon);
+  renderFullscreenPreferences(pokemon.preferenceTerms);
+  els.fullscreenPattern.setAttribute("aria-label", labels.fullscreenPatternAria(pokemonDisplayName(pokemon)));
+  els.fullscreenPortrait.src = pokemon.image;
+  els.fullscreenPortrait.alt = pokemonAltText(pokemon, state.locale);
+  els.fullscreenPortraitNumber.textContent = pokemon.sequence;
+}
+
+function renderFullscreenPrimaryValues(values: Array<[string, string]>): void {
+  els.fullscreenPrimaryValues.replaceChildren(
+    ...values.map(([label, value]) => {
+      const wrapper = document.createElement("div");
+      const term = document.createElement("dt");
+      const description = document.createElement("dd");
+      term.textContent = label;
+      description.textContent = value;
+      wrapper.replaceChildren(term, description);
+      return wrapper;
+    }),
+  );
+}
+
+function renderFullscreenPalette(palette: PaletteColor[]): void {
+  els.fullscreenPalette.replaceChildren(
+    ...palette.map((color, index) => {
+      const item = document.createElement("div");
+      const swatch = document.createElement("span");
+      const number = document.createElement("strong");
+      const value = document.createElement("small");
+
+      item.className = "fullscreen-swatch";
+      swatch.style.backgroundColor = safeHexColor(color.hex, fallbackColor("palette").hex);
+      number.textContent = String(index + 1).padStart(2, "0");
+      value.textContent = `${color.hex.toUpperCase()} / ${formatPercent(color.percent)}`;
+      item.replaceChildren(swatch, number, value);
+      return item;
+    }),
+  );
+}
+
+function renderFullscreenPattern(pokemon: SelectedPokemon): void {
+  const colors = fullscreenPatternColors(pokemon);
+  els.fullscreenPattern.replaceChildren(
+    ...colors.map((hex) => {
+      const cell = document.createElement("span");
+      cell.style.backgroundColor = hex;
+      return cell;
+    }),
+  );
+}
+
+function renderFullscreenPreferences(preferenceTerms: string[]): void {
+  const terms = preferenceTerms.map((term) => term.trim()).filter(Boolean);
+  if (terms.length === 0) {
+    const empty = document.createElement("span");
+    empty.className = "fullscreen-empty";
+    empty.textContent = text().fullscreenPreferencesEmpty;
+    els.fullscreenPreferences.replaceChildren(empty);
+    return;
+  }
+
+  els.fullscreenPreferences.replaceChildren(
+    ...terms.map((term) => {
+      const item = document.createElement("span");
+      item.textContent = preferenceTermLabel(term);
+      return item;
+    }),
+  );
+}
+
+function fullscreenPatternColors(pokemon: SelectedPokemon): string[] {
+  const fallback = pokemon.primaryColor.hex;
+  const source = pokemon.pattern.length > 0
+    ? pokemon.pattern
+    : pokemon.palette.map((color) => color.hex);
+  const colors = source.length > 0
+    ? source.map((hex) => safeHexColor(hex, fallback))
+    : [fallback];
+  const cells = 24;
+  const pattern: string[] = [];
+  for (let index = 0; index < cells; index += 1) {
+    pattern.push(colors[index % colors.length]);
+  }
+  return pattern;
+}
+
+function safeHexColor(value: string, fallback: string): string {
+  return /^#[0-9a-f]{6}$/i.test(value) ? value : fallback;
+}
+
+function formatPercent(percent: number): string {
+  return `${Number.isInteger(percent) ? percent : percent.toFixed(1)}%`;
 }
 
 function setBackgroundInert(isInert: boolean): void {
@@ -1374,6 +1496,10 @@ function escapeHtml(value: unknown): string {
 
 function toPokemon(entry: PokemonIndexEntry): Pokemon {
   const palette = entry.palette.length ? entry.palette : [{ hex: entry.primaryColor, percent: 100 }];
+  const primaryColor = normalizePaletteColor({
+    hex: entry.primaryColor,
+    percent: palette[0]?.hex === entry.primaryColor ? (palette[0]?.percent ?? 100) : 100,
+  });
 
   return {
     sequence: entry.sequence,
@@ -1381,11 +1507,19 @@ function toPokemon(entry: PokemonIndexEntry): Pokemon {
     zh: entry.zhName || entry.name,
     slug: entry.slug,
     image: entry.imagePath,
-    palette: palette.map((color) => ({
-      hex: color.hex,
-      rgb: hexToRgb(color.hex),
-      percent: color.percent,
-    })),
+    primaryColor,
+    palette: palette.map(normalizePaletteColor),
+    pattern: Array.isArray(entry.pattern) ? entry.pattern : [],
+    preferenceTerms: Array.isArray(entry.preferenceTerms) ? entry.preferenceTerms : [],
+  };
+}
+
+function normalizePaletteColor(color: { hex: string; percent: number }): PaletteColor {
+  const hex = safeHexColor(color.hex, fallbackColor("invalid-color").hex);
+  return {
+    hex,
+    rgb: hexToRgb(hex),
+    percent: Number.isFinite(color.percent) ? color.percent : 100,
   };
 }
 

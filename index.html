@@ -217,10 +217,28 @@
             <div class="fullscreen-meta" id="fullscreenMeta">No. 000 / #ditto</div>
             <h2 class="fullscreen-title" id="fullscreenTitle">Ditto</h2>
           </section>
-          <section class="fullscreen-shell-note" aria-live="polite">
-            <span id="fullscreenStateNote">Current Pokemon fullscreen view</span>
+          <section class="fullscreen-color-stack" data-od-id="fullscreen-color-stack">
+            <dl class="fullscreen-primary" id="fullscreenPrimaryValues" aria-label="Primary color values"></dl>
+
+            <section class="fullscreen-card" data-od-id="fullscreen-palette">
+              <h3 id="fullscreenPaletteTitle">Swatches</h3>
+              <div class="fullscreen-palette" id="fullscreenPalette"></div>
+            </section>
+
+            <section class="fullscreen-card fullscreen-pattern-card" data-od-id="fullscreen-pattern">
+              <h3 id="fullscreenPatternTitle">Pattern</h3>
+              <div class="fullscreen-pattern-grid" id="fullscreenPattern" role="img" aria-label="Color pattern cells"></div>
+            </section>
+          </section>
+          <section class="fullscreen-card fullscreen-preferences" data-od-id="fullscreen-preferences">
+            <h3 id="fullscreenPreferencesTitle">Preference Profile</h3>
+            <div class="fullscreen-terms" id="fullscreenPreferences"></div>
           </section>
         </section>
+        <figure class="fullscreen-pokemon-card" data-od-id="fullscreen-pokemon-card">
+          <img id="fullscreenPortrait" src="" alt="" />
+          <figcaption id="fullscreenPortraitNumber">000</figcaption>
+        </figure>
       </div>
     </section>
   </body>

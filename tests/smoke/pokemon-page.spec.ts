@@ -123,6 +123,37 @@ test("fullscreen overlay opens from current Pokemon and exits without route chan
   await expect(entry).toBeFocused();
 });
 
+test("fullscreen overlay renders identity, color, palette, pattern, and preferences", async ({ page }) => {
+  await page.goto("/pokemon/eevee/");
+  await expect(page.locator("#app")).toBeVisible();
+  await page.getByRole("button", { name: "打开全屏展示" }).click();
+
+  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 077 / #eevee");
+  await expect(page.locator("#fullscreenTitle")).toHaveText("伊布");
+  await expect(page.locator("#fullscreenPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/eevee\.webp/);
+  await expect(page.locator("#fullscreenPortrait")).toHaveAttribute("alt", "伊布 Eevee");
+  await expect(page.locator("#fullscreenPortraitNumber")).toHaveText("077");
+  await expect(page.locator("#fullscreenPrimaryValues")).toContainText("HEX");
+  await expect(page.locator("#fullscreenPrimaryValues")).toContainText("#EFA849");
+  await expect(page.locator("#fullscreenPrimaryValues")).toContainText("RGB");
+  await expect(page.locator("#fullscreenPrimaryValues")).toContainText("239, 168, 73");
+  await expect(page.locator("#fullscreenPrimaryValues")).toContainText("CMYK");
+  await expect(page.locator("#fullscreenPrimaryValues")).toContainText("0, 30, 69, 6");
+  await expect(page.locator("#fullscreenPaletteTitle")).toHaveText("色板");
+  await expect(page.locator("#fullscreenPalette .fullscreen-swatch")).toHaveCount(6);
+  await expect(page.locator("#fullscreenPalette .fullscreen-swatch").first()).toContainText("#EFA849 / 19.8%");
+  await expect(page.locator("#fullscreenPatternTitle")).toHaveText("图案");
+  await expect(page.locator("#fullscreenPattern span")).toHaveCount(24);
+  await expect(page.locator("#fullscreenPreferencesTitle")).toHaveText("偏好档案");
+  await expect(page.locator("#fullscreenPreferences")).toContainText("可爱物品");
+  await expect(page.locator("#fullscreenPreferences")).toContainText("集体活动");
+
+  await page.goto("/pokemon/ditto/");
+  await page.getByRole("button", { name: "打开全屏展示" }).click();
+  await expect(page.locator("#fullscreenPreferencesTitle")).toHaveText("偏好档案");
+  await expect(page.locator("#fullscreenPreferences .fullscreen-empty")).toHaveText("暂无偏好词");
+});
+
 test.describe("English browser locale", () => {
   test.use({ locale: "en-US" });
 

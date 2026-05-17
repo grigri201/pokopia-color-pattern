@@ -1085,7 +1085,7 @@ body.fullscreen-open {
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   min-height: 100vh;
-  overflow: hidden;
+  overflow: auto;
   background:
     linear-gradient(120deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 48%),
     var(--field);
@@ -1166,9 +1166,10 @@ body.fullscreen-open {
 
 .fullscreen-content {
   display: grid;
-  grid-template-areas: "info";
-  grid-template-columns: 1fr;
-  align-items: center;
+  grid-template-areas: "info portrait";
+  grid-template-columns: minmax(0, 1fr) minmax(390px, 0.58fr);
+  gap: clamp(18px, 3vw, 38px);
+  align-items: stretch;
   min-height: calc(100vh - 120px);
   padding: 8px 34px 34px;
 }
@@ -1176,22 +1177,46 @@ body.fullscreen-open {
 .fullscreen-info {
   grid-area: info;
   display: grid;
-  gap: 18px;
+  grid-template-areas:
+    "identity identity"
+    "color preferences";
+  grid-template-columns: minmax(0, 0.58fr) minmax(260px, 0.42fr);
+  grid-template-rows: minmax(320px, 0.58fr) minmax(0, auto);
+  gap: clamp(18px, 2.4vw, 30px);
   min-width: 0;
 }
 
 .fullscreen-identity {
+  grid-area: identity;
   display: grid;
   gap: 12px;
   align-content: center;
-  min-height: min(52vh, 520px);
+  min-height: 0;
+}
+
+.fullscreen-color-stack {
+  grid-area: color;
+  display: grid;
+  align-content: stretch;
+  grid-template-rows: auto auto minmax(0, 1fr);
+  gap: 14px;
+  min-width: 0;
+}
+
+.fullscreen-preferences {
+  grid-area: preferences;
+  align-content: start;
 }
 
 .fullscreen-meta,
-.fullscreen-shell-note {
+.fullscreen-primary dt,
+.fullscreen-primary dd,
+.fullscreen-empty,
+.fullscreen-swatch strong,
+.fullscreen-swatch small {
   font-family:
     "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
-  font-size: 0.72rem;
+  font-size: 0.7rem;
   font-weight: 700;
   letter-spacing: 0;
   text-transform: uppercase;
@@ -1205,13 +1230,158 @@ body.fullscreen-open {
   line-height: 0.82;
 }
 
-.fullscreen-shell-note {
-  width: fit-content;
-  max-width: 100%;
+.fullscreen-primary {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  border: 1px solid currentColor;
+}
+
+.fullscreen-primary div {
+  min-width: 0;
+  border-right: 1px solid currentColor;
+  padding: 10px;
+}
+
+.fullscreen-primary div:last-child {
+  border-right: 0;
+}
+
+.fullscreen-primary dt,
+.fullscreen-primary dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.fullscreen-card {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
   border: 1px solid currentColor;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.14);
   padding: 14px;
+}
+
+.fullscreen-card h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 1.24rem;
+  font-weight: 500;
+}
+
+.fullscreen-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.fullscreen-swatch {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 4px 8px;
+  align-items: center;
+  min-width: min(100%, 150px);
+}
+
+.fullscreen-swatch span {
+  grid-row: span 2;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgba(28, 26, 23, 0.22);
+  border-radius: 8px;
+}
+
+.fullscreen-swatch small,
+.fullscreen-swatch strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.fullscreen-pattern-card {
+  grid-template-rows: auto minmax(0, 1fr);
+  min-height: 0;
+}
+
+.fullscreen-pattern-grid {
+  display: grid;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  grid-auto-rows: minmax(18px, 1fr);
+  gap: 5px;
+  min-height: 120px;
+}
+
+.fullscreen-pattern-grid span {
+  min-height: 18px;
+  border: 1px solid rgba(28, 26, 23, 0.14);
+  border-radius: 4px;
+}
+
+.fullscreen-terms {
+  display: grid;
+  gap: 9px;
+}
+
+.fullscreen-terms span,
+.fullscreen-empty {
+  width: 100%;
+}
+
+.fullscreen-terms span + span {
+  border-top: 1px solid rgba(255, 255, 255, 0.24);
+  padding-top: 9px;
+}
+
+.fullscreen-pokemon-card {
+  position: relative;
+  grid-area: portrait;
+  display: grid;
+  place-items: center;
+  min-width: 0;
+  min-height: clamp(360px, calc(100vh - 120px), 620px);
+  margin: 0;
+  border: 1px solid currentColor;
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 56%),
+    rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 86px rgba(20, 15, 10, 0.28);
+  overflow: hidden;
+}
+
+.fullscreen-pokemon-card::before,
+.fullscreen-pokemon-card::after {
+  position: absolute;
+  inset: 28px;
+  border: 1px dotted currentColor;
+  content: "";
+  opacity: 0.42;
+}
+
+.fullscreen-pokemon-card::after {
+  inset: 54px;
+  border-style: solid;
+  opacity: 0.18;
+}
+
+.fullscreen-pokemon-card img {
+  position: relative;
+  z-index: 1;
+  width: min(70%, 470px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  filter: drop-shadow(0 34px 30px rgba(20, 15, 10, 0.3));
+}
+
+.fullscreen-pokemon-card figcaption {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(7rem, 16vw, 15rem);
+  font-style: italic;
+  line-height: 0.78;
+  opacity: 0.18;
 }
 
 .error-detail {
@@ -1380,6 +1550,33 @@ body.fullscreen-open {
   .panel-scroll {
     overflow: visible;
   }
+
+  .fullscreen-layout {
+    overflow: auto;
+  }
+
+  .fullscreen-content {
+    grid-template-areas:
+      "info"
+      "portrait";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+    min-height: 0;
+    align-items: start;
+  }
+
+  .fullscreen-info {
+    grid-template-areas:
+      "identity"
+      "color"
+      "preferences";
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto auto;
+  }
+
+  .fullscreen-pokemon-card {
+    min-height: 52vh;
+  }
 }
 
 @media (max-width: 880px) {
@@ -1446,26 +1643,41 @@ body.fullscreen-open {
     border-bottom: 0;
   }
 
-  .fullscreen-layout {
-    overflow: auto;
-  }
-
   .fullscreen-toolbar,
   .fullscreen-content {
     padding-right: 18px;
     padding-left: 18px;
   }
 
-  .fullscreen-content {
-    min-height: 0;
+  .fullscreen-content,
+  .fullscreen-info,
+  .fullscreen-primary {
+    grid-template-columns: 1fr;
   }
 
-  .fullscreen-identity {
+  .fullscreen-info {
+    grid-template-areas:
+      "identity"
+      "color"
+      "preferences";
+    grid-template-rows: auto auto auto;
+  }
+
+  .fullscreen-pokemon-card {
     min-height: 46vh;
   }
 
   .fullscreen-title {
     font-size: 4.8rem;
+  }
+
+  .fullscreen-primary div {
+    border-right: 0;
+    border-bottom: 1px solid currentColor;
+  }
+
+  .fullscreen-primary div:last-child {
+    border-bottom: 0;
   }
 }
 
