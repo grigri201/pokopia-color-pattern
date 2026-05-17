@@ -93,7 +93,7 @@ test("fullscreen overlay opens from current Pokemon and exits without route chan
   await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("data-selected-slug", "eevee");
   await expect(page.locator("#fullscreenBrand")).toHaveText("Pokopia 装饰图鉴");
   await expect(page.locator("#fullscreenLanguageToggle")).toHaveText("English");
-  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 077 / #eevee");
+  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 280 / #eevee");
   await expect(page.locator("#fullscreenTitle")).toHaveText("伊布");
   await expect(page.locator("#app")).toHaveJSProperty("inert", true);
   await expect(page.locator("#fullscreenClose")).toBeFocused();
@@ -138,11 +138,11 @@ test("fullscreen overlay renders identity, color, palette, pattern, and preferen
   await expect(page.locator("#app")).toBeVisible();
   await page.getByRole("button", { name: "打开全屏展示" }).click();
 
-  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 077 / #eevee");
+  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 280 / #eevee");
   await expect(page.locator("#fullscreenTitle")).toHaveText("伊布");
   await expect(page.locator("#fullscreenPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/eevee\.webp/);
   await expect(page.locator("#fullscreenPortrait")).toHaveAttribute("alt", "伊布 Eevee");
-  await expect(page.locator("#fullscreenPortraitNumber")).toHaveText("077");
+  await expect(page.locator("#fullscreenPortraitNumber")).toHaveText("280");
   await expect(page.locator("#fullscreenPrimaryValues")).toContainText("HEX");
   await expect(page.locator("#fullscreenPrimaryValues")).toContainText("#EFA849");
   await expect(page.locator("#fullscreenPrimaryValues")).toContainText("RGB");
@@ -174,7 +174,7 @@ test("fullscreen overlay matches Open Design responsive samples and runtime boun
   await page.getByRole("button", { name: "打开全屏展示" }).click();
 
   await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("data-selected-slug", "riolu");
-  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 234 / #riolu");
+  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 180 / #riolu");
   await expect(page.locator("[data-od-id='fullscreen-layout']")).toBeVisible();
   await expect(page.locator("[data-od-id='fullscreen-toolbar']")).toBeVisible();
   await expect(page.locator("[data-od-id='fullscreen-content']")).toBeVisible();
@@ -315,7 +315,7 @@ test("food filter empty state keeps only show all action", async ({ page }) => {
 
 test("hydrated Pokemon page keeps pagination, filters, search, and switching usable", async ({ page }) => {
   let interceptedFixture = false;
-  await page.route("http://127.0.0.1:4173/data/recommendations/ditto.json", async (route) => {
+  await page.route("**/data/recommendations/ditto.json", async (route) => {
     interceptedFixture = true;
     await route.fulfill({
       contentType: "application/json; charset=utf-8",

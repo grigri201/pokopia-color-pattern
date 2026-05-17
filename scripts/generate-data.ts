@@ -55,6 +55,7 @@ type PokemonPreferenceSourceData = {
 
 type PokemonPreferenceSourceEntry = {
   slug: string;
+  dexNumber: string;
   preferenceTerms: string[];
 };
 
@@ -139,6 +140,11 @@ const maxRecommendationGzipBytes = 5 * 1024;
 const recommendationPageSize = 10;
 const expectedItemCount = 1219;
 const expectedPokemonCount = 311;
+const expectedPokemonDexNumbers = new Map([
+  ["ditto", "047"],
+  ["eevee", "280"],
+  ["riolu", "180"],
+]);
 const pokemonAllowedWithoutPreferenceTerms = new Set(["ditto"]);
 
 const absoluteItemManifestPath = resolve(projectRoot, itemManifestPath);
@@ -190,7 +196,13 @@ async function generateData(): Promise<void> {
   const itemSourceBySlug = new Map(compactItemsBuild.assetSources.map((asset) => [asset.slug, asset]));
   const itemColors = await buildItemColors(compactItems.items, itemSourceBySlug, issues);
   applyItemColorsToCompactItems(compactItems, itemColors);
-  const pokemonIndexBuild = await buildPokemonIndex(pokemonCsv, pokemonPreferenceSource.pokemonTermsBySlug, overrides, issues);
+  const pokemonIndexBuild = await buildPokemonIndex(
+    pokemonCsv,
+    pokemonPreferenceSource.pokemonTermsBySlug,
+    pokemonPreferenceSource.pokemonDexNumberBySlug,
+    overrides,
+    issues,
+  );
   const pokemonIndex = pokemonIndexBuild.data;
   const recommendationBuild = buildRecommendations(pokemonIndex, compactItemsBuild.recommendationItems, itemColors, overrides, issues);
   const recommendations = recommendationBuild.recommendations;
@@ -442,6 +454,7 @@ function applyItemColorsToCompactItems(compactItems: CompactItemsData, itemColor
 async function buildPokemonIndex(
   pokemonCsv: string,
   pokemonPreferenceTermsBySlug: Map<string, string[]>,
+  pokemonDexNumberBySlug: Map<string, string>,
   overrides: PokemonMetadataOverridesData,
   issues: GenerationIssue[],
 ): Promise<PokemonIndexBuildResult> {
@@ -455,9 +468,20 @@ async function buildPokemonIndex(
     const slug = pokemonSlug(row.values, name);
     seenPokemonSlugs.add(slug);
     const override = overrides.pokemon[slug];
-    const sequence = requireField(row.values, "sequence", pokemonManifestPath, row.rowNumber, issues, slug);
-    if (!/^\d+$/.test(sequence)) {
-      issues.push({ file: pokemonManifestPath, row: row.rowNumber, slug, field: "sequence", message: "Expected numeric sequence" });
+    const assetSequence = requireField(row.values, "sequence", pokemonManifestPath, row.rowNumber, issues, slug);
+    if (!/^\d+$/.test(assetSequence)) {
+      issues.push({ file: pokemonManifestPath, row: row.rowNumber, slug, field: "sequence", message: "Expected numeric asset sequence" });
+    }
+    const sequence = pokemonDexNumberBySlug.get(slug) ?? "";
+    if (!sequence) {
+      issues.push({
+        file: pokemonPreferencePath,
+        slug,
+        field: `$.pokemon.${slug}.dexNumber`,
+        message: "Missing PokopiaDex number for Pokemon",
+      });
+    } else if (!/^\d+$/.test(sequence)) {
+      issues.push({ file: pokemonPreferencePath, slug, field: `$.pokemon.${slug}.dexNumber`, message: "Expected numeric PokopiaDex number" });
     }
     const sourceImagePath = toRootAbsolutePath(requireField(row.values, "relative_path", pokemonManifestPath, row.rowNumber, issues, slug));
     const runtimeImagePath = runtimeAssetPath("pokemon", slug, sourceImagePath);
@@ -1042,19 +1066,21 @@ function parsePokemonPreferenceSource(
   issues: GenerationIssue[],
 ): {
   pokemonTermsBySlug: Map<string, string[]>;
+  pokemonDexNumberBySlug: Map<string, string>;
   itemTermsBySlug: Map<string, string[]>;
   pokemonEntries: PokemonPreferenceSourceEntry[];
   itemEntries: ItemPreferenceSourceEntry[];
 } {
   const parsed = parseJsonValue(text, pokemonPreferencePath, issues) as PokemonPreferenceSourceData;
   const pokemonTermsBySlug = new Map<string, string[]>();
+  const pokemonDexNumberBySlug = new Map<string, string>();
   const itemTermsBySlug = new Map<string, string[]>();
   const pokemonEntries: PokemonPreferenceSourceEntry[] = [];
   const itemEntries: ItemPreferenceSourceEntry[] = [];
 
   if (!isRecord(parsed)) {
     issues.push({ file: pokemonPreferencePath, field: "$", message: "Expected Pokemon preference source object" });
-    return { pokemonTermsBySlug, itemTermsBySlug, pokemonEntries, itemEntries };
+    return { pokemonTermsBySlug, pokemonDexNumberBySlug, itemTermsBySlug, pokemonEntries, itemEntries };
   }
   if (parsed.schemaVersion !== "pokopiadex-pokemon-preferences.v1") {
     issues.push({ file: pokemonPreferencePath, field: "$.schemaVersion", message: "Expected pokopiadex-pokemon-preferences.v1" });
@@ -1069,8 +1095,14 @@ function parsePokemonPreferenceSource(
         return;
       }
       const terms = uniqueSorted(entry.preferenceTerms.map((term) => String(term)).map(toPreferenceTerm).filter(Boolean));
+      const dexNumber = resolvePokemonDexNumber(entry);
+      if (!dexNumber) {
+        issues.push({ file: pokemonPreferencePath, slug: entry.slug, field: `${path}.dexNumber`, message: "Expected numeric PokopiaDex number" });
+        return;
+      }
       pokemonTermsBySlug.set(entry.slug, terms);
-      pokemonEntries.push({ slug: entry.slug, preferenceTerms: terms });
+      pokemonDexNumberBySlug.set(entry.slug, dexNumber);
+      pokemonEntries.push({ slug: entry.slug, dexNumber, preferenceTerms: terms });
     });
   }
   if (!Array.isArray(parsed.itemPreferenceTerms)) {
@@ -1088,7 +1120,20 @@ function parsePokemonPreferenceSource(
     });
   }
 
-  return { pokemonTermsBySlug, itemTermsBySlug, pokemonEntries, itemEntries };
+  return { pokemonTermsBySlug, pokemonDexNumberBySlug, itemTermsBySlug, pokemonEntries, itemEntries };
+}
+
+function resolvePokemonDexNumber(entry: Record<string, unknown>): string | null {
+  const explicit = typeof entry.dexNumber === "string" ? entry.dexNumber.trim() : "";
+  const derived = explicit || extractDexNumberFromPokedexSourcePage(entry.sourcePage);
+  return derived && /^\d+$/.test(derived) ? derived : null;
+}
+
+function extractDexNumberFromPokedexSourcePage(value: unknown): string | null {
+  if (typeof value !== "string") {
+    return null;
+  }
+  return value.match(/\/pokedex\/[^/?#]+-(\d+)(?:[?#].*)?$/)?.[1] ?? null;
 }
 
 function validateCompactDataShape(data: CompactItemsData, issues: GenerationIssue[]): void {
@@ -1178,6 +1223,18 @@ function validatePokemonIndexShape(data: PokemonIndexData, issues: GenerationIss
     });
   }
   data.pokemon.forEach((pokemon) => {
+    if (!/^\d+$/.test(pokemon.sequence)) {
+      issues.push({ file: pokemonIndexOutputPath, slug: pokemon.slug, field: "$.sequence", message: "Expected numeric PokopiaDex sequence" });
+    }
+    const expectedDexNumber = expectedPokemonDexNumbers.get(pokemon.slug);
+    if (expectedDexNumber && pokemon.sequence !== expectedDexNumber) {
+      issues.push({
+        file: pokemonIndexOutputPath,
+        slug: pokemon.slug,
+        field: "$.sequence",
+        message: `Expected PokopiaDex sequence ${expectedDexNumber}, got ${pokemon.sequence}`,
+      });
+    }
     validateRootAbsoluteImagePath(
       pokemon.imagePath,
       "/assets/runtime/pokemon/",

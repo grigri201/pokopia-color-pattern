@@ -1,5 +1,8 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const previewPort = process.env.PLAYWRIGHT_PORT ?? "4173";
+const previewOrigin = `http://127.0.0.1:${previewPort}`;
+
 export default defineConfig({
   testDir: "./tests/smoke",
   timeout: 30_000,
@@ -8,12 +11,12 @@ export default defineConfig({
   },
   reporter: [["list"]],
   use: {
-    baseURL: "http://127.0.0.1:4173",
+    baseURL: previewOrigin,
     trace: "retain-on-failure",
   },
   webServer: {
-    command: "npm run preview -- --port 4173 --strictPort",
-    url: "http://127.0.0.1:4173/pokemon/ditto/",
+    command: `npm run preview -- --port ${previewPort} --strictPort`,
+    url: `${previewOrigin}/pokemon/ditto/`,
     reuseExistingServer: false,
     timeout: 30_000,
   },
