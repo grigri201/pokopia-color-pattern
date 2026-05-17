@@ -16,6 +16,8 @@ const DEFAULT_LOCALE: Locale = "en";
 const SITE_NAME = "Pokopia Decor Dex";
 const SITE_SEO_TITLE = "Pokopia Decor Dex - Color Palettes and Item Matches";
 const LOCALE_STORAGE_KEY = "pokopia-decor-dex.locale";
+const NATIVE_FULLSCREEN_SYNC_DELAY_MS = 700;
+const NATIVE_FULLSCREEN_SCREEN_TOLERANCE_PX = 8;
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
 type Locale = (typeof LOCALES)[number];
@@ -79,6 +81,8 @@ const state: {
   fullscreen: {
     isOpen: boolean;
     returnFocus: HTMLElement | null;
+    nativeBrowserSyncPending: boolean;
+    nativeBrowserSyncTimeoutId: number | null;
   };
 } = {
   pokemon: [],
@@ -100,6 +104,8 @@ const state: {
   fullscreen: {
     isOpen: false,
     returnFocus: null,
+    nativeBrowserSyncPending: false,
+    nativeBrowserSyncTimeoutId: null,
   },
 };
 
@@ -560,6 +566,10 @@ function bindEvents(): void {
       trapFullscreenFocus(event);
       return;
     }
+    if (isF11Key(event)) {
+      scheduleNativeBrowserFullscreenSync();
+      return;
+    }
     if (event.key === "Escape") {
       if (state.fullscreen.isOpen) {
         closeFullscreenOverlay();
@@ -602,6 +612,8 @@ function bindEvents(): void {
       selectPokemon(slug, true, "hash");
     }
   });
+  window.addEventListener("resize", handleNativeBrowserFullscreenSignal);
+  document.addEventListener("fullscreenchange", syncFullscreenOverlayToNativeBrowserFullscreen);
 }
 
 function renderList(): void {
@@ -865,6 +877,68 @@ function openFullscreenOverlay(): void {
       els.fullscreenClose.focus();
     }
   }, 0);
+}
+
+function isF11Key(event: KeyboardEvent): boolean {
+  return event.key === "F11" || event.code === "F11";
+}
+
+function scheduleNativeBrowserFullscreenSync(): void {
+  if (!state.selected || state.fullscreen.isOpen) {
+    return;
+  }
+
+  clearNativeBrowserFullscreenSync();
+  state.fullscreen.nativeBrowserSyncPending = true;
+  state.fullscreen.nativeBrowserSyncTimeoutId = window.setTimeout(() => {
+    syncFullscreenOverlayToNativeBrowserFullscreen();
+    clearNativeBrowserFullscreenSync();
+  }, NATIVE_FULLSCREEN_SYNC_DELAY_MS);
+}
+
+function handleNativeBrowserFullscreenSignal(): void {
+  if (state.fullscreen.nativeBrowserSyncPending) {
+    syncFullscreenOverlayToNativeBrowserFullscreen();
+  }
+}
+
+function syncFullscreenOverlayToNativeBrowserFullscreen(): void {
+  if (!state.selected || state.fullscreen.isOpen || !isBrowserFullscreenLike()) {
+    return;
+  }
+
+  clearNativeBrowserFullscreenSync();
+  openFullscreenOverlay();
+}
+
+function clearNativeBrowserFullscreenSync(): void {
+  if (state.fullscreen.nativeBrowserSyncTimeoutId !== null) {
+    window.clearTimeout(state.fullscreen.nativeBrowserSyncTimeoutId);
+    state.fullscreen.nativeBrowserSyncTimeoutId = null;
+  }
+  state.fullscreen.nativeBrowserSyncPending = false;
+}
+
+function isBrowserFullscreenLike(): boolean {
+  if (document.fullscreenElement) {
+    return true;
+  }
+
+  return (
+    isViewportNearScreenSize(screen.width, screen.height) ||
+    isViewportNearScreenSize(screen.availWidth, screen.availHeight)
+  );
+}
+
+function isViewportNearScreenSize(screenWidth: number, screenHeight: number): boolean {
+  if (screenWidth <= 0 || screenHeight <= 0) {
+    return false;
+  }
+
+  return (
+    Math.abs(window.innerWidth - screenWidth) <= NATIVE_FULLSCREEN_SCREEN_TOLERANCE_PX &&
+    Math.abs(window.innerHeight - screenHeight) <= NATIVE_FULLSCREEN_SCREEN_TOLERANCE_PX
+  );
 }
 
 function closeFullscreenOverlay(options: { restoreFocus?: boolean } = {}): void {
