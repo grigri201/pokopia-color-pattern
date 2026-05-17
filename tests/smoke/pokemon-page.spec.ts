@@ -67,8 +67,14 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   await expect(githubLink.locator("svg")).toBeVisible();
   await expect(page.locator("#pokemonTitle")).toContainText("Ditto");
   await expect(page.locator("#selectedPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/ditto\.webp/);
+  await expect(page.locator("#floatPortrait")).toHaveCount(0);
+  await expect(page.locator("#drawerTrigger img")).toHaveCount(0);
   await expect(page.locator("#metricStrip")).toContainText("HEX");
   await expect(page.locator("#swatchList")).toContainText("#DCBFFF");
+  const paletteAnalysis = await boundingBox(page, ".analysis-card:nth-of-type(1)");
+  const patternAnalysis = await boundingBox(page, ".analysis-card:nth-of-type(2)");
+  expect(Math.abs(paletteAnalysis.height - patternAnalysis.height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(paletteAnalysis.bottom - patternAnalysis.bottom)).toBeLessThanOrEqual(1);
   await expect(page.locator(".recommendation-summary")).toContainText("/");
   await expect(page.locator(".recommendation-card").first()).toBeVisible();
   await expect(page.locator(".recommendation-card img").first()).toHaveAttribute("src", /\/assets\/runtime\/items\/.*\.webp/);
@@ -136,6 +142,9 @@ test("fullscreen overlay opens from current Pokemon and exits without route chan
 test("fullscreen overlay renders identity, color, palette, pattern, and preferences", async ({ page }) => {
   await page.goto("/pokemon/eevee/");
   await expect(page.locator("#app")).toBeVisible();
+  const mainPatternColors = await page.locator("#patternView .pattern-cell").evaluateAll((cells) =>
+    cells.map((cell) => getComputedStyle(cell).backgroundColor),
+  );
   await page.getByRole("button", { name: "打开全屏展示" }).click();
 
   await expect(page.locator("#fullscreenMeta")).toHaveText("No. 280 / #eevee");
@@ -153,7 +162,11 @@ test("fullscreen overlay renders identity, color, palette, pattern, and preferen
   await expect(page.locator("#fullscreenPalette .fullscreen-swatch")).toHaveCount(6);
   await expect(page.locator("#fullscreenPalette .fullscreen-swatch").first()).toContainText("#EFA849 / 19.8%");
   await expect(page.locator("#fullscreenPatternTitle")).toHaveText("图案");
-  await expect(page.locator("#fullscreenPattern span")).toHaveCount(24);
+  await expect(page.locator("#fullscreenPattern span")).toHaveCount(40);
+  const fullscreenPatternColors = await page.locator("#fullscreenPattern span").evaluateAll((cells) =>
+    cells.map((cell) => getComputedStyle(cell).backgroundColor),
+  );
+  expect(fullscreenPatternColors).toEqual(mainPatternColors);
   await expect(page.locator("#fullscreenPreferencesTitle")).toHaveText("偏好档案");
   await expect(page.locator("#fullscreenPreferences")).toContainText("可爱物品");
   await expect(page.locator("#fullscreenPreferences")).toContainText("集体活动");
@@ -183,7 +196,7 @@ test("fullscreen overlay matches Open Design responsive samples and runtime boun
   await expect(page.locator("[data-od-id='fullscreen-color-stack']")).toContainText("#61BEF4");
   await expect(page.locator("[data-od-id='fullscreen-palette'] .fullscreen-swatch")).toHaveCount(6);
   await expect(page.locator("[data-od-id='fullscreen-pattern']")).toBeVisible();
-  await expect(page.locator("[data-od-id='fullscreen-pattern'] span")).toHaveCount(24);
+  await expect(page.locator("[data-od-id='fullscreen-pattern'] span")).toHaveCount(40);
   await expect(page.locator("[data-od-id='fullscreen-preferences']")).toContainText("建造");
   await expect(page.locator("[data-od-id='fullscreen-preferences']")).toContainText("观赏物品");
   await expect(page.locator("[data-od-id='fullscreen-pokemon-card'] img")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/riolu\.webp/);

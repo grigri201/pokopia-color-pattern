@@ -391,7 +391,6 @@ const els = {
   drawerTrigger: queryElement<HTMLButtonElement>("#drawerTrigger"),
   drawerBackdrop: queryElement<HTMLButtonElement>("#drawerBackdrop"),
   drawerClose: queryElement<HTMLButtonElement>("#drawerClose"),
-  floatPortrait: queryElement<HTMLImageElement>("#floatPortrait"),
   floatName: queryElement<HTMLElement>("#floatName"),
   floatMeta: queryElement<HTMLElement>("#floatMeta"),
   pokemonList: queryElement<HTMLOListElement>("#pokemonList"),
@@ -941,7 +940,7 @@ function renderFullscreenPalette(palette: PaletteColor[]): void {
 }
 
 function renderFullscreenPattern(pokemon: SelectedPokemon): void {
-  const colors = fullscreenPatternColors(pokemon);
+  const colors = buildPatternColors(pokemon.palette, 40);
   els.fullscreenPattern.replaceChildren(
     ...colors.map((hex) => {
       const cell = document.createElement("span");
@@ -968,22 +967,6 @@ function renderFullscreenPreferences(preferenceTerms: string[]): void {
       return item;
     }),
   );
-}
-
-function fullscreenPatternColors(pokemon: SelectedPokemon): string[] {
-  const fallback = pokemon.primaryColor.hex;
-  const source = pokemon.pattern.length > 0
-    ? pokemon.pattern
-    : pokemon.palette.map((color) => color.hex);
-  const colors = source.length > 0
-    ? source.map((hex) => safeHexColor(hex, fallback))
-    : [fallback];
-  const cells = 24;
-  const pattern: string[] = [];
-  for (let index = 0; index < cells; index += 1) {
-    pattern.push(colors[index % colors.length]);
-  }
-  return pattern;
 }
 
 function safeHexColor(value: string, fallback: string): string {
@@ -1038,8 +1021,6 @@ function trapFullscreenFocus(event: KeyboardEvent): void {
 }
 
 function renderFloatingPokemon(pokemon: SelectedPokemon): void {
-  els.floatPortrait.src = pokemon.image;
-  els.floatPortrait.alt = "";
   els.floatName.textContent = pokemonDisplayName(pokemon);
   els.floatMeta.innerHTML = `
     <span>No. ${pokemon.sequence}</span>
@@ -1047,8 +1028,6 @@ function renderFloatingPokemon(pokemon: SelectedPokemon): void {
 }
 
 function renderFloatingRouteNotFound(slug: string): void {
-  els.floatPortrait.removeAttribute("src");
-  els.floatPortrait.alt = "";
   els.floatName.textContent = text().notFoundPokemon;
   els.floatMeta.innerHTML = `
     <span>${escapeHtml(slug || "unknown")}</span>
@@ -1081,9 +1060,17 @@ function renderPalette(palette: PaletteColor[]): void {
 
 function renderPattern(palette: PaletteColor[]): void {
   const cells = 40;
+  const colors = buildPatternColors(palette, cells);
+  els.patternTotal.textContent = text().patternCount(cells);
+
+  els.patternView.innerHTML = colors
+    .map((hex) => `<span class="pattern-cell" style="background:${hex}"></span>`)
+    .join("");
+}
+
+function buildPatternColors(palette: PaletteColor[], cells: number): string[] {
   const normalized = normalizePalette(palette.length ? palette : [fallbackColor("pattern")]);
   const colors: string[] = [];
-  els.patternTotal.textContent = text().patternCount(cells);
 
   normalized.forEach((item) => {
     const count = Math.max(1, Math.round((item.ratio / 100) * cells));
@@ -1096,10 +1083,7 @@ function renderPattern(palette: PaletteColor[]): void {
     colors.push(normalized[colors.length % normalized.length].hex);
   }
 
-  els.patternView.innerHTML = colors
-    .slice(0, cells)
-    .map((hex) => `<span class="pattern-cell" style="background:${hex}"></span>`)
-    .join("");
+  return colors.slice(0, cells);
 }
 
 function renderRecommendations(): void {
