@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { expect, test, type Page } from "@playwright/test";
 
 type CompactItem = {
@@ -16,6 +17,15 @@ type CompactItem = {
 
 type CompactItemsData = {
   items: CompactItem[];
+};
+
+type Box = {
+  left: number;
+  right: number;
+  top: number;
+  bottom: number;
+  width: number;
+  height: number;
 };
 
 test.use({ locale: "zh-CN" });
@@ -152,6 +162,106 @@ test("fullscreen overlay renders identity, color, palette, pattern, and preferen
   await page.getByRole("button", { name: "打开全屏展示" }).click();
   await expect(page.locator("#fullscreenPreferencesTitle")).toHaveText("偏好档案");
   await expect(page.locator("#fullscreenPreferences .fullscreen-empty")).toHaveText("暂无偏好词");
+});
+
+test("fullscreen overlay matches Open Design responsive samples and runtime boundary", async ({ page }) => {
+  await page.setViewportSize({ width: 1366, height: 900 });
+  await page.goto("/pokemon/riolu/");
+  const initialUrl = page.url();
+  const initialHash = await page.evaluate(() => location.hash);
+  const initialHistoryLength = await page.evaluate(() => history.length);
+  const entry = page.getByRole("button", { name: "打开全屏展示" });
+  await page.getByRole("button", { name: "打开全屏展示" }).click();
+
+  await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("data-selected-slug", "riolu");
+  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 234 / #riolu");
+  await expect(page.locator("[data-od-id='fullscreen-layout']")).toBeVisible();
+  await expect(page.locator("[data-od-id='fullscreen-toolbar']")).toBeVisible();
+  await expect(page.locator("[data-od-id='fullscreen-content']")).toBeVisible();
+  await expect(page.locator("[data-od-id='fullscreen-info']")).toBeVisible();
+  await expect(page.locator("[data-od-id='fullscreen-identity']")).toContainText("利欧路");
+  await expect(page.locator("[data-od-id='fullscreen-color-stack']")).toContainText("#61BEF4");
+  await expect(page.locator("[data-od-id='fullscreen-palette'] .fullscreen-swatch")).toHaveCount(6);
+  await expect(page.locator("[data-od-id='fullscreen-pattern']")).toBeVisible();
+  await expect(page.locator("[data-od-id='fullscreen-pattern'] span")).toHaveCount(24);
+  await expect(page.locator("[data-od-id='fullscreen-preferences']")).toContainText("建造");
+  await expect(page.locator("[data-od-id='fullscreen-preferences']")).toContainText("观赏物品");
+  await expect(page.locator("[data-od-id='fullscreen-pokemon-card'] img")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/riolu\.webp/);
+  await expect(page.locator("[data-od-id='fullscreen-pokemon-card'] img")).not.toHaveAttribute("src", /\/docs\/pokopia_image_sources\//);
+  const sources = await fullscreenAssetSources(page);
+  expect(sources).toEqual(expect.arrayContaining(["/assets/runtime/pokemon/riolu.webp"]));
+  expect(sources.every((src) => src.startsWith("/assets/runtime/"))).toBe(true);
+  expect(readFileSync(join("dist", "index.html"), "utf8")).not.toContain("/docs/pokopia_image_sources");
+  const builtAssets = readFileSync(join("dist", "assets", builtAssetName("css")), "utf8")
+    + readFileSync(join("dist", "assets", builtAssetName("js")), "utf8");
+  expect(builtAssets).not.toContain("/docs/pokopia_image_sources");
+  expect((await page.locator("#fullscreenOverlay").innerText()).toLowerCase()).not.toMatch(/壁纸|导出|下载|wallpaper|export|download/);
+  await expect(page.getByRole("button", { name: /壁纸|导出|下载|wallpaper|export|download/i })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: /壁纸|导出|下载|wallpaper|export|download/i })).toHaveCount(0);
+  expect(page.url()).toBe(initialUrl);
+  expect(await page.evaluate(() => location.hash)).toBe(initialHash);
+  expect(await page.evaluate(() => history.length)).toBe(initialHistoryLength);
+
+  let identity = await boundingBox(page, "[data-od-id='fullscreen-identity']");
+  let colorStack = await boundingBox(page, "[data-od-id='fullscreen-color-stack']");
+  let preferences = await boundingBox(page, "[data-od-id='fullscreen-preferences']");
+  let info = await boundingBox(page, "[data-od-id='fullscreen-info']");
+  let card = await boundingBox(page, "[data-od-id='fullscreen-pokemon-card']");
+  expect(info.width * info.height).toBeGreaterThan(0);
+  expect(card.width * card.height).toBeGreaterThan(0);
+  expect(info.right).toBeLessThanOrEqual(card.left + 8);
+  expect(identity.bottom).toBeLessThanOrEqual(colorStack.top + 8);
+  expect(colorStack.right).toBeLessThanOrEqual(preferences.left + 8);
+  await assertBoxesStayInside(page, "[data-od-id='fullscreen-preferences'] .fullscreen-terms span", "[data-od-id='fullscreen-preferences']");
+
+  await page.setViewportSize({ width: 1000, height: 820 });
+  await page.reload();
+  await page.getByRole("button", { name: "打开全屏展示" }).click();
+  identity = await boundingBox(page, "[data-od-id='fullscreen-identity']");
+  colorStack = await boundingBox(page, "[data-od-id='fullscreen-color-stack']");
+  preferences = await boundingBox(page, "[data-od-id='fullscreen-preferences']");
+  info = await boundingBox(page, "[data-od-id='fullscreen-info']");
+  card = await boundingBox(page, "[data-od-id='fullscreen-pokemon-card']");
+  expect(info.width * info.height).toBeGreaterThan(0);
+  expect(card.width * card.height).toBeGreaterThan(0);
+  expect(info.bottom).toBeLessThanOrEqual(card.top + 8);
+  expect(identity.bottom).toBeLessThanOrEqual(colorStack.top + 8);
+  expect(colorStack.bottom).toBeLessThanOrEqual(preferences.top + 8);
+
+  await page.goto("/pokemon/ditto/");
+  await page.getByRole("button", { name: "打开全屏展示" }).click();
+  await expect(page.locator("#fullscreenPreferences .fullscreen-empty")).toBeVisible();
+  const empty = await boundingBox(page, "#fullscreenPreferences .fullscreen-empty");
+  expect(empty.height).toBeGreaterThan(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/pokemon/pikachu/");
+  await page.getByRole("button", { name: "打开全屏展示" }).click();
+  await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("data-selected-slug", "pikachu");
+  await expect(page.locator("#fullscreenPortrait")).toHaveAttribute("src", /\/assets\/runtime\/pokemon\/pikachu\.webp/);
+  await expect(page.locator("#fullscreenLanguageToggle")).toBeVisible();
+  await expect(page.locator("#fullscreenClose")).toBeVisible();
+  const title = await boundingBox(page, "#fullscreenTitle");
+  const image = await boundingBox(page, "#fullscreenPortrait");
+  expect(title.width * title.height).toBeGreaterThan(0);
+  expect(image.width * image.height).toBeGreaterThan(0);
+  expect(title.bottom).toBeLessThanOrEqual(image.top + 8);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+  expect(await page.locator("#fullscreenOverlay").evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true);
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#fullscreenLanguageToggle")).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#fullscreenPaletteTitle")).toHaveText("Swatches");
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  await page.keyboard.press("Enter");
+  await expect(page.locator("#fullscreenOverlay")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Open fullscreen view" })).toBeFocused();
+  await page.getByRole("button", { name: "Open fullscreen view" }).click();
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  await page.locator("#fullscreenClose").click();
+  await expect(page.locator("#fullscreenOverlay")).toBeHidden();
+  await expect(page.getByRole("button", { name: "Open fullscreen view" })).toBeFocused();
 });
 
 test.describe("English browser locale", () => {
@@ -298,4 +408,58 @@ function buildRecommendationFixture(pokemonSlug: string): unknown {
 async function expectVisibleRecommendationNamesToExcludeSeeds(page: Page): Promise<void> {
   const names = await page.locator(".recommendation-card h3").allTextContents();
   names.forEach((name) => expect(name).not.toMatch(/种子|seed/i));
+}
+
+async function boundingBox(page: Page, selector: string): Promise<Box> {
+  return page.locator(selector).evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      left: rect.left,
+      right: rect.right,
+      top: rect.top,
+      bottom: rect.bottom,
+      width: rect.width,
+      height: rect.height,
+    };
+  });
+}
+
+async function fullscreenAssetSources(page: Page): Promise<string[]> {
+  return page.locator("#fullscreenOverlay [src]").evaluateAll((elements) =>
+    elements.map((element) => element.getAttribute("src") ?? ""),
+  );
+}
+
+async function assertBoxesStayInside(page: Page, childSelector: string, parentSelector: string): Promise<void> {
+  const parent = await boundingBox(page, parentSelector);
+  const children = await page.locator(childSelector).evaluateAll((elements) =>
+    elements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return {
+        left: rect.left,
+        right: rect.right,
+        top: rect.top,
+        bottom: rect.bottom,
+        width: rect.width,
+        height: rect.height,
+      };
+    }),
+  );
+
+  expect(children.length).toBeGreaterThan(0);
+  children.forEach((child) => {
+    expect(child.width * child.height).toBeGreaterThan(0);
+    expect(child.left).toBeGreaterThanOrEqual(parent.left - 8);
+    expect(child.right).toBeLessThanOrEqual(parent.right + 8);
+  });
+}
+
+function builtAssetName(extension: "css" | "js"): string {
+  const indexHtml = readFileSync(join("dist", "index.html"), "utf8");
+  const pattern = new RegExp(`/assets/([^"]+\\.${extension})`);
+  const match = indexHtml.match(pattern);
+  if (!match?.[1]) {
+    throw new Error(`Unable to find built ${extension} asset in dist/index.html`);
+  }
+  return match[1];
 }
