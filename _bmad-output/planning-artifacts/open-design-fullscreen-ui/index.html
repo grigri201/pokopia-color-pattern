@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="zh-Hans">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Open Design - Pokopia 全屏布局</title>
+    <style>
+      :root {
+        --field: #61bef4;
+        --ink: #1c1a17;
+        --paper: #f5efe2;
+        --line: rgba(28, 26, 23, 0.28);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        color-scheme: light;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        background: var(--field);
+        color: var(--ink);
+      }
+
+      .fullscreen-layout {
+        position: relative;
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        min-height: 100vh;
+        overflow: hidden;
+        background:
+          linear-gradient(120deg, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 48%),
+          var(--field);
+      }
+
+      .fullscreen-layout::before {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        content: "";
+        background-image:
+          repeating-linear-gradient(30deg, rgba(255, 255, 255, 0.1) 0 1px, transparent 1px 52px),
+          repeating-linear-gradient(150deg, rgba(28, 26, 23, 0.055) 0 1px, transparent 1px 52px);
+        opacity: 0.52;
+      }
+
+      .toolbar,
+      .grid {
+        position: relative;
+        z-index: 1;
+      }
+
+      .toolbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        min-height: 78px;
+        padding: 22px 34px 14px;
+      }
+
+      .meta,
+      .primary dt,
+      .primary dd,
+      .empty,
+      .swatch strong,
+      .swatch small {
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .toolbar strong,
+      .title,
+      .card h3 {
+        font-family: Georgia, "Times New Roman", serif;
+        font-weight: 500;
+      }
+
+      .close {
+        display: inline-grid;
+        place-items: center;
+        width: 38px;
+        min-height: 38px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        color: currentColor;
+        cursor: default;
+        padding: 0;
+      }
+
+      .toolbar-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .language-toggle {
+        min-height: 38px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.16);
+        color: currentColor;
+        cursor: default;
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+        font-size: 0.7rem;
+        font-weight: 700;
+        padding: 7px 13px;
+      }
+
+      .close svg {
+        width: 17px;
+        height: 17px;
+        display: block;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-areas: "info portrait";
+        grid-template-columns: minmax(0, 1fr) minmax(390px, 0.58fr);
+        gap: clamp(18px, 3vw, 38px);
+        align-items: stretch;
+        min-height: calc(100vh - 120px);
+        padding: 8px 34px 34px;
+      }
+
+      .info {
+        grid-area: info;
+        display: grid;
+        grid-template-areas:
+          "identity identity"
+          "color preferences";
+        grid-template-columns: minmax(0, 0.58fr) minmax(260px, 0.42fr);
+        grid-template-rows: minmax(350px, 0.58fr) minmax(0, auto);
+        gap: clamp(18px, 2.4vw, 30px);
+        min-width: 0;
+      }
+
+      .identity {
+        grid-area: identity;
+        display: grid;
+        align-content: center;
+        min-height: 0;
+      }
+
+      .identity-copy,
+      .color-stack,
+      .preferences {
+        display: grid;
+        gap: 14px;
+        min-width: 0;
+      }
+
+      .color-stack {
+        grid-area: color;
+        align-content: stretch;
+        grid-template-rows: auto auto minmax(0, 1fr);
+      }
+
+      .preferences {
+        grid-area: preferences;
+        align-content: start;
+      }
+
+      .title {
+        max-width: 9ch;
+        margin: 0;
+        overflow-wrap: anywhere;
+        font-size: clamp(5.8rem, 12vw, 12.6rem);
+        line-height: 0.82;
+      }
+
+      .primary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        margin: 0;
+        border: 1px solid currentColor;
+      }
+
+      .primary div {
+        min-width: 0;
+        border-right: 1px solid currentColor;
+        padding: 10px;
+      }
+
+      .primary div:last-child {
+        border-right: 0;
+      }
+
+      .primary dt,
+      .primary dd {
+        margin: 0;
+        overflow-wrap: anywhere;
+      }
+
+      .card {
+        min-width: 0;
+        border: 1px solid currentColor;
+        border-radius: 8px;
+        background: rgba(255, 255, 255, 0.14);
+        padding: 14px;
+      }
+
+      .card h3 {
+        margin: 0 0 10px;
+        font-size: 1.24rem;
+      }
+
+      .pattern-card {
+        display: grid;
+        grid-template-rows: auto minmax(0, 1fr);
+        min-height: 0;
+      }
+
+      .palette {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 7px;
+      }
+
+      .pattern-grid {
+        display: grid;
+        grid-template-columns: repeat(8, minmax(0, 1fr));
+        grid-auto-rows: minmax(18px, 1fr);
+        gap: 5px;
+        min-height: 120px;
+      }
+
+      .pattern-grid span {
+        min-height: 18px;
+        border: 1px solid rgba(28, 26, 23, 0.14);
+        border-radius: 4px;
+      }
+
+      .terms {
+        display: grid;
+        gap: 9px;
+      }
+
+      .terms span,
+      .empty {
+        width: 100%;
+      }
+
+      .terms span + span {
+        border-top: 1px solid rgba(255, 255, 255, 0.24);
+        padding-top: 9px;
+      }
+
+      .portrait {
+        position: relative;
+        grid-area: portrait;
+        display: grid;
+        place-items: center;
+        min-width: 0;
+        min-height: 620px;
+        margin: 0;
+        border: 1px solid currentColor;
+        border-radius: 8px;
+        background:
+          radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0) 56%),
+          rgba(255, 255, 255, 0.08);
+        box-shadow: 0 30px 86px rgba(20, 15, 10, 0.28);
+        overflow: hidden;
+      }
+
+      .portrait::before,
+      .portrait::after {
+        position: absolute;
+        inset: 28px;
+        border: 1px dotted currentColor;
+        content: "";
+        opacity: 0.42;
+      }
+
+      .portrait::after {
+        inset: 54px;
+        border-style: solid;
+        opacity: 0.18;
+      }
+
+      .portrait img {
+        position: relative;
+        z-index: 1;
+        width: min(70%, 470px);
+        aspect-ratio: 1;
+        object-fit: contain;
+        filter: drop-shadow(0 34px 30px rgba(20, 15, 10, 0.3));
+      }
+
+      .portrait figcaption {
+        position: absolute;
+        right: 20px;
+        bottom: 12px;
+        font-family: Georgia, "Times New Roman", serif;
+        font-size: clamp(7rem, 16vw, 15rem);
+        font-style: italic;
+        line-height: 0.78;
+        opacity: 0.18;
+      }
+
+      .swatch {
+        display: grid;
+        grid-template-columns: 42px minmax(0, 1fr);
+        gap: 4px 8px;
+        align-items: center;
+        min-width: min(100%, 150px);
+      }
+
+      .swatch span {
+        grid-row: span 2;
+        width: 42px;
+        height: 42px;
+        border: 1px solid rgba(28, 26, 23, 0.22);
+        border-radius: 8px;
+      }
+
+      @media (max-width: 1180px) {
+        .fullscreen-layout {
+          overflow: auto;
+        }
+
+        .grid {
+          grid-template-areas:
+            "info"
+            "portrait";
+          grid-template-columns: 1fr;
+          grid-template-rows: auto auto;
+          min-height: 0;
+          align-items: start;
+        }
+
+        .info {
+          grid-template-rows: minmax(260px, auto) auto;
+        }
+
+        .portrait {
+          min-height: 52vh;
+        }
+      }
+
+      @media (max-width: 820px) {
+        .toolbar,
+        .grid {
+          padding-right: 18px;
+          padding-left: 18px;
+        }
+
+        .grid,
+        .info,
+        .primary {
+          grid-template-columns: 1fr;
+        }
+
+        .info {
+          grid-template-areas:
+            "identity"
+            "color"
+            "preferences";
+          grid-template-rows: auto auto auto;
+        }
+
+        .portrait {
+          min-height: 46vh;
+        }
+
+        .title {
+          font-size: 4.8rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="fullscreen-layout" data-od-id="fullscreen-layout">
+      <header class="toolbar" data-od-id="fullscreen-toolbar">
+        <div>
+          <strong>Pokopia 装饰图鉴</strong>
+        </div>
+        <div class="toolbar-actions">
+          <button class="language-toggle" type="button" aria-label="切换到英文">EN</button>
+          <button class="close" type="button" aria-label="关闭全屏" title="关闭全屏">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path d="M5 5l10 10M15 5L5 15" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="grid" data-od-id="fullscreen-content">
+        <section class="info" data-od-id="fullscreen-info">
+          <section class="identity" data-od-id="fullscreen-identity">
+            <div class="identity-copy">
+              <div class="meta">编号 180 / #riolu</div>
+              <h1 class="title">利欧路</h1>
+            </div>
+          </section>
+
+          <section class="color-stack" data-od-id="fullscreen-color-stack">
+            <dl class="primary">
+              <div><dt>HEX</dt><dd>#61BEF4</dd></div>
+              <div><dt>RGB</dt><dd>97, 190, 244</dd></div>
+              <div><dt>CMYK</dt><dd>60, 22, 0, 4</dd></div>
+            </dl>
+
+            <section class="card" data-od-id="fullscreen-palette">
+              <h3>色板</h3>
+              <div class="palette">
+                <div class="swatch"><span style="background:#61BEF4"></span><strong>01</strong><small>#61BEF4 / 20%</small></div>
+                <div class="swatch"><span style="background:#54A8D5"></span><strong>02</strong><small>#54A8D5 / 18%</small></div>
+                <div class="swatch"><span style="background:#606C76"></span><strong>03</strong><small>#606C76 / 27%</small></div>
+                <div class="swatch"><span style="background:#72D8FF"></span><strong>04</strong><small>#72D8FF / 9%</small></div>
+                <div class="swatch"><span style="background:#485E60"></span><strong>05</strong><small>#485E60 / 9%</small></div>
+                <div class="swatch"><span style="background:#4B90BE"></span><strong>06</strong><small>#4B90BE / 6%</small></div>
+              </div>
+            </section>
+
+            <section class="card pattern-card" data-od-id="fullscreen-pattern">
+              <h3>图案</h3>
+              <div class="pattern-grid" aria-label="利欧路色彩图案">
+                <span style="background:#61BEF4"></span>
+                <span style="background:#54A8D5"></span>
+                <span style="background:#606C76"></span>
+                <span style="background:#72D8FF"></span>
+                <span style="background:#485E60"></span>
+                <span style="background:#4B90BE"></span>
+                <span style="background:#61BEF4"></span>
+                <span style="background:#606C76"></span>
+                <span style="background:#54A8D5"></span>
+                <span style="background:#61BEF4"></span>
+                <span style="background:#72D8FF"></span>
+                <span style="background:#606C76"></span>
+                <span style="background:#4B90BE"></span>
+                <span style="background:#485E60"></span>
+                <span style="background:#61BEF4"></span>
+                <span style="background:#54A8D5"></span>
+                <span style="background:#606C76"></span>
+                <span style="background:#72D8FF"></span>
+                <span style="background:#61BEF4"></span>
+                <span style="background:#54A8D5"></span>
+                <span style="background:#485E60"></span>
+                <span style="background:#606C76"></span>
+                <span style="background:#4B90BE"></span>
+                <span style="background:#61BEF4"></span>
+              </div>
+            </section>
+          </section>
+
+          <section class="card preferences" data-od-id="fullscreen-preferences">
+            <h3>偏好档案</h3>
+            <div class="terms">
+              <span>建造</span>
+              <span>运动</span>
+              <span>布料</span>
+              <span>聚会</span>
+              <span>辣味</span>
+              <span>观赏物品</span>
+            </div>
+          </section>
+        </section>
+
+        <figure class="portrait" data-od-id="fullscreen-pokemon-card">
+          <img src="../../../generated/assets/runtime/pokemon/riolu.webp" alt="利欧路 Riolu" />
+          <figcaption>180</figcaption>
+        </figure>
+      </div>
+    </main>
+  </body>
+</html>
