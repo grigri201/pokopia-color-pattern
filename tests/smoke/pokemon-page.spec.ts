@@ -161,6 +161,22 @@ test("F11 browser fullscreen intent opens the app fullscreen overlay", async ({ 
   expect(await page.evaluate(() => history.length)).toBe(initialHistoryLength);
 });
 
+test("Chrome presentation shortcut opens the app fullscreen overlay", async ({ page }) => {
+  await page.goto("/pokemon/eevee/");
+  await expect(page.locator("#app")).toBeVisible();
+  const initialUrl = page.url();
+  const initialHistoryLength = await page.evaluate(() => history.length);
+
+  await page.keyboard.press("Meta+Shift+F");
+
+  await expect(page.locator("#fullscreenOverlay")).toBeVisible();
+  await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("aria-hidden", "false");
+  await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("data-selected-slug", "eevee");
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  expect(page.url()).toBe(initialUrl);
+  expect(await page.evaluate(() => history.length)).toBe(initialHistoryLength);
+});
+
 test("fullscreen overlay renders identity, color, palette, pattern, and preferences", async ({ page }) => {
   await page.goto("/pokemon/eevee/");
   await expect(page.locator("#app")).toBeVisible();

@@ -17,6 +17,7 @@ const SITE_NAME = "Pokopia Decor Dex";
 const SITE_SEO_TITLE = "Pokopia Decor Dex - Color Palettes and Item Matches";
 const LOCALE_STORAGE_KEY = "pokopia-decor-dex.locale";
 const NATIVE_FULLSCREEN_SYNC_DELAY_MS = 700;
+const CHROME_PRESENTATION_SYNC_DELAY_MS = 250;
 const NATIVE_FULLSCREEN_SCREEN_TOLERANCE_PX = 8;
 
 type ItemFilter = (typeof ITEM_FILTER_KEYS)[number];
@@ -570,6 +571,10 @@ function bindEvents(): void {
       scheduleNativeBrowserFullscreenSync();
       return;
     }
+    if (isChromePresentationModeShortcut(event)) {
+      scheduleChromePresentationModeSync();
+      return;
+    }
     if (event.key === "Escape") {
       if (state.fullscreen.isOpen) {
         closeFullscreenOverlay();
@@ -883,6 +888,17 @@ function isF11Key(event: KeyboardEvent): boolean {
   return event.key === "F11" || event.code === "F11";
 }
 
+function isChromePresentationModeShortcut(event: KeyboardEvent): boolean {
+  const key = event.key.toLowerCase();
+  return (
+    event.metaKey &&
+    event.shiftKey &&
+    !event.ctrlKey &&
+    !event.altKey &&
+    (key === "f" || event.code === "KeyF")
+  );
+}
+
 function scheduleNativeBrowserFullscreenSync(): void {
   if (!state.selected || state.fullscreen.isOpen) {
     return;
@@ -894,6 +910,18 @@ function scheduleNativeBrowserFullscreenSync(): void {
     syncFullscreenOverlayToNativeBrowserFullscreen();
     clearNativeBrowserFullscreenSync();
   }, NATIVE_FULLSCREEN_SYNC_DELAY_MS);
+}
+
+function scheduleChromePresentationModeSync(): void {
+  if (!state.selected || state.fullscreen.isOpen) {
+    return;
+  }
+
+  window.setTimeout(() => {
+    if (state.selected && !state.fullscreen.isOpen) {
+      openFullscreenOverlay();
+    }
+  }, CHROME_PRESENTATION_SYNC_DELAY_MS);
 }
 
 function handleNativeBrowserFullscreenSignal(): void {
