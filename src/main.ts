@@ -73,6 +73,10 @@ const state: {
   locale: Locale;
   itemCategory: ItemFilter;
   recommendations: RecommendationPanelState;
+  fullscreen: {
+    isOpen: boolean;
+    returnFocus: HTMLElement | null;
+  };
 } = {
   pokemon: [],
   items: [],
@@ -89,6 +93,10 @@ const state: {
     error: null,
     pageIndex: 0,
     requestId: 0,
+  },
+  fullscreen: {
+    isOpen: false,
+    returnFocus: null,
   },
 };
 
@@ -166,6 +174,12 @@ const TEXT = {
     closeDrawer: "关闭搜索抽屉",
     languageToggle: "English",
     languageAria: "切换到英文",
+    fullscreenOpenAria: "打开全屏展示",
+    fullscreenOpenTitle: "打开全屏展示",
+    fullscreenBrand: "Pokopia 装饰图鉴",
+    fullscreenCloseAria: "关闭全屏",
+    fullscreenCloseTitle: "关闭全屏",
+    fullscreenCurrentView: "当前 Pokemon 全屏展示",
     searchPlaceholder: "搜索",
     searchAria: "搜索 Pokemon 名称、英文名或编号",
     rangeLabels: { all: "全部", early: "001-120", late: "121+" },
@@ -221,6 +235,12 @@ const TEXT = {
     closeDrawer: "Close search drawer",
     languageToggle: "Chinese",
     languageAria: "Switch to Chinese",
+    fullscreenOpenAria: "Open fullscreen view",
+    fullscreenOpenTitle: "Open fullscreen view",
+    fullscreenBrand: "Pokopia Decor Dex",
+    fullscreenCloseAria: "Close fullscreen view",
+    fullscreenCloseTitle: "Close fullscreen view",
+    fullscreenCurrentView: "Current Pokemon fullscreen view",
     searchPlaceholder: "Search",
     searchAria: "Search by Pokemon name, English name, or number",
     rangeLabels: { all: "All", early: "001-120", late: "121+" },
@@ -369,6 +389,14 @@ const els = {
   title: queryElement<HTMLElement>("#pokemonTitle"),
   selectedPortrait: queryElement<HTMLImageElement>("#selectedPortrait"),
   portraitNumber: queryElement<HTMLElement>("#portraitNumber"),
+  fullscreenEntry: queryElement<HTMLButtonElement>("#fullscreenEntry"),
+  fullscreenOverlay: queryElement<HTMLElement>("#fullscreenOverlay"),
+  fullscreenBrand: queryElement<HTMLElement>("#fullscreenBrand"),
+  fullscreenLanguageToggle: queryElement<HTMLButtonElement>("#fullscreenLanguageToggle"),
+  fullscreenClose: queryElement<HTMLButtonElement>("#fullscreenClose"),
+  fullscreenMeta: queryElement<HTMLElement>("#fullscreenMeta"),
+  fullscreenTitle: queryElement<HTMLElement>("#fullscreenTitle"),
+  fullscreenStateNote: queryElement<HTMLElement>("#fullscreenStateNote"),
   languageToggle: queryElement<HTMLButtonElement>("#languageToggle"),
   metricStrip: queryElement<HTMLElement>("#metricStrip"),
   paletteTitle: queryElement<HTMLElement>("#paletteTitle"),
@@ -415,6 +443,14 @@ function renderLocaleChrome(): void {
   els.drawerClose.setAttribute("aria-label", labels.closeDrawer);
   els.languageToggle.textContent = labels.languageToggle;
   els.languageToggle.setAttribute("aria-label", labels.languageAria);
+  els.fullscreenEntry.setAttribute("aria-label", labels.fullscreenOpenAria);
+  els.fullscreenEntry.setAttribute("title", labels.fullscreenOpenTitle);
+  els.fullscreenBrand.textContent = labels.fullscreenBrand;
+  els.fullscreenClose.setAttribute("aria-label", labels.fullscreenCloseAria);
+  els.fullscreenClose.setAttribute("title", labels.fullscreenCloseTitle);
+  els.fullscreenLanguageToggle.textContent = labels.languageToggle;
+  els.fullscreenLanguageToggle.setAttribute("aria-label", labels.languageAria);
+  els.fullscreenStateNote.textContent = labels.fullscreenCurrentView;
   els.searchInput.placeholder = labels.searchPlaceholder;
   els.searchInput.setAttribute("aria-label", labels.searchAria);
   document.querySelector("[aria-label='Pokemon list range'], [aria-label='宝可梦列表范围']")?.setAttribute("aria-label", labels.listRangeAria);
@@ -432,6 +468,9 @@ function renderLocaleChrome(): void {
   els.itemFilter.setAttribute("aria-label", labels.itemFilterAria);
   renderItemFilterOptions();
   els.itemSectionTitle.textContent = labels.recommendationTitle(state.itemCategory);
+  if (state.selected) {
+    renderFullscreenShell(state.selected);
+  }
 }
 
 function renderItemFilterOptions(): void {
@@ -492,8 +531,19 @@ function bindEvents(): void {
   els.drawerBackdrop.addEventListener("click", closeDrawer);
   els.drawerClose.addEventListener("click", closeDrawer);
   els.languageToggle.addEventListener("click", () => setLocale(nextLocale(state.locale)));
+  els.fullscreenEntry.addEventListener("click", openFullscreenOverlay);
+  els.fullscreenLanguageToggle.addEventListener("click", () => setLocale(nextLocale(state.locale)));
+  els.fullscreenClose.addEventListener("click", () => closeFullscreenOverlay());
   document.addEventListener("keydown", (event) => {
+    if (state.fullscreen.isOpen && event.key === "Tab") {
+      trapFullscreenFocus(event);
+      return;
+    }
     if (event.key === "Escape") {
+      if (state.fullscreen.isOpen) {
+        closeFullscreenOverlay();
+        return;
+      }
       closeDrawer();
     }
   });
@@ -626,6 +676,9 @@ function selectPokemon(slug: string, updateUrl = true, unknownSource: PokemonRou
   renderStage(selected);
   renderInspector(selected);
   renderFloatingPokemon(selected);
+  if (state.fullscreen.isOpen) {
+    renderFullscreenShell(selected);
+  }
   void loadSelectedRecommendations(selected.slug, requestId);
   return true;
 }
@@ -653,6 +706,7 @@ function renderRouteNotFound(slug: string, source: PokemonRouteSource): void {
   document.documentElement.style.setProperty("--field-ink", readableInk(fallback.rgb));
   document.documentElement.style.setProperty("--accent", fallback.hex);
   document.title = `${labels.notFoundPokemon} | ${SITE_NAME}`;
+  closeFullscreenOverlay();
 
   renderList();
   els.title.innerHTML = `${escapeHtml(labels.notFoundPokemon)} <em>${escapeHtml(slug || "unknown")}</em>`;
@@ -763,6 +817,102 @@ function renderStage(pokemon: SelectedPokemon): void {
       `,
     )
     .join("");
+  renderFullscreenShell(pokemon);
+}
+
+function openFullscreenOverlay(): void {
+  if (!state.selected) {
+    return;
+  }
+
+  if (document.body.classList.contains("drawer-open")) {
+    closeDrawer();
+  }
+
+  const activeElement = document.activeElement;
+  state.fullscreen.isOpen = true;
+  state.fullscreen.returnFocus = activeElement instanceof HTMLElement && activeElement !== document.body
+    ? activeElement
+    : els.fullscreenEntry;
+  renderFullscreenShell(state.selected);
+  document.body.classList.add("fullscreen-open");
+  setBackgroundInert(true);
+  els.fullscreenOverlay.classList.remove("is-hidden");
+  els.fullscreenOverlay.setAttribute("aria-hidden", "false");
+  window.setTimeout(() => {
+    if (state.fullscreen.isOpen) {
+      els.fullscreenClose.focus();
+    }
+  }, 0);
+}
+
+function closeFullscreenOverlay(options: { restoreFocus?: boolean } = {}): void {
+  if (!state.fullscreen.isOpen) {
+    return;
+  }
+
+  const restoreFocus = options.restoreFocus ?? true;
+  const returnFocus = state.fullscreen.returnFocus ?? els.fullscreenEntry;
+  state.fullscreen.isOpen = false;
+  state.fullscreen.returnFocus = null;
+  document.body.classList.remove("fullscreen-open");
+  setBackgroundInert(false);
+  els.fullscreenOverlay.classList.add("is-hidden");
+  els.fullscreenOverlay.setAttribute("aria-hidden", "true");
+
+  if (restoreFocus && returnFocus.isConnected) {
+    window.setTimeout(() => returnFocus.focus(), 0);
+  }
+}
+
+function renderFullscreenShell(pokemon: SelectedPokemon): void {
+  els.fullscreenOverlay.dataset.selectedSlug = pokemon.slug;
+  els.fullscreenMeta.textContent = `No. ${pokemon.sequence} / #${pokemon.slug}`;
+  els.fullscreenTitle.textContent = pokemonPrimaryDisplayName(pokemon);
+  els.fullscreenStateNote.textContent = text().fullscreenCurrentView;
+}
+
+function setBackgroundInert(isInert: boolean): void {
+  els.app.inert = isInert;
+  els.drawerTrigger.inert = isInert;
+  els.drawerBackdrop.inert = isInert;
+}
+
+function trapFullscreenFocus(event: KeyboardEvent): void {
+  const focusable = Array.from(
+    els.fullscreenOverlay.querySelectorAll<HTMLElement>(
+      'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+    ),
+  ).filter((element) => !element.hasAttribute("disabled") && element.offsetParent !== null);
+
+  if (focusable.length === 0) {
+    event.preventDefault();
+    els.fullscreenClose.focus();
+    return;
+  }
+
+  const first = focusable[0];
+  const last = focusable[focusable.length - 1];
+  if (!first || !last) {
+    return;
+  }
+
+  if (!els.fullscreenOverlay.contains(document.activeElement)) {
+    event.preventDefault();
+    first.focus();
+    return;
+  }
+
+  if (event.shiftKey && document.activeElement === first) {
+    event.preventDefault();
+    last.focus();
+    return;
+  }
+
+  if (!event.shiftKey && document.activeElement === last) {
+    event.preventDefault();
+    first.focus();
+  }
 }
 
 function renderFloatingPokemon(pokemon: SelectedPokemon): void {

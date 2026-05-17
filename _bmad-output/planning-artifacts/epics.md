@@ -5,17 +5,25 @@ stepsCompleted:
   - step-03-create-stories
   - step-04-final-validation
   - step-correct-course-runtime-boundary
+  - step-correct-course-fullscreen-ui-epic5
 inputDocuments:
   - _bmad-output/planning-artifacts/prd.md
   - _bmad-output/planning-artifacts/architecture.md
   - _bmad-output/project-context.md
+  - _bmad-output/planning-artifacts/open-design-fullscreen-ui/design-spec.md
+  - _bmad-output/planning-artifacts/open-design-fullscreen-ui/index.html
+  - _bmad-output/planning-artifacts/sprint-change-proposal-2026-05-17.md
 workflowType: 'epics'
 project_name: 'pokopia-color-pattern'
 user_name: 'Grigri'
-date: '2026-05-14'
+date: '2026-05-17'
 status: 'complete'
 lastStep: 4
 completedAt: '2026-05-13'
+lastEdited: '2026-05-17'
+changeHistory:
+  - date: '2026-05-17'
+    changes: 'Added Epic 5 and story breakdown from Open Design fullscreen UI; wallpaper export deferred pending separate template decisions.'
 ---
 
 # pokopia-color-pattern - Epic Breakdown
@@ -132,6 +140,22 @@ FR51: 系统可以在 production build 中排除 `docs/pokopia_image_sources/**`
 
 FR52: 维护者可以验证 `dist` 总体积、runtime image 体积、runtime data 体积、raw source exclusion 和静态页资源引用。
 
+FR53: 用户可以从当前 Pokemon 详情页进入应用内全屏 overlay。
+
+FR54: 全屏模式必须基于当前 selected Pokemon，不改变 URL、hash 或分享链接状态。
+
+FR55: 全屏模式可以展示 Pokemon 图像、名称、编号和 slug。
+
+FR56: 全屏模式可以展示当前 Pokemon 的主色数值、完整色板和由色板生成的图案。
+
+FR57: 全屏模式可以用独立 `偏好档案` 模块展示当前 Pokemon 的喜好/偏好词；偏好词为空时也必须显示可读空状态。
+
+FR58: 用户可以通过右上角关闭图标按钮或 Escape 退出全屏模式，并回到进入前的 Pokemon 详情页。
+
+FR59: 用户可以在全屏模式中继续切换界面语言，语言切换控件位于关闭按钮左侧。
+
+FR60: 壁纸导出不属于本轮 Epic 5 实现范围；后续壁纸模板必须复用全屏视觉语言，并在导出比例、尺寸、文件名、预览和下载交互确认后再进入实现。
+
 ### NonFunctional Requirements
 
 NFR1: 完整 `item_portraits/manifest.csv` 不得作为首屏运行时必需资源加载，也不得随 raw source 目录复制到 `dist`。
@@ -202,6 +226,20 @@ NFR33: production build command 必须在生成 runtime image assets、删除或
 
 NFR34: 静态 HTML、runtime JSON 和 browser bundle 不得引用 `/docs/pokopia_image_sources/**` 作为生产图片路径；生产图片引用必须指向 `/assets/runtime/**` 或等价 runtime allowlist 路径。
 
+NFR35: 全屏模式必须作为应用内 overlay 工作；核心体验不得依赖浏览器 Fullscreen API 是否可用或是否被允许。
+
+NFR36: 全屏入口、关闭按钮、Escape 退出和语言切换必须支持键盘操作，并有可读 accessible name。
+
+NFR37: 进入全屏后焦点移动到关闭图标按钮；退出后焦点返回触发全屏入口。
+
+NFR38: 全屏模式在桌面、中窄屏和移动视口下不得出现关键内容重叠、横向溢出或不可点击状态。
+
+NFR39: 全屏模式、全屏图片和验证测试不得引用 `/docs/pokopia_image_sources/**`；生产路径必须继续使用 `/assets/runtime/**` 或 validated runtime lookup。
+
+NFR40: 全屏 UI 的实现必须保留或等价映射 Open Design 标记：`fullscreen-layout`、`fullscreen-toolbar`、`fullscreen-content`、`fullscreen-info`、`fullscreen-identity`、`fullscreen-color-stack`、`fullscreen-preferences`、`fullscreen-palette`、`fullscreen-pattern`、`fullscreen-pokemon-card`。
+
+NFR41: 全屏验证必须覆盖 Open Design 指定样本：`No.180 利欧路`、`Ditto` 和 `Pikachu`。
+
 ### Additional Requirements
 
 - 使用现有 brownfield Vite + TypeScript + 原生 DOM 项目作为 starter；不重新脚手架，不迁移 React/Vue/Next/Remix/Astro。
@@ -252,6 +290,28 @@ UX-DR6: Pokemon 图片 alt 包含 Pokemon 名称；推荐 item 图片 alt 包含
 UX-DR7: 推荐结果为空或少于 3 个 item 时，界面必须提供可恢复的空状态或 fallback 推荐状态。
 
 UX-DR8: hydrate 前静态页核心内容可读，hydrate 后搜索、切换、筛选和分页体验保持连续，不出现默认 Pokemon 闪烁后跳转。
+
+UX-DR9: 全屏入口位于现有主舞台顶部操作区，与语言切换、GitHub 链接同一层级。
+
+UX-DR10: 全屏模式是应用内 overlay，不替换现有三栏/抽屉浏览布局。
+
+UX-DR11: 全屏 overlay 顶部工具栏左侧显示 `Pokopia 装饰图鉴` 品牌文本，右侧显示语言切换按钮和 icon-only 关闭按钮。
+
+UX-DR12: 桌面全屏主体为左右结构：左侧信息区，右侧 Pokemon 画像卡片。
+
+UX-DR13: 左侧信息区上方展示名称、编号和 slug；下方左侧展示 HEX/RGB/CMYK、色板和图案；下方右侧展示纵向 `偏好档案`。
+
+UX-DR14: `偏好档案` 模块独立展示偏好词；偏好词为空时显示可读空状态，不隐藏模块。
+
+UX-DR15: Pokemon 画像卡片使用当前 runtime Pokemon 图像，带有大型编号 figcaption、框线、透明背景和 drop-shadow 的 Open Design 视觉语言。
+
+UX-DR16: 中窄屏与移动端全屏模式改为纵向滚动：信息区在上，Pokemon 画像卡片在下；信息区内部依次显示身份、主色/色板、偏好。
+
+UX-DR17: 全屏退出路径包括右上角关闭图标按钮和 Escape；进入/退出必须保持焦点管理。
+
+UX-DR18: 全屏状态不写入 URL、hash、分享链接或浏览器历史记录。
+
+UX-DR19: 本轮全屏 UI 不实现壁纸导出；后续壁纸模板复用全屏视觉语言，但导出比例、尺寸、文件名、预览/下载交互需要单独确认。
 
 ### FR Coverage Map
 
@@ -359,6 +419,22 @@ FR51: Epic 4 - production build 排除 raw source、raw manifest 和 build-only 
 
 FR52: Epic 4 - 验证 `dist` 总体积、runtime image/data 体积、raw source exclusion 和静态页资源引用。
 
+FR53: Epic 5 - 从当前 Pokemon 详情页进入应用内全屏 overlay。
+
+FR54: Epic 5 - 全屏模式基于当前 selected Pokemon，且不改变 URL/hash/share 状态。
+
+FR55: Epic 5 - 全屏模式展示 Pokemon 图像、名称、编号和 slug。
+
+FR56: Epic 5 - 全屏模式展示主色数值、完整色板和色板图案。
+
+FR57: Epic 5 - 全屏模式用独立 `偏好档案` 展示偏好词，并处理空偏好词状态。
+
+FR58: Epic 5 - 通过关闭按钮和 Escape 退出全屏，并回到进入前详情页。
+
+FR59: Epic 5 - 全屏工具栏提供语言切换入口。
+
+FR60: Epic 5 - 壁纸导出后续单独确认，本轮只保留视觉语言和范围边界。
+
 ## Epic List
 
 ### Epic 1: 快速、可靠的 Pokemon 色彩详情体验
@@ -392,6 +468,14 @@ FR52: Epic 4 - 验证 `dist` 总体积、runtime image/data 体积、raw source 
 **FRs covered:** FR49, FR50, FR51, FR52
 
 **Implementation notes:** 该 Epic 是 2026-05-14 correct-course 后新增的 release hardening。它不改变现有 UX 和 SSG 目标，而是把图片路径、runtime data contract、Vite copy behavior 和 `validate:dist` budget 收紧为部署可接受的边界。
+
+### Epic 5: Open Design 全屏展示与偏好档案基础体验
+
+用户可以从当前 Pokemon 详情页进入基于 Open Design 的应用内全屏 overlay，沉浸式查看 Pokemon 图像、身份信息、主色/色板/图案和独立偏好档案，并在桌面、窄屏和移动端保持可读、可退出、可键盘操作。
+
+**FRs covered:** FR53, FR54, FR55, FR56, FR57, FR58, FR59, FR60
+
+**Implementation notes:** 该 Epic 以 `_bmad-output/planning-artifacts/open-design-fullscreen-ui/design-spec.md` 与 `index.html` 为 UI 源头。全屏模式不依赖浏览器 Fullscreen API，不写入 URL；本轮不实现壁纸导出，后续壁纸模板需要另行确认尺寸、文件名、预览和下载交互。
 
 ## Epic 1: 快速、可靠的 Pokemon 色彩详情体验
 
@@ -923,3 +1007,135 @@ So that deployment-blocking dist bloat 在合并前被发现。
 **When** `npm run build` 运行
 **Then** command 返回非零
 **And** 不生成可误部署的 passing build。
+
+## Epic 5: Open Design 全屏展示与偏好档案基础体验
+
+用户可以从当前 Pokemon 详情页进入基于 Open Design 的应用内全屏 overlay，沉浸式查看 Pokemon 图像、身份信息、主色/色板/图案和独立偏好档案，并在桌面、窄屏和移动端保持可读、可退出、可键盘操作。
+
+**FRs covered:** FR53, FR54, FR55, FR56, FR57, FR58, FR59, FR60
+
+**Implementation notes:** 该 Epic 以 `_bmad-output/planning-artifacts/open-design-fullscreen-ui/design-spec.md` 与 `_bmad-output/planning-artifacts/open-design-fullscreen-ui/index.html` 为 UI 源头。全屏模式不替换现有三栏/抽屉浏览体验，只作为当前 selected Pokemon 的 overlay。入口位于现有主舞台顶部操作区；退出通过右上角 icon-only close 与 Escape；焦点进入后落到关闭按钮，退出后回到入口。全屏状态不写入 URL、hash、分享链接或 history。本轮不实现壁纸导出；后续壁纸模板必须单独确认导出比例、尺寸、文件名、预览/下载交互。
+
+### Story 5.1: 实现 Open Design 全屏 overlay 入口与退出
+
+As a 用户,
+I want 从当前 Pokemon 主舞台进入和退出 Open Design 全屏 overlay,
+So that 我可以在不离开当前 Pokemon 页面、不改变分享链接的情况下查看沉浸式全屏展示。
+
+**Requirements Covered:** FR53, FR54, FR58, FR59; NFR35, NFR36, NFR37, NFR39; UX-DR9, UX-DR10, UX-DR11, UX-DR17, UX-DR18
+
+**Acceptance Criteria:**
+
+**Given** 用户已选中任意 Pokemon
+**When** 用户点击主舞台顶部操作区的全屏入口
+**Then** 应用打开基于 Open Design 的全屏 overlay
+**And** overlay 使用当前 selected Pokemon，不切换到默认 Pokemon。
+
+**Given** 全屏 overlay 已打开
+**When** 用户查看浏览器 URL、hash 和 history
+**Then** 当前 Pokemon canonical path/hash 不因全屏状态改变
+**And** 全屏状态不写入分享链接。
+
+**Given** 全屏 overlay 已打开
+**When** 用户点击右上角 icon-only close 或按 Escape
+**Then** overlay 关闭
+**And** 页面回到进入前的同一 Pokemon 详情页状态。
+
+**Given** 用户通过键盘打开全屏 overlay
+**When** overlay 完成打开
+**Then** 焦点移动到关闭图标按钮
+**And** 退出后焦点返回全屏入口。
+
+**Given** 浏览器 Fullscreen API 不可用、被拒绝或未调用
+**When** 用户进入全屏模式
+**Then** 应用内 overlay 仍完整可用
+**And** 不依赖浏览器原生 fullscreen 成功路径。
+
+**Given** 全屏 overlay 顶部工具栏渲染
+**When** 用户查看操作区
+**Then** 右上角显示语言切换按钮与 icon-only close，语言切换按钮位于关闭按钮左侧
+**And** 两个控件都有可读 accessible name。
+
+### Story 5.2: 渲染全屏身份、色彩与偏好档案
+
+As a 用户,
+I want 全屏模式按照 Open Design 展示当前 Pokemon 的身份、色彩和偏好档案,
+So that 我可以清楚理解这只 Pokemon 的视觉主色、色板构成和喜好/偏好词。
+
+**Requirements Covered:** FR55, FR56, FR57; NFR38, NFR39, NFR40; UX-DR12, UX-DR13, UX-DR14, UX-DR15
+
+**Acceptance Criteria:**
+
+**Given** 全屏 overlay 已打开且 selected Pokemon 数据已加载
+**When** 身份区渲染
+**Then** 页面展示 Pokemon 名称、编号和 slug
+**And** 右侧 Pokemon 画像卡片展示 runtime Pokemon 图像、可读 alt，以及大型编号 figcaption。
+
+**Given** selected Pokemon 有主色
+**When** 色彩数值区渲染
+**Then** 页面展示 HEX、RGB 和 CMYK 三组数值
+**And** RGB/CMYK 从同一主色 deterministic 派生，不写入第二套颜色来源。
+
+**Given** selected Pokemon 有 palette 数据
+**When** 色板模块渲染
+**Then** 页面按 Open Design 展示色板 swatch、序号、HEX 和 percent
+**And** 色板下方渲染中文标题 `图案` 的色彩图案模块。
+
+**Given** selected Pokemon 有 `preferenceTerms`
+**When** `偏好档案` 模块渲染
+**Then** 所有偏好词以纵向条目展示
+**And** 偏好档案作为独立模块存在，不只出现在推荐卡片中。
+
+**Given** selected Pokemon 的 `preferenceTerms` 为空，例如 Ditto
+**When** `偏好档案` 模块渲染
+**Then** 模块仍可见
+**And** 显示可读空状态而不是隐藏模块或留下空白卡片。
+
+**Given** 全屏 overlay 渲染任何用户可见文本
+**When** 文本来自 Pokemon metadata、slug、palette 或 preference terms
+**Then** 使用 DOM text API 或 HTML escape
+**And** 不把 manifest 字段直接拼入未转义 HTML。
+
+### Story 5.3: 验证全屏响应式、可访问性与 Open Design 样本一致性
+
+As a 维护者,
+I want 全屏 overlay 有响应式、可访问性和样本验证,
+So that Open Design 全屏体验不会在桌面、窄屏、移动端或后续构建中退化。
+
+**Requirements Covered:** FR53, FR54, FR55, FR56, FR57, FR58, FR60; NFR36, NFR37, NFR38, NFR40, NFR41; UX-DR16, UX-DR17, UX-DR18, UX-DR19
+
+**Acceptance Criteria:**
+
+**Given** 视口宽度大于 Open Design 桌面阈值
+**When** 全屏 overlay 渲染
+**Then** 主体为左侧信息区、右侧 Pokemon 画像卡片的左右结构
+**And** 左侧信息区包含上方身份区、下方主色/色板/图案区和偏好档案区。
+
+**Given** 视口进入中窄屏或移动端
+**When** 全屏 overlay 渲染
+**Then** 布局改为纵向滚动
+**And** 信息区在上、Pokemon 画像卡片在下，信息区内部依次显示身份、主色/色板、偏好。
+
+**Given** Open Design 指定样本 `No.180 利欧路`
+**When** 全屏 overlay 渲染
+**Then** 中文界面、色板、偏好词换行和画像卡牌布局符合 Open Design 标记和视觉结构。
+
+**Given** Open Design 指定样本 `Ditto`
+**When** 全屏 overlay 渲染
+**Then** `偏好档案` 显示空状态
+**And** 空状态不造成布局塌陷。
+
+**Given** Open Design 指定样本 `Pikachu`
+**When** 全屏 overlay 在移动视口渲染
+**Then** Pokemon 图像与标题尺度不重叠、不横向溢出
+**And** 关闭按钮与语言切换按钮仍可点击和键盘访问。
+
+**Given** production build 或 release verification 运行
+**When** 全屏相关校验执行
+**Then** 验证全屏入口、打开、关闭、Escape、焦点返回、URL 不变和 `/assets/runtime/**` 图片路径
+**And** 不引用 `/docs/pokopia_image_sources/**`。
+
+**Given** 用户寻找壁纸导出能力
+**When** 本轮 Epic 5 交付完成
+**Then** 页面不暴露未实现的导出按钮或假下载能力
+**And** 文档保留“壁纸导出后续单独确认”的范围说明。

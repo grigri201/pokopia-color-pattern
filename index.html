@@ -83,6 +83,22 @@
       <section class="stage" data-od-id="selected-pokemon">
         <div class="stage-inner">
           <div class="topline">
+            <button
+              id="fullscreenEntry"
+              class="icon-button"
+              type="button"
+              aria-label="Open fullscreen view"
+              title="Open fullscreen view">
+              <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+                <path
+                  d="M4 8V4h4M12 4h4v4M16 12v4h-4M8 16H4v-4"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                  stroke-linecap="round"
+                  stroke-linejoin="round" />
+              </svg>
+            </button>
             <button id="languageToggle" class="hash-pill" type="button" aria-label="Switch to Chinese">Chinese</button>
             <a
               class="icon-link"
@@ -159,5 +175,53 @@
         </div>
       </aside>
     </main>
+    <section
+      id="fullscreenOverlay"
+      class="fullscreen-layout is-hidden"
+      data-od-id="fullscreen-layout"
+      role="dialog"
+      aria-modal="true"
+      aria-hidden="true"
+      aria-labelledby="fullscreenBrand">
+      <header class="fullscreen-toolbar" data-od-id="fullscreen-toolbar">
+        <strong id="fullscreenBrand">Pokopia 装饰图鉴</strong>
+        <div class="fullscreen-toolbar-actions">
+          <button
+            id="fullscreenLanguageToggle"
+            class="fullscreen-language-toggle"
+            type="button"
+            aria-label="Switch to Chinese">
+            Chinese
+          </button>
+          <button
+            id="fullscreenClose"
+            class="fullscreen-close"
+            type="button"
+            aria-label="Close fullscreen view"
+            title="Close fullscreen view">
+            <svg viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+              <path
+                d="M5 5l10 10M15 5L5 15"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="1.9"
+                stroke-linecap="round" />
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <div class="fullscreen-content" data-od-id="fullscreen-content">
+        <section class="fullscreen-info" data-od-id="fullscreen-info">
+          <section class="fullscreen-identity" data-od-id="fullscreen-identity">
+            <div class="fullscreen-meta" id="fullscreenMeta">No. 000 / #ditto</div>
+            <h2 class="fullscreen-title" id="fullscreenTitle">Ditto</h2>
+          </section>
+          <section class="fullscreen-shell-note" aria-live="polite">
+            <span id="fullscreenStateNote">Current Pokemon fullscreen view</span>
+          </section>
+        </section>
+      </div>
+    </section>
   </body>
 </html>

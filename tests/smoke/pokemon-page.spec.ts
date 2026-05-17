@@ -64,6 +64,65 @@ test("direct Pokemon static page hydrates against real dist data", async ({ page
   await expect(page.locator(".recommendation-card img").first()).toHaveAttribute("src", /\/assets\/runtime\/items\/.*\.webp/);
 });
 
+test("fullscreen overlay opens from current Pokemon and exits without route changes", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(Element.prototype, "requestFullscreen", {
+      configurable: true,
+      value: () => Promise.reject(new Error("native fullscreen unavailable in test")),
+    });
+  });
+  await page.goto("/pokemon/eevee/");
+  await expect(page.locator("#app")).toBeVisible();
+  const initialUrl = page.url();
+  const initialHistoryLength = await page.evaluate(() => history.length);
+  const entry = page.getByRole("button", { name: "打开全屏展示" });
+
+  await entry.click();
+  await expect(page.locator("#fullscreenOverlay")).toBeVisible();
+  await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("aria-hidden", "false");
+  await expect(page.locator("#fullscreenOverlay")).toHaveAttribute("data-selected-slug", "eevee");
+  await expect(page.locator("#fullscreenBrand")).toHaveText("Pokopia 装饰图鉴");
+  await expect(page.locator("#fullscreenLanguageToggle")).toHaveText("English");
+  await expect(page.locator("#fullscreenMeta")).toHaveText("No. 077 / #eevee");
+  await expect(page.locator("#fullscreenTitle")).toHaveText("伊布");
+  await expect(page.locator("#app")).toHaveJSProperty("inert", true);
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  await page.locator("#fullscreenClose").evaluate((button) => (button as HTMLButtonElement).blur());
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#fullscreenLanguageToggle")).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(page.locator("#fullscreenLanguageToggle")).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  expect(page.url()).toBe(initialUrl);
+  expect(await page.evaluate(() => history.length)).toBe(initialHistoryLength);
+
+  await page.keyboard.press("Escape");
+  await expect(page.locator("#fullscreenOverlay")).toBeHidden();
+  await expect(page.locator("#app")).toHaveJSProperty("inert", false);
+  await expect(entry).toBeFocused();
+  expect(page.url()).toBe(initialUrl);
+  expect(await page.evaluate(() => history.length)).toBe(initialHistoryLength);
+
+  await entry.click();
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  await page.locator("#fullscreenClose").click();
+  await expect(page.locator("#fullscreenOverlay")).toBeHidden();
+  await expect(entry).toBeFocused();
+  expect(page.url()).toBe(initialUrl);
+  expect(await page.evaluate(() => history.length)).toBe(initialHistoryLength);
+
+  await entry.click();
+  await expect(page.locator("#fullscreenClose")).toBeFocused();
+  await page.evaluate(() => {
+    location.hash = "#definitely-missing";
+  });
+  await expect(page.locator("#fullscreenOverlay")).toBeHidden();
+  await expect(entry).toBeFocused();
+});
+
 test.describe("English browser locale", () => {
   test.use({ locale: "en-US" });
 
