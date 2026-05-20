@@ -77,6 +77,8 @@ const recommendationDiagnosticsPath = "generated/reports/recommendation-diagnost
 const ssgGenerationSummaryPath = "generated/reports/ssg-generation-summary.json";
 const runtimeAssetSourcesPath = "generated/reports/runtime-asset-sources.json";
 const runtimeAssetManifestPath = "dist/assets/runtime/asset-manifest.json";
+const sitemapPath = "dist/sitemap.xml";
+const robotsPath = "dist/robots.txt";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
 const compactGzipLimit = 50 * 1024;
 const recommendationGzipLimit = 5 * 1024;
@@ -90,7 +92,8 @@ const runtimePokemonMaxEdge = 420;
 const runtimeItemMaxEdge = 240;
 const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
-const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? "https://pokopia-decor-dex.tinytoolshelf.com");
+const defaultSiteOrigin = "https://decor-dex.pokokit.com";
+const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? defaultSiteOrigin);
 const distOnly = process.argv.includes("--dist");
 const recommendationsOnly = process.argv.includes("--recommendations");
 const issues: ValidationIssue[] = [];
@@ -162,10 +165,12 @@ async function validateDistOutput(): Promise<void> {
   await validateRecommendationBundleSizeBudget("dist/data/recommendations");
   const runtimeAssetPaths = await validateRuntimeAssetManifest();
   await validateStaticPokemonPages(ssgReport);
-  const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map"])).filter((file) => {
+  const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map", ".txt", ".xml"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
     return (
       outputPath === "dist/index.html" ||
+      outputPath === sitemapPath ||
+      outputPath === robotsPath ||
       outputPath.startsWith("dist/assets/") ||
       outputPath.startsWith("dist/data/") ||
       outputPath.startsWith("dist/pokemon/")
@@ -279,6 +284,7 @@ async function validateStaticPokemonPages(ssgReport: unknown | null): Promise<vo
   );
   validateUniqueStaticMetadata(metadataAccumulator);
   validateSsgGenerationSummary(ssgReport, expectedSlugs, expectedPages, expectedFallbacks);
+  await validateSeoFiles(expectedSlugs);
 }
 
 function validateDistLogicalSize(entries: TreeEntry[]): void {
@@ -842,6 +848,48 @@ function validateSsgReportFallbacks(fallbacks: unknown, expectedSlugSet: Set<str
   });
 }
 
+async function validateSeoFiles(expectedSlugs: string[]): Promise<void> {
+  const [sitemapText, robotsText] = await Promise.all([
+    readRequiredTextFile(sitemapPath, "Expected sitemap.xml to be generated"),
+    readRequiredTextFile(robotsPath, "Expected robots.txt to be generated"),
+  ]);
+  const expectedUrls = [homePageUrl(), ...expectedSlugs.map((slug) => staticPageUrl(slug))];
+
+  if (sitemapText !== null) {
+    if (sitemapText.includes("tinytoolshelf.com")) {
+      issues.push({ file: sitemapPath, message: "sitemap.xml must not reference the old tinytoolshelf.com domain" });
+    }
+    const actualUrls = Array.from(sitemapText.matchAll(/<loc>([^<]+)<\/loc>/g), (match) => match[1]);
+    if (actualUrls.length !== expectedUrls.length) {
+      issues.push({ file: sitemapPath, message: `Expected ${expectedUrls.length} sitemap URLs, got ${actualUrls.length}` });
+    }
+    expectedUrls.forEach((expectedUrl, index) => {
+      if (actualUrls[index] !== expectedUrl) {
+        issues.push({ file: sitemapPath, message: `Expected sitemap URL ${index + 1} to be ${expectedUrl}, got ${actualUrls[index] ?? "<missing>"}` });
+      }
+    });
+  }
+
+  if (robotsText !== null) {
+    if (robotsText.includes("tinytoolshelf.com")) {
+      issues.push({ file: robotsPath, message: "robots.txt must not reference the old tinytoolshelf.com domain" });
+    }
+    const expectedRobots = ["User-agent: *", "Allow: /", `Sitemap: ${siteOrigin}/sitemap.xml`, ""].join("\n");
+    if (robotsText !== expectedRobots) {
+      issues.push({ file: robotsPath, message: "robots.txt must point Sitemap at the configured site origin" });
+    }
+  }
+}
+
+async function readRequiredTextFile(file: string, message: string): Promise<string | null> {
+  try {
+    return await readFile(file, "utf8");
+  } catch (error) {
+    issues.push({ file, message: `${message}: ${error instanceof Error ? error.message : String(error)}` });
+    return null;
+  }
+}
+
 async function readSsgGenerationSummary(): Promise<unknown | null> {
   let text: string;
   try {
@@ -949,6 +997,10 @@ function validateUniqueMetadataMap(label: string, values: Map<string, string[]>)
 
 function staticPageUrl(slug: string): string {
   return `${siteOrigin}/pokemon/${slug}/`;
+}
+
+function homePageUrl(): string {
+  return `${siteOrigin}/`;
 }
 
 function staticAssetUrl(pokemon: StaticPokemonEntry): string {
