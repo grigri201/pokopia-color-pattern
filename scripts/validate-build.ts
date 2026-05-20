@@ -106,6 +106,7 @@ const projectRoot = process.cwd();
 
 const defaultSiteOrigin = "https://decor-dex.pokokit.com";
 const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? defaultSiteOrigin);
+const distIndexPath = resolve(projectRoot, "dist/index.html");
 const distOnly = process.argv.includes("--dist");
 const recommendationsOnly = process.argv.includes("--recommendations");
 const issues: ValidationIssue[] = [];

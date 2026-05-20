@@ -63,6 +63,7 @@ const generationResults = await Promise.all(
   }),
 );
 
+await writeRootIndex(template);
 await writeSeoFiles(pokemonIndex.pokemon.map((pokemon) => pokemon.slug));
 await writeSsgReport(generationResults);
 console.log(`Generated ${pokemonIndex.pokemon.length} static Pokemon pages under dist/pokemon/{slug}/index.html.`);
@@ -403,43 +404,6 @@ function renderRootHeadMetadata(): string {
       },
     })}</script>`,
   ].join("\n    ");
-}
-
-async function writeSeoFiles(results: SsgGenerationResult[]): Promise<void> {
-  await Promise.all([
-    writeFile(sitemapPath, renderSitemap(results), "utf8"),
-    writeFile(robotsPath, renderRobotsTxt(), "utf8"),
-  ]);
-}
-
-function renderSitemap(results: SsgGenerationResult[]): string {
-  const urls = [
-    { loc: `${siteOrigin}/`, priority: "1.0" },
-    ...results.map((result) => ({
-      loc: staticPageUrl(result.pokemonSlug),
-      priority: "0.8",
-    })),
-  ];
-  return `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls
-  .map(
-    (url) => `  <url>
-    <loc>${escapeHtml(url.loc)}</loc>
-    <changefreq>weekly</changefreq>
-    <priority>${url.priority}</priority>
-  </url>`,
-  )
-  .join("\n")}
-</urlset>
-`;
-}
-
-function renderRobotsTxt(): string {
-  return `User-agent: *
-Allow: /
-Sitemap: ${siteOrigin}/sitemap.xml
-`;
 }
 
 async function writeSsgReport(results: SsgGenerationResult[]): Promise<void> {
