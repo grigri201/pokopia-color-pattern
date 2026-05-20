@@ -5,7 +5,7 @@
     "emptyCount": 0,
     "sparseCount": 0,
     "readyCount": 311,
-    "totalRecommendations": 36286
+    "totalRecommendations": 36079
   },
   "pokemon": [
     {
@@ -317,13 +317,13 @@
     {
       "pokemonSlug": "venusaur",
       "status": "ready",
-      "recommendationCount": 137,
-      "automaticRecommendationCount": 137,
+      "recommendationCount": 93,
+      "automaticRecommendationCount": 93,
       "defaultDyeableRecommendationCount": 16,
       "overrideRecommendationCount": 0,
-      "candidateCount": 168,
-      "excludedCount": 1051,
-      "harmonyRejectedCount": 47,
+      "candidateCount": 112,
+      "excludedCount": 1107,
+      "harmonyRejectedCount": 35,
       "pokemonPrimaryColor": "#02C0D8",
       "preferenceTerms": [
         "cute stuff",
@@ -337,10 +337,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 56,
         "no_preference_match": 1051
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 47
+        "harmony_failed": 35
       },
       "sampleExcluded": [
         {
@@ -406,42 +407,6 @@
       ],
       "sampleRejected": [
         {
-          "itemSlug": "antique-chest",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "luxury"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#02C0D8",
-          "itemPrimaryColor": "#672E07",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "antique-closet",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "luxury"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#02C0D8",
-          "itemPrimaryColor": "#612B05",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "cute-table",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "cute stuff"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#02C0D8",
-          "itemPrimaryColor": "#DDD9EB",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
           "itemSlug": "pop-art-table",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
@@ -454,14 +419,52 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "berry-table",
+          "itemSlug": "antique-sofa",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "lots of nature"
+            "luxury",
+            "soft stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#02C0D8",
-          "itemPrimaryColor": "#F1F360",
+          "itemPrimaryColor": "#6A8570",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "leafy-plant",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "pretty flowers"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#02C0D8",
+          "itemPrimaryColor": "#468538",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "extravagant-flowers",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "pretty flowers"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#02C0D8",
+          "itemPrimaryColor": "#484845",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "tall-potted-plant",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "lots of nature",
+            "pretty flowers"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#02C0D8",
+          "itemPrimaryColor": "#5B7D1E",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -777,13 +780,13 @@
     {
       "pokemonSlug": "charizard",
       "status": "ready",
-      "recommendationCount": 117,
-      "automaticRecommendationCount": 117,
+      "recommendationCount": 95,
+      "automaticRecommendationCount": 95,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 115,
-      "excludedCount": 1104,
-      "harmonyRejectedCount": 22,
+      "candidateCount": 87,
+      "excludedCount": 1132,
+      "harmonyRejectedCount": 16,
       "pokemonPrimaryColor": "#F48F02",
       "preferenceTerms": [
         "exercise",
@@ -797,10 +800,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 28,
         "no_preference_match": 1104
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 22
+        "harmony_failed": 16
       },
       "sampleExcluded": [
         {
@@ -866,54 +870,6 @@
       ],
       "sampleRejected": [
         {
-          "itemSlug": "wall-storage-box",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "wooden stuff"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#F48F02",
-          "itemPrimaryColor": "#DAE0D6",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "fancy-chair",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "luxury"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#F48F02",
-          "itemPrimaryColor": "#6E4F41",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "antique-chair",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "luxury"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#F48F02",
-          "itemPrimaryColor": "#4F322D",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "luxury-chair",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "luxury"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#F48F02",
-          "itemPrimaryColor": "#3F2F28",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
           "itemSlug": "antique-sofa",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
@@ -922,6 +878,54 @@
           "isDyeable": false,
           "pokemonPrimaryColor": "#F48F02",
           "itemPrimaryColor": "#6A8570",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "fancy-pen",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "luxury"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#F48F02",
+          "itemPrimaryColor": "#4A484F",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "fiery-magby-statue",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "lots of fire"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#F48F02",
+          "itemPrimaryColor": "#83797C",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "model-space-shuttle",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "nice breezes"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#F48F02",
+          "itemPrimaryColor": "#F0EFF0",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "wreath",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "wooden stuff"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#F48F02",
+          "itemPrimaryColor": "#9EFF5B",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -1236,13 +1240,13 @@
     {
       "pokemonSlug": "blastoise",
       "status": "ready",
-      "recommendationCount": 85,
-      "automaticRecommendationCount": 85,
+      "recommendationCount": 77,
+      "automaticRecommendationCount": 77,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 86,
-      "excludedCount": 1133,
-      "harmonyRejectedCount": 25,
+      "candidateCount": 69,
+      "excludedCount": 1150,
+      "harmonyRejectedCount": 16,
       "pokemonPrimaryColor": "#8F6030",
       "preferenceTerms": [
         "cleanliness",
@@ -1256,10 +1260,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 17,
         "no_preference_match": 1133
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 25
+        "harmony_failed": 16
       },
       "sampleExcluded": [
         {
@@ -1337,18 +1342,6 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "waterproof-seat",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "cleanliness"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#8F6030",
-          "itemPrimaryColor": "#D5DBDA",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
           "itemSlug": "antique-sofa",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
@@ -1361,26 +1354,39 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "resort-hammock",
+          "itemSlug": "paper-party-cups",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "lots of water"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#8F6030",
-          "itemPrimaryColor": "#F3EFE0",
+          "itemPrimaryColor": "#FFEF90",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "guest-room-bed",
+          "itemSlug": "shaved-ice",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "luxury"
+            "lots of water"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#8F6030",
-          "itemPrimaryColor": "#F2EEDD",
+          "itemPrimaryColor": "#6EE7F8",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "modern-sink",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "cleanliness",
+            "lots of water"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#8F6030",
+          "itemPrimaryColor": "#F2FEEF",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -4466,13 +4472,13 @@
     {
       "pokemonSlug": "onix",
       "status": "ready",
-      "recommendationCount": 143,
-      "automaticRecommendationCount": 143,
+      "recommendationCount": 131,
+      "automaticRecommendationCount": 131,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 172,
-      "excludedCount": 1047,
-      "harmonyRejectedCount": 53,
+      "candidateCount": 153,
+      "excludedCount": 1066,
+      "harmonyRejectedCount": 46,
       "pokemonPrimaryColor": "#A4A8AA",
       "preferenceTerms": [
         "blocky stuff",
@@ -4486,10 +4492,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 19,
         "no_preference_match": 1047
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 53
+        "harmony_failed": 46
       },
       "sampleExcluded": [
         {
@@ -4591,26 +4598,26 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "wall-storage-box",
+          "itemSlug": "stone-bench",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "blocky stuff"
+            "stone stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#A4A8AA",
-          "itemPrimaryColor": "#DAE0D6",
+          "itemPrimaryColor": "#81767B",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "office-cabinet",
+          "itemSlug": "sandwiches",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "blocky stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#A4A8AA",
-          "itemPrimaryColor": "#C0BDCB",
+          "itemPrimaryColor": "#EFD9A9",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -4619,13 +4626,13 @@
     {
       "pokemonSlug": "steelix",
       "status": "ready",
-      "recommendationCount": 170,
-      "automaticRecommendationCount": 170,
+      "recommendationCount": 153,
+      "automaticRecommendationCount": 153,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 202,
-      "excludedCount": 1017,
-      "harmonyRejectedCount": 56,
+      "candidateCount": 182,
+      "excludedCount": 1037,
+      "harmonyRejectedCount": 53,
       "pokemonPrimaryColor": "#667890",
       "preferenceTerms": [
         "hard stuff",
@@ -4639,10 +4646,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 20,
         "no_preference_match": 1017
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 56
+        "harmony_failed": 53
       },
       "sampleExcluded": [
         {
@@ -6467,13 +6475,13 @@
     {
       "pokemonSlug": "scyther",
       "status": "ready",
-      "recommendationCount": 56,
-      "automaticRecommendationCount": 56,
+      "recommendationCount": 45,
+      "automaticRecommendationCount": 45,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 78,
-      "excludedCount": 1141,
-      "harmonyRejectedCount": 46,
+      "candidateCount": 53,
+      "excludedCount": 1166,
+      "harmonyRejectedCount": 32,
       "pokemonPrimaryColor": "#63B849",
       "preferenceTerms": [
         "exercise",
@@ -6487,10 +6495,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 25,
         "no_preference_match": 1141
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 46
+        "harmony_failed": 32
       },
       "sampleExcluded": [
         {
@@ -6556,62 +6565,62 @@
       ],
       "sampleRejected": [
         {
-          "itemSlug": "storage-box",
+          "itemSlug": "antique-table",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "wooden stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#63B849",
-          "itemPrimaryColor": "#BC7A4D",
+          "itemPrimaryColor": "#856046",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "big-storage-box",
+          "itemSlug": "garden-bench",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "wooden stuff"
+            "lots of nature"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#63B849",
-          "itemPrimaryColor": "#FFD453",
+          "itemPrimaryColor": "#C7BDAA",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "plain-chest",
+          "itemSlug": "wooden-plate",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "wooden stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#63B849",
-          "itemPrimaryColor": "#F2BE7F",
+          "itemPrimaryColor": "#B27833",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "antique-chest",
+          "itemSlug": "berry-basket",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "wooden stuff"
+            "lots of nature"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#63B849",
-          "itemPrimaryColor": "#672E07",
+          "itemPrimaryColor": "#D1904C",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "antique-closet",
+          "itemSlug": "cd-rack",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "wooden stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#63B849",
-          "itemPrimaryColor": "#612B05",
+          "itemPrimaryColor": "#E1A978",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -6620,13 +6629,13 @@
     {
       "pokemonSlug": "scizor",
       "status": "ready",
-      "recommendationCount": 135,
-      "automaticRecommendationCount": 135,
+      "recommendationCount": 115,
+      "automaticRecommendationCount": 115,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 217,
-      "excludedCount": 1002,
-      "harmonyRejectedCount": 106,
+      "candidateCount": 175,
+      "excludedCount": 1044,
+      "harmonyRejectedCount": 84,
       "pokemonPrimaryColor": "#CB3035",
       "preferenceTerms": [
         "bitter flavors",
@@ -6640,10 +6649,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 42,
         "no_preference_match": 1002
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 106
+        "harmony_failed": 84
       },
       "sampleExcluded": [
         {
@@ -13085,13 +13095,13 @@
     {
       "pokemonSlug": "crobat",
       "status": "ready",
-      "recommendationCount": 102,
-      "automaticRecommendationCount": 102,
+      "recommendationCount": 88,
+      "automaticRecommendationCount": 88,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 106,
-      "excludedCount": 1113,
-      "harmonyRejectedCount": 28,
+      "candidateCount": 87,
+      "excludedCount": 1132,
+      "harmonyRejectedCount": 23,
       "pokemonPrimaryColor": "#78BEDE",
       "preferenceTerms": [
         "dry flavors",
@@ -13105,10 +13115,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 19,
         "no_preference_match": 1113
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 28
+        "harmony_failed": 23
       },
       "sampleExcluded": [
         {
@@ -13174,62 +13185,63 @@
       ],
       "sampleRejected": [
         {
-          "itemSlug": "wall-storage-box",
+          "itemSlug": "leafy-plant",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "wooden stuff"
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#78BEDE",
-          "itemPrimaryColor": "#DAE0D6",
+          "itemPrimaryColor": "#468538",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "office-cabinet",
+          "itemSlug": "pitcher-plant-pot",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "wooden stuff"
+            "spooky stuff",
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#78BEDE",
-          "itemPrimaryColor": "#C0BDCB",
+          "itemPrimaryColor": "#5DBE4C",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "antique-chest",
+          "itemSlug": "extravagant-flowers",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "wooden stuff"
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#78BEDE",
-          "itemPrimaryColor": "#672E07",
+          "itemPrimaryColor": "#484845",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "antique-closet",
+          "itemSlug": "tall-potted-plant",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "wooden stuff"
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#78BEDE",
-          "itemPrimaryColor": "#612B05",
+          "itemPrimaryColor": "#5B7D1E",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "luxury-chair",
+          "itemSlug": "flat-leaf-plant",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "spooky stuff"
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#78BEDE",
-          "itemPrimaryColor": "#3F2F28",
+          "itemPrimaryColor": "#5A785A",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -18619,9 +18631,9 @@
       "automaticRecommendationCount": 71,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 182,
-      "excludedCount": 1037,
-      "harmonyRejectedCount": 135,
+      "candidateCount": 179,
+      "excludedCount": 1040,
+      "harmonyRejectedCount": 132,
       "pokemonPrimaryColor": "#544948",
       "preferenceTerms": [
         "bitter flavors",
@@ -18635,10 +18647,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 3,
         "no_preference_match": 1037
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 135
+        "harmony_failed": 132
       },
       "sampleExcluded": [
         {
@@ -23523,13 +23536,13 @@
     {
       "pokemonSlug": "arbok",
       "status": "ready",
-      "recommendationCount": 117,
-      "automaticRecommendationCount": 117,
+      "recommendationCount": 106,
+      "automaticRecommendationCount": 106,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 120,
-      "excludedCount": 1099,
-      "harmonyRejectedCount": 27,
+      "candidateCount": 103,
+      "excludedCount": 1116,
+      "harmonyRejectedCount": 21,
       "pokemonPrimaryColor": "#908CAB",
       "preferenceTerms": [
         "garbage",
@@ -23543,10 +23556,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 17,
         "no_preference_match": 1099
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 27
+        "harmony_failed": 21
       },
       "sampleExcluded": [
         {
@@ -23624,50 +23638,51 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "berry-case",
+          "itemSlug": "small-vase",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "lots of nature"
+            "slender objects",
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#908CAB",
-          "itemPrimaryColor": "#F85B69",
+          "itemPrimaryColor": "#EBD8D8",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "berry-table",
+          "itemSlug": "papers",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "lots of nature"
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#908CAB",
-          "itemPrimaryColor": "#F1F360",
+          "itemPrimaryColor": "#F0EFEF",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "berry-chair",
+          "itemSlug": "photo-frame",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "lots of nature"
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#908CAB",
-          "itemPrimaryColor": "#F97558",
+          "itemPrimaryColor": "#BBF0F8",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "berry-bed",
+          "itemSlug": "wall-photo-frame",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "lots of nature"
+            "watching stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#908CAB",
-          "itemPrimaryColor": "#F4A9A8",
+          "itemPrimaryColor": "#ABEFF2",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -25053,13 +25068,13 @@
     {
       "pokemonSlug": "machoke",
       "status": "ready",
-      "recommendationCount": 104,
-      "automaticRecommendationCount": 104,
+      "recommendationCount": 96,
+      "automaticRecommendationCount": 96,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 133,
-      "excludedCount": 1086,
-      "harmonyRejectedCount": 53,
+      "candidateCount": 118,
+      "excludedCount": 1101,
+      "harmonyRejectedCount": 46,
       "pokemonPrimaryColor": "#CCD5F3",
       "preferenceTerms": [
         "construction",
@@ -25073,10 +25088,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 15,
         "no_preference_match": 1086
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 53
+        "harmony_failed": 46
       },
       "sampleExcluded": [
         {
@@ -25142,18 +25158,6 @@
       ],
       "sampleRejected": [
         {
-          "itemSlug": "iron-stand",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "hard stuff"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#CCD5F3",
-          "itemPrimaryColor": "#5D524A",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
           "itemSlug": "iron-table",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
@@ -25162,18 +25166,6 @@
           "isDyeable": false,
           "pokemonPrimaryColor": "#CCD5F3",
           "itemPrimaryColor": "#6F605F",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "iron-rack",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "hard stuff"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#CCD5F3",
-          "itemPrimaryColor": "#776160",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
@@ -25192,14 +25184,38 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "iron-bench",
+          "itemSlug": "industrial-bed",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "group activities"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#CCD5F3",
-          "itemPrimaryColor": "#5D4A48",
+          "itemPrimaryColor": "#BE97A4",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "table-setting",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "group activities"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#CCD5F3",
+          "itemPrimaryColor": "#DDD6D7",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "extravagant-flowers",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "stone stuff"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#CCD5F3",
+          "itemPrimaryColor": "#484845",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -29350,13 +29366,13 @@
     {
       "pokemonSlug": "volcarona",
       "status": "ready",
-      "recommendationCount": 76,
-      "automaticRecommendationCount": 76,
+      "recommendationCount": 65,
+      "automaticRecommendationCount": 65,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 104,
-      "excludedCount": 1115,
-      "harmonyRejectedCount": 52,
+      "candidateCount": 78,
+      "excludedCount": 1141,
+      "harmonyRejectedCount": 37,
       "pokemonPrimaryColor": "#C82F2F",
       "preferenceTerms": [
         "dry flavors",
@@ -29370,10 +29386,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 26,
         "no_preference_match": 1115
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 52
+        "harmony_failed": 37
       },
       "sampleExcluded": [
         {
@@ -29439,62 +29456,62 @@
       ],
       "sampleRejected": [
         {
-          "itemSlug": "wall-storage-box",
+          "itemSlug": "plain-table",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "wooden stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#C82F2F",
-          "itemPrimaryColor": "#DAE0D6",
+          "itemPrimaryColor": "#F3F0DA",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "big-storage-box",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "wooden stuff"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#C82F2F",
-          "itemPrimaryColor": "#FFD453",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "office-cabinet",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "wooden stuff"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#C82F2F",
-          "itemPrimaryColor": "#C0BDCB",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "plain-closet",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "wooden stuff"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#C82F2F",
-          "itemPrimaryColor": "#F8F0D7",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "straw-table",
+          "itemSlug": "garden-bench",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "lots of nature"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#C82F2F",
-          "itemPrimaryColor": "#F7BB06",
+          "itemPrimaryColor": "#C7BDAA",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "tall-potted-plant",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "lots of nature"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#C82F2F",
+          "itemPrimaryColor": "#5B7D1E",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "letter",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "letters and words"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#C82F2F",
+          "itemPrimaryColor": "#DABF9B",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "open-book",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "letters and words"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#C82F2F",
+          "itemPrimaryColor": "#F0EFF0",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -37178,13 +37195,13 @@
     {
       "pokemonSlug": "gardevoir",
       "status": "ready",
-      "recommendationCount": 99,
-      "automaticRecommendationCount": 99,
+      "recommendationCount": 91,
+      "automaticRecommendationCount": 91,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 157,
-      "excludedCount": 1062,
-      "harmonyRejectedCount": 82,
+      "candidateCount": 139,
+      "excludedCount": 1080,
+      "harmonyRejectedCount": 72,
       "pokemonPrimaryColor": "#E6EEF0",
       "preferenceTerms": [
         "healing",
@@ -37198,10 +37215,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 18,
         "no_preference_match": 1062
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 82
+        "harmony_failed": 72
       },
       "sampleExcluded": [
         {
@@ -37279,30 +37297,6 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "antique-chest",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "luxury"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#E6EEF0",
-          "itemPrimaryColor": "#672E07",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
-          "itemSlug": "antique-closet",
-          "reason": "harmony_failed",
-          "matchedPreferenceTerms": [
-            "luxury"
-          ],
-          "isDyeable": false,
-          "pokemonPrimaryColor": "#E6EEF0",
-          "itemPrimaryColor": "#612B05",
-          "harmonyStatus": "failed",
-          "harmonyType": null
-        },
-        {
           "itemSlug": "antique-table",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
@@ -37323,6 +37317,30 @@
           "isDyeable": false,
           "pokemonPrimaryColor": "#E6EEF0",
           "itemPrimaryColor": "#7B7876",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "antique-sofa",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "luxury"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#E6EEF0",
+          "itemPrimaryColor": "#6A8570",
+          "harmonyStatus": "failed",
+          "harmonyType": null
+        },
+        {
+          "itemSlug": "afternoon-tea-set",
+          "reason": "harmony_failed",
+          "matchedPreferenceTerms": [
+            "luxury"
+          ],
+          "isDyeable": false,
+          "pokemonPrimaryColor": "#E6EEF0",
+          "itemPrimaryColor": "#7B716A",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -39784,13 +39802,13 @@
     {
       "pokemonSlug": "serperior",
       "status": "ready",
-      "recommendationCount": 55,
-      "automaticRecommendationCount": 55,
+      "recommendationCount": 47,
+      "automaticRecommendationCount": 47,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 148,
-      "excludedCount": 1071,
-      "harmonyRejectedCount": 117,
+      "candidateCount": 114,
+      "excludedCount": 1105,
+      "harmonyRejectedCount": 91,
       "pokemonPrimaryColor": "#037248",
       "preferenceTerms": [
         "containers",
@@ -39804,10 +39822,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 34,
         "no_preference_match": 1071
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 117
+        "harmony_failed": 91
       },
       "sampleExcluded": [
         {
@@ -39897,40 +39916,38 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "wall-storage-box",
+          "itemSlug": "plain-table",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "containers",
             "wooden stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#037248",
-          "itemPrimaryColor": "#DAE0D6",
+          "itemPrimaryColor": "#F3F0DA",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "big-storage-box",
+          "itemSlug": "garden-bench",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "wooden stuff"
+            "lots of nature"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#037248",
-          "itemPrimaryColor": "#FFD453",
+          "itemPrimaryColor": "#C7BDAA",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "plain-chest",
+          "itemSlug": "wooden-plate",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "containers",
             "wooden stuff"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#037248",
-          "itemPrimaryColor": "#F2BE7F",
+          "itemPrimaryColor": "#B27833",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -40245,13 +40262,13 @@
     {
       "pokemonSlug": "greninja",
       "status": "ready",
-      "recommendationCount": 53,
-      "automaticRecommendationCount": 53,
+      "recommendationCount": 49,
+      "automaticRecommendationCount": 49,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 96,
-      "excludedCount": 1123,
-      "harmonyRejectedCount": 67,
+      "candidateCount": 85,
+      "excludedCount": 1134,
+      "harmonyRejectedCount": 60,
       "pokemonPrimaryColor": "#0D4898",
       "preferenceTerms": [
         "bitter flavors",
@@ -40265,10 +40282,11 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 11,
         "no_preference_match": 1123
       },
       "harmonyRejectionReasonCounts": {
-        "harmony_failed": 67
+        "harmony_failed": 60
       },
       "sampleExcluded": [
         {
@@ -40358,38 +40376,38 @@
           "harmonyType": null
         },
         {
-          "itemSlug": "resort-stool",
+          "itemSlug": "resort-sofa",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
             "ocean vibes"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#0D4898",
-          "itemPrimaryColor": "#EBC992",
+          "itemPrimaryColor": "#FFF0F0",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "waterproof-seat",
+          "itemSlug": "paper-party-cups",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "cleanliness"
+            "lots of water"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#0D4898",
-          "itemPrimaryColor": "#D5DBDA",
+          "itemPrimaryColor": "#FFEF90",
           "harmonyStatus": "failed",
           "harmonyType": null
         },
         {
-          "itemSlug": "resort-chair",
+          "itemSlug": "shaved-ice",
           "reason": "harmony_failed",
           "matchedPreferenceTerms": [
-            "ocean vibes"
+            "lots of water"
           ],
           "isDyeable": false,
           "pokemonPrimaryColor": "#0D4898",
-          "itemPrimaryColor": "#CFAC79",
+          "itemPrimaryColor": "#6EE7F8",
           "harmonyStatus": "failed",
           "harmonyType": null
         }
@@ -46232,12 +46250,12 @@
     {
       "pokemonSlug": "suicune",
       "status": "ready",
-      "recommendationCount": 83,
-      "automaticRecommendationCount": 83,
+      "recommendationCount": 74,
+      "automaticRecommendationCount": 74,
       "defaultDyeableRecommendationCount": 24,
       "overrideRecommendationCount": 0,
-      "candidateCount": 76,
-      "excludedCount": 1143,
+      "candidateCount": 67,
+      "excludedCount": 1152,
       "harmonyRejectedCount": 17,
       "pokemonPrimaryColor": "#5EAEBB",
       "preferenceTerms": [
@@ -46252,6 +46270,7 @@
       "recommendationStrategy": "preference_terms",
       "recommendedItemsOverrideMode": null,
       "exclusionReasonCounts": {
+        "furniture_size_mismatch": 9,
         "no_preference_match": 1143
       },
       "harmonyRejectionReasonCounts": {

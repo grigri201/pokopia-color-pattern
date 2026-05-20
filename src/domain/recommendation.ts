@@ -2,6 +2,7 @@ import { evaluateOklchHarmony, type HarmonyType } from "./color-harmony.js";
 
 export type CandidateExclusionReason =
   | "pokemon_has_no_preference_terms"
+  | "furniture_size_mismatch"
   | "no_preference_match"
   | "unknown_dyeable_status";
 
@@ -19,17 +20,20 @@ export type RecommendationItemInput = {
   preferenceTerms: string[];
   roleTags: string[];
   isDyeable: boolean | null;
+  furnitureSize: "large" | "other" | null;
   dyeColorVariants?: string[];
 };
 
 export type PokemonPreferenceProfile = {
   slug: string;
+  bodySize: "large" | "other";
   preferenceTerms: string[];
   preferenceSource: "metadata" | "override" | "fixture" | "none";
 };
 
 export type PokemonPreferenceMetadata = {
   slug: string;
+  bodySize: "large" | "other";
   preferenceTerms: string[];
   preferenceSource: "metadata" | "override" | null;
 };
@@ -117,6 +121,15 @@ export function selectRecommendationCandidates(
       return;
     }
 
+    if (!isFurnitureSizeCompatible(pokemon.bodySize, item.furnitureSize)) {
+      excluded.push({
+        itemSlug: item.slug,
+        reason: "furniture_size_mismatch",
+        preferenceTerms: matchedPreferenceTerms,
+      });
+      return;
+    }
+
     if (item.isDyeable === null) {
       excluded.push({
         itemSlug: item.slug,
@@ -141,9 +154,17 @@ export function selectRecommendationCandidates(
 export function toPokemonPreferenceProfile(metadata: PokemonPreferenceMetadata): PokemonPreferenceProfile {
   return {
     slug: metadata.slug,
+    bodySize: metadata.bodySize,
     preferenceTerms: metadata.preferenceTerms,
     preferenceSource: metadata.preferenceSource ?? "none",
   };
+}
+
+export function isFurnitureSizeCompatible(
+  pokemonBodySize: "large" | "other",
+  furnitureSize: "large" | "other" | null,
+): boolean {
+  return pokemonBodySize !== "large" || furnitureSize !== "other";
 }
 
 export function matchRecommendationPreferenceTerms(preferenceTerms: string[], item: RecommendationItemInput): string[] {

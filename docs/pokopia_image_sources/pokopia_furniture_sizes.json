@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "pokopia-furniture-sizes.v1",
+  "generatedFrom": {
+    "sourceName": "Local PokopiaDex placeable item metadata",
+    "sourcePath": "docs/pokopia_image_sources/pokopiadex_placeable_items.json",
+    "capturedAt": "2026-05-18",
+    "interpretation": "Furniture with wide-seat or large-table habitat category ids, or explicit large Pokemon wording, is treated as large. Other Furniture category items are treated as other. Non-furniture items have no furniture size."
+  },
+  "furnitureSizeValues": [
+    "large",
+    "other"
+  ],
+  "largeHabitatItemCategoryIds": [
+    1339,
+    1435
+  ],
+  "largeDescriptionTerms": [
+    "large pokemon",
+    "large pokémon"
+  ]
+}

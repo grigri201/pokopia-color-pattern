@@ -20,6 +20,7 @@ import { getHarmonyColors } from "../docs/oklch_color.js";
 
 const pokemon = toPokemonPreferenceProfile({
   slug: "fixture-mon",
+  bodySize: "other",
   preferenceTerms: ["flower", "wooden"],
   preferenceSource: "metadata",
 });
@@ -33,6 +34,7 @@ const items: RecommendationItemInput[] = [
     preferenceTerms: [],
     roleTags: ["furniture"],
     isDyeable: true,
+    furnitureSize: "other",
   },
   {
     slug: "wooden-lamp",
@@ -42,6 +44,7 @@ const items: RecommendationItemInput[] = [
     preferenceTerms: [],
     roleTags: ["decoration"],
     isDyeable: false,
+    furnitureSize: null,
   },
   {
     slug: "iron-box",
@@ -51,6 +54,7 @@ const items: RecommendationItemInput[] = [
     preferenceTerms: [],
     roleTags: ["furniture"],
     isDyeable: true,
+    furnitureSize: "other",
   },
   {
     slug: "flower-mystery",
@@ -60,6 +64,7 @@ const items: RecommendationItemInput[] = [
     preferenceTerms: [],
     roleTags: [],
     isDyeable: null,
+    furnitureSize: null,
   },
 ];
 
@@ -87,7 +92,7 @@ if (!unknownDyeable || unknownDyeable.reason !== "unknown_dyeable_status") {
 }
 
 const noPreferenceResult = selectRecommendationCandidates(
-  { slug: "empty-profile", preferenceTerms: ["!!!"], preferenceSource: "fixture" },
+  { slug: "empty-profile", bodySize: "other", preferenceTerms: ["!!!"], preferenceSource: "fixture" },
   [items[0]],
 );
 if (noPreferenceResult.excluded[0]?.reason !== "pokemon_has_no_preference_terms") {
@@ -95,7 +100,7 @@ if (noPreferenceResult.excluded[0]?.reason !== "pokemon_has_no_preference_terms"
 }
 
 const substringResult = selectRecommendationCandidates(
-  { slug: "substring-profile", preferenceTerms: ["wood"], preferenceSource: "fixture" },
+  { slug: "substring-profile", bodySize: "other", preferenceTerms: ["wood"], preferenceSource: "fixture" },
   [
     {
       slug: "wooden-lamp",
@@ -105,11 +110,48 @@ const substringResult = selectRecommendationCandidates(
       preferenceTerms: [],
       roleTags: [],
       isDyeable: true,
+      furnitureSize: null,
     },
   ],
 );
 if (substringResult.candidates.length > 0) {
   throw new Error("Expected preference term wood not to match substring in wooden-lamp");
+}
+
+const bodySizeResult = selectRecommendationCandidates(
+  { slug: "large-profile", bodySize: "large", preferenceTerms: ["wooden"], preferenceSource: "fixture" },
+  [
+    {
+      slug: "plain-chair",
+      name: "Plain chair",
+      category: "Furniture",
+      tags: ["Relaxation"],
+      preferenceTerms: ["wooden stuff"],
+      roleTags: ["furniture"],
+      isDyeable: true,
+      furnitureSize: "other",
+    },
+    {
+      slug: "large-table",
+      name: "Large table",
+      category: "Furniture",
+      tags: [],
+      preferenceTerms: ["wooden stuff"],
+      roleTags: ["furniture"],
+      isDyeable: true,
+      furnitureSize: "large",
+    },
+  ],
+);
+if (bodySizeResult.candidates.some((item) => item.itemSlug === "plain-chair")) {
+  throw new Error("Expected large Pokemon to exclude other-size furniture");
+}
+const bodySizeExcluded = bodySizeResult.excluded.find((item) => item.itemSlug === "plain-chair");
+if (!bodySizeExcluded || bodySizeExcluded.reason !== "furniture_size_mismatch") {
+  throw new Error(`Expected furniture_size_mismatch for plain-chair: ${JSON.stringify(bodySizeResult)}`);
+}
+if (!bodySizeResult.candidates.some((item) => item.itemSlug === "large-table")) {
+  throw new Error("Expected large Pokemon to keep large furniture");
 }
 
 const pokemonPrimaryColor = "#D05A6E";
@@ -257,6 +299,7 @@ const pokemonDataFixture: PokemonIndexEntry[] = [
     sequence: "1",
     name: "Fixture Mon",
     zhName: null,
+    bodySize: "other",
     imagePath: "/assets/runtime/pokemon/fixture-mon.webp",
     primaryColor: pokemonPrimaryColor,
     palette: [{ hex: pokemonPrimaryColor, percent: 100 }],
@@ -276,7 +319,7 @@ const compactDataFixture: RecommendationBuildCompactItem[] = [
   compactItemFixture("manual-rock", "Manual rock", false),
 ];
 const compactRuntimeFixture = {
-  schemaVersion: "compact-items.v3",
+  schemaVersion: "compact-items.v4",
   summary: { itemCount: 1, categoryCounts: { Decoration: 1 }, tagCounts: {} },
   items: [
     {
@@ -291,6 +334,7 @@ const compactRuntimeFixture = {
         isDyeable: true,
         dyeColorVariants: ["red"],
         itemPrimaryColor: "#00FF00",
+        furnitureSize: null,
         preferenceTerms: ["flower"],
       },
     },
@@ -549,6 +593,7 @@ function compactItemFixture(
       isDyeable,
       dyeColorVariants: isDyeable ? ["blue", "red"] : [],
       itemPrimaryColor: null,
+      furnitureSize: null,
       preferenceTerms: [],
       roleTags,
     },

@@ -1,11 +1,13 @@
-export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v3" as const;
-export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v1" as const;
+export const COMPACT_ITEMS_SCHEMA_VERSION = "compact-items.v4" as const;
+export const POKEMON_INDEX_SCHEMA_VERSION = "pokemon-index.v2" as const;
 export const ITEM_COLORS_SCHEMA_VERSION = "item-colors.v1" as const;
 export const RECOMMENDATIONS_SCHEMA_VERSION = "recommendations.v4" as const;
 export const POKEMON_METADATA_OVERRIDES_SCHEMA_VERSION = "pokemon-metadata-overrides.v1" as const;
 export const RUNTIME_ASSET_MANIFEST_SCHEMA_VERSION = "runtime-asset-manifest.v1" as const;
 
 export type CompactItemColorSource = "extracted" | "override" | "fallback";
+export type FurnitureSize = "large" | "other";
+export type PokemonBodySize = "large" | "other";
 export type PokemonColorSource = "extracted" | "override" | "fallback";
 export type PokemonPreferenceSource = "metadata" | "override";
 export type PokemonRecommendationOverrideMode = "append" | "replace";
@@ -17,6 +19,7 @@ export type CompactItemRecommendationFields = {
   isDyeable: boolean | null;
   dyeColorVariants: string[];
   itemPrimaryColor: string | null;
+  furnitureSize: FurnitureSize | null;
 };
 
 export type CompactItem = {
@@ -49,6 +52,7 @@ export type PokemonIndexEntry = {
   sequence: string;
   name: string;
   zhName: string | null;
+  bodySize: PokemonBodySize;
   imagePath: string;
   primaryColor: string;
   palette: PokemonColorSwatch[];
@@ -253,10 +257,11 @@ function validateCompactItem(
     return;
   }
 
-  requireAllowedKeys(item.recommendation, ["isDyeable", "dyeColorVariants", "itemPrimaryColor"], `${path}.recommendation`, issues, slug);
+  requireAllowedKeys(item.recommendation, ["isDyeable", "dyeColorVariants", "itemPrimaryColor", "furnitureSize"], `${path}.recommendation`, issues, slug);
   requireNullableBoolean(item.recommendation, "isDyeable", `${path}.recommendation`, issues, slug);
   requireStringArray(item.recommendation, "dyeColorVariants", `${path}.recommendation`, issues, slug);
   requireNullableHex(item.recommendation, "itemPrimaryColor", `${path}.recommendation`, issues, slug);
+  requireNullableFurnitureSize(item.recommendation, "furnitureSize", `${path}.recommendation`, issues, slug);
 }
 
 export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
@@ -300,6 +305,7 @@ export function validatePokemonIndexData(value: unknown): SchemaIssue[] {
     requireString(pokemon, "sequence", path, issues, slug);
     requireString(pokemon, "name", path, issues, slug);
     requireNullableString(pokemon, "zhName", path, issues, slug);
+    requirePokemonBodySize(pokemon, "bodySize", path, issues, slug);
     requireRuntimeDataImagePath(pokemon, "imagePath", path, issues, "pokemon", slug);
     requireHex(pokemon, "primaryColor", path, issues, slug);
     requirePalette(pokemon, "palette", path, issues, slug);
@@ -834,6 +840,32 @@ function requireColorSource(
   const value = record[key];
   if (typeof value !== "string" || !colorSources.has(value)) {
     issue(path, key, "Expected known color source", issues, slug);
+  }
+}
+
+function requirePokemonBodySize(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (value !== "large" && value !== "other") {
+    issue(path, key, "Expected large or other body size", issues, slug);
+  }
+}
+
+function requireNullableFurnitureSize(
+  record: UnknownRecord,
+  key: string,
+  path: string,
+  issues: SchemaIssue[],
+  slug?: string,
+): void {
+  const value = record[key];
+  if (value !== null && value !== "large" && value !== "other") {
+    issue(path, key, "Expected large, other, or null furniture size", issues, slug);
   }
 }
 

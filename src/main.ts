@@ -41,6 +41,7 @@ type Pokemon = {
   name: string;
   zh: string;
   slug: string;
+  bodySize: PokemonIndexEntry["bodySize"];
   image: string;
   primaryColor: PaletteColor;
   palette: PaletteColor[];
@@ -1731,6 +1732,7 @@ function toPokemon(entry: PokemonIndexEntry): Pokemon {
     name: entry.name,
     zh: entry.zhName || entry.name,
     slug: entry.slug,
+    bodySize: entry.bodySize,
     image: entry.imagePath,
     primaryColor,
     palette: palette.map(normalizePaletteColor),

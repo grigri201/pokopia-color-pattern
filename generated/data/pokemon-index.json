@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "pokemon-index.v1",
+  "schemaVersion": "pokemon-index.v2",
   "summary": {
     "pokemonCount": 311,
     "fallbackCount": 0,
@@ -11,6 +11,7 @@
       "sequence": "001",
       "name": "Bulbasaur",
       "zhName": "妙蛙种子",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/bulbasaur.webp",
       "primaryColor": "#91E7D8",
       "palette": [
@@ -65,6 +66,7 @@
       "sequence": "002",
       "name": "Ivysaur",
       "zhName": "妙蛙草",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ivysaur.webp",
       "primaryColor": "#449031",
       "palette": [
@@ -119,6 +121,7 @@
       "sequence": "003",
       "name": "Venusaur",
       "zhName": "妙蛙花",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/venusaur.webp",
       "primaryColor": "#02C0D8",
       "palette": [
@@ -173,6 +176,7 @@
       "sequence": "004",
       "name": "Charmander",
       "zhName": "小火龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/charmander.webp",
       "primaryColor": "#ED7B01",
       "palette": [
@@ -227,6 +231,7 @@
       "sequence": "005",
       "name": "Charmeleon",
       "zhName": "火恐龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/charmeleon.webp",
       "primaryColor": "#D9332E",
       "palette": [
@@ -281,6 +286,7 @@
       "sequence": "006",
       "name": "Charizard",
       "zhName": "喷火龙",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/charizard.webp",
       "primaryColor": "#F48F02",
       "palette": [
@@ -335,6 +341,7 @@
       "sequence": "007",
       "name": "Squirtle",
       "zhName": "杰尼龟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/squirtle.webp",
       "primaryColor": "#65B9E2",
       "palette": [
@@ -389,6 +396,7 @@
       "sequence": "008",
       "name": "Wartortle",
       "zhName": "卡咪龟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/wartortle.webp",
       "primaryColor": "#BFD6F8",
       "palette": [
@@ -443,6 +451,7 @@
       "sequence": "009",
       "name": "Blastoise",
       "zhName": "水箭龟",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/blastoise.webp",
       "primaryColor": "#8F6030",
       "palette": [
@@ -497,6 +506,7 @@
       "sequence": "010",
       "name": "Pidgey",
       "zhName": "波波",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pidgey.webp",
       "primaryColor": "#A36830",
       "palette": [
@@ -551,6 +561,7 @@
       "sequence": "011",
       "name": "Pidgeotto",
       "zhName": "比比鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pidgeotto.webp",
       "primaryColor": "#F4F0BB",
       "palette": [
@@ -605,6 +616,7 @@
       "sequence": "012",
       "name": "Pidgeot",
       "zhName": "大比鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pidgeot.webp",
       "primaryColor": "#E4DAA7",
       "palette": [
@@ -659,6 +671,7 @@
       "sequence": "013",
       "name": "Oddish",
       "zhName": "走路草",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/oddish.webp",
       "primaryColor": "#4CA430",
       "palette": [
@@ -713,6 +726,7 @@
       "sequence": "014",
       "name": "Gloom",
       "zhName": "臭臭花",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gloom.webp",
       "primaryColor": "#FF8E00",
       "palette": [
@@ -767,6 +781,7 @@
       "sequence": "015",
       "name": "Vileplume",
       "zhName": "霸王花",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/vileplume.webp",
       "primaryColor": "#F84859",
       "palette": [
@@ -821,6 +836,7 @@
       "sequence": "016",
       "name": "Bellossom",
       "zhName": "美丽花",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/bellossom.webp",
       "primaryColor": "#F84530",
       "palette": [
@@ -875,6 +891,7 @@
       "sequence": "017",
       "name": "Paras",
       "zhName": "派拉斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/paras.webp",
       "primaryColor": "#F75E34",
       "palette": [
@@ -929,6 +946,7 @@
       "sequence": "018",
       "name": "Parasect",
       "zhName": "派拉斯特",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/parasect.webp",
       "primaryColor": "#F85C34",
       "palette": [
@@ -983,6 +1001,7 @@
       "sequence": "019",
       "name": "Venonat",
       "zhName": "毛球",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/venonat.webp",
       "primaryColor": "#7A318B",
       "palette": [
@@ -1037,6 +1056,7 @@
       "sequence": "020",
       "name": "Venomoth",
       "zhName": "摩鲁蛾",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/venomoth.webp",
       "primaryColor": "#D2A8DB",
       "palette": [
@@ -1091,6 +1111,7 @@
       "sequence": "021",
       "name": "Bellsprout",
       "zhName": "喇叭芽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/bellsprout.webp",
       "primaryColor": "#ADEA90",
       "palette": [
@@ -1145,6 +1166,7 @@
       "sequence": "022",
       "name": "Weepinbell",
       "zhName": "口呆花",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/weepinbell.webp",
       "primaryColor": "#B3ED95",
       "palette": [
@@ -1199,6 +1221,7 @@
       "sequence": "023",
       "name": "Victreebel",
       "zhName": "大食花",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/victreebel.webp",
       "primaryColor": "#ADE48E",
       "palette": [
@@ -1253,6 +1276,7 @@
       "sequence": "024",
       "name": "Slowpoke",
       "zhName": "呆呆兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/slowpoke.webp",
       "primaryColor": "#FFC1CF",
       "palette": [
@@ -1307,6 +1331,7 @@
       "sequence": "025",
       "name": "Slowbro",
       "zhName": "呆壳兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/slowbro.webp",
       "primaryColor": "#EEAAB8",
       "palette": [
@@ -1361,6 +1386,7 @@
       "sequence": "026",
       "name": "Slowking",
       "zhName": "呆呆王",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/slowking.webp",
       "primaryColor": "#EFABB7",
       "palette": [
@@ -1415,6 +1441,7 @@
       "sequence": "027",
       "name": "Magnemite",
       "zhName": "小磁怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/magnemite.webp",
       "primaryColor": "#A8C4D4",
       "palette": [
@@ -1469,6 +1496,7 @@
       "sequence": "028",
       "name": "Magneton",
       "zhName": "三合一磁怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/magneton.webp",
       "primaryColor": "#EAF0F0",
       "palette": [
@@ -1523,6 +1551,7 @@
       "sequence": "029",
       "name": "Magnezone",
       "zhName": "自爆磁怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/magnezone.webp",
       "primaryColor": "#92A7BE",
       "palette": [
@@ -1577,6 +1606,7 @@
       "sequence": "030",
       "name": "Onix",
       "zhName": "大岩蛇",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/onix.webp",
       "primaryColor": "#A4A8AA",
       "palette": [
@@ -1631,6 +1661,7 @@
       "sequence": "031",
       "name": "Steelix",
       "zhName": "大钢蛇",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/steelix.webp",
       "primaryColor": "#667890",
       "palette": [
@@ -1685,6 +1716,7 @@
       "sequence": "032",
       "name": "Cubone",
       "zhName": "卡拉卡拉",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cubone.webp",
       "primaryColor": "#D6D9D7",
       "palette": [
@@ -1739,6 +1771,7 @@
       "sequence": "033",
       "name": "Marowak",
       "zhName": "嘎啦嘎啦",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/marowak.webp",
       "primaryColor": "#DCA561",
       "palette": [
@@ -1793,6 +1826,7 @@
       "sequence": "034",
       "name": "Tyrogue",
       "zhName": "无畏小子",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tyrogue.webp",
       "primaryColor": "#F2D8F9",
       "palette": [
@@ -1847,6 +1881,7 @@
       "sequence": "035",
       "name": "Hitmonlee",
       "zhName": "飞腿郎",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/hitmonlee.webp",
       "primaryColor": "#A57960",
       "palette": [
@@ -1901,6 +1936,7 @@
       "sequence": "036",
       "name": "Hitmonchan",
       "zhName": "快拳郎",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/hitmonchan.webp",
       "primaryColor": "#BA9560",
       "palette": [
@@ -1955,6 +1991,7 @@
       "sequence": "037",
       "name": "Hitmontop",
       "zhName": "战舞郎",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/hitmontop.webp",
       "primaryColor": "#BD9277",
       "palette": [
@@ -2009,6 +2046,7 @@
       "sequence": "038",
       "name": "Koffing",
       "zhName": "瓦斯弹",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/koffing.webp",
       "primaryColor": "#ADA760",
       "palette": [
@@ -2063,6 +2101,7 @@
       "sequence": "039",
       "name": "Weezing",
       "zhName": "双弹瓦斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/weezing.webp",
       "primaryColor": "#A590B2",
       "palette": [
@@ -2117,6 +2156,7 @@
       "sequence": "040",
       "name": "Tangela",
       "zhName": "蔓藤怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tangela.webp",
       "primaryColor": "#48A8F4",
       "palette": [
@@ -2171,6 +2211,7 @@
       "sequence": "041",
       "name": "Prof. Tangrowth",
       "zhName": "巨蔓藤（博士）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/prof-tangrowth.webp",
       "primaryColor": "#79A5AC",
       "palette": [
@@ -2225,6 +2266,7 @@
       "sequence": "041",
       "name": "Tangrowth",
       "zhName": "巨蔓藤",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tangrowth.webp",
       "primaryColor": "#3197B5",
       "palette": [
@@ -2279,6 +2321,7 @@
       "sequence": "042",
       "name": "Scyther",
       "zhName": "飞天螳螂",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/scyther.webp",
       "primaryColor": "#63B849",
       "palette": [
@@ -2333,6 +2376,7 @@
       "sequence": "043",
       "name": "Scizor",
       "zhName": "巨钳螳螂",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/scizor.webp",
       "primaryColor": "#CB3035",
       "palette": [
@@ -2387,6 +2431,7 @@
       "sequence": "044",
       "name": "Pinsir",
       "zhName": "凯罗斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pinsir.webp",
       "primaryColor": "#AD8778",
       "palette": [
@@ -2441,6 +2486,7 @@
       "sequence": "045",
       "name": "Magikarp",
       "zhName": "鲤鱼王",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/magikarp.webp",
       "primaryColor": "#FD4E15",
       "palette": [
@@ -2495,6 +2541,7 @@
       "sequence": "046",
       "name": "Gyarados",
       "zhName": "暴鲤龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gyarados.webp",
       "primaryColor": "#36BBF3",
       "palette": [
@@ -2549,6 +2596,7 @@
       "sequence": "047",
       "name": "Ditto",
       "zhName": "百变怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ditto.webp",
       "primaryColor": "#DCBFFF",
       "palette": [
@@ -2596,6 +2644,7 @@
       "sequence": "048",
       "name": "Hoothoot",
       "zhName": "咕咕",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/hoothoot.webp",
       "primaryColor": "#FF7960",
       "palette": [
@@ -2650,6 +2699,7 @@
       "sequence": "049",
       "name": "Noctowl",
       "zhName": "猫头夜鹰",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/noctowl.webp",
       "primaryColor": "#4C3023",
       "palette": [
@@ -2704,6 +2754,7 @@
       "sequence": "050",
       "name": "Heracross",
       "zhName": "赫拉克罗斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/heracross.webp",
       "primaryColor": "#618DB6",
       "palette": [
@@ -2758,6 +2809,7 @@
       "sequence": "051",
       "name": "Volbeat",
       "zhName": "电萤虫",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/volbeat.webp",
       "primaryColor": "#FC014F",
       "palette": [
@@ -2812,6 +2864,7 @@
       "sequence": "052",
       "name": "Illumise",
       "zhName": "甜甜萤",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/illumise.webp",
       "primaryColor": "#A891D6",
       "palette": [
@@ -2866,6 +2919,7 @@
       "sequence": "053",
       "name": "Gulpin",
       "zhName": "溶食兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gulpin.webp",
       "primaryColor": "#A3C07A",
       "palette": [
@@ -2920,6 +2974,7 @@
       "sequence": "054",
       "name": "Swalot",
       "zhName": "吞食兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/swalot.webp",
       "primaryColor": "#908FDE",
       "palette": [
@@ -2974,6 +3029,7 @@
       "sequence": "055",
       "name": "Cacnea",
       "zhName": "刺球仙人掌",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cacnea.webp",
       "primaryColor": "#A4DD60",
       "palette": [
@@ -3028,6 +3084,7 @@
       "sequence": "056",
       "name": "Cacturne",
       "zhName": "梦歌仙人掌",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cacturne.webp",
       "primaryColor": "#D9FF90",
       "palette": [
@@ -3082,6 +3139,7 @@
       "sequence": "057",
       "name": "Combee",
       "zhName": "三蜜蜂",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/combee.webp",
       "primaryColor": "#F4A200",
       "palette": [
@@ -3136,6 +3194,7 @@
       "sequence": "058",
       "name": "Vespiquen",
       "zhName": "蜂女王",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/vespiquen.webp",
       "primaryColor": "#F69D01",
       "palette": [
@@ -3190,6 +3249,7 @@
       "sequence": "059",
       "name": "Shellos (East Sea)",
       "zhName": "无壳海兔（东海）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/shellos-east-sea.webp",
       "primaryColor": "#00C0FF",
       "palette": [
@@ -3244,6 +3304,7 @@
       "sequence": "059",
       "name": "Shellos (West Sea)",
       "zhName": "无壳海兔（西海）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/shellos-west-sea.webp",
       "primaryColor": "#EA94B3",
       "palette": [
@@ -3298,6 +3359,7 @@
       "sequence": "060",
       "name": "Gastrodon (East Sea)",
       "zhName": "海兔兽（东海）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gastrodon-east-sea.webp",
       "primaryColor": "#0EA9DF",
       "palette": [
@@ -3352,6 +3414,7 @@
       "sequence": "060",
       "name": "Gastrodon (West Sea)",
       "zhName": "海兔兽（西海）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gastrodon-west-sea.webp",
       "primaryColor": "#F29EBE",
       "palette": [
@@ -3406,6 +3469,7 @@
       "sequence": "061",
       "name": "Drifloon",
       "zhName": "飘飘球",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/drifloon.webp",
       "primaryColor": "#BF9CDA",
       "palette": [
@@ -3460,6 +3524,7 @@
       "sequence": "062",
       "name": "Drifblim",
       "zhName": "随风球",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/drifblim.webp",
       "primaryColor": "#FFE348",
       "palette": [
@@ -3514,6 +3579,7 @@
       "sequence": "063",
       "name": "Drilbur",
       "zhName": "螺钉地鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/drilbur.webp",
       "primaryColor": "#F2F0EF",
       "palette": [
@@ -3568,6 +3634,7 @@
       "sequence": "064",
       "name": "Excadrill",
       "zhName": "龙头地鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/excadrill.webp",
       "primaryColor": "#5E4B48",
       "palette": [
@@ -3622,6 +3689,7 @@
       "sequence": "065",
       "name": "Timburr",
       "zhName": "搬运小匠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/timburr.webp",
       "primaryColor": "#935F24",
       "palette": [
@@ -3676,6 +3744,7 @@
       "sequence": "066",
       "name": "Gurdurr",
       "zhName": "铁骨土人",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gurdurr.webp",
       "primaryColor": "#903148",
       "palette": [
@@ -3730,6 +3799,7 @@
       "sequence": "067",
       "name": "Conkeldurr",
       "zhName": "修建老匠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/conkeldurr.webp",
       "primaryColor": "#BF8F7B",
       "palette": [
@@ -3784,6 +3854,7 @@
       "sequence": "068",
       "name": "Litwick",
       "zhName": "烛光灵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/litwick.webp",
       "primaryColor": "#D5D9E8",
       "palette": [
@@ -3838,6 +3909,7 @@
       "sequence": "069",
       "name": "Lampent",
       "zhName": "灯火幽灵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/lampent.webp",
       "primaryColor": "#BFC3EC",
       "palette": [
@@ -3892,6 +3964,7 @@
       "sequence": "070",
       "name": "Chandelure",
       "zhName": "水晶灯火灵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/chandelure.webp",
       "primaryColor": "#7878C8",
       "palette": [
@@ -3946,6 +4019,7 @@
       "sequence": "071",
       "name": "Axew",
       "zhName": "牙牙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/axew.webp",
       "primaryColor": "#949B75",
       "palette": [
@@ -4000,6 +4074,7 @@
       "sequence": "072",
       "name": "Fraxure",
       "zhName": "斧牙龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/fraxure.webp",
       "primaryColor": "#7A8B19",
       "palette": [
@@ -4054,6 +4129,7 @@
       "sequence": "073",
       "name": "Haxorus",
       "zhName": "双斧战龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/haxorus.webp",
       "primaryColor": "#BCAB02",
       "palette": [
@@ -4108,6 +4184,7 @@
       "sequence": "074",
       "name": "Goomy",
       "zhName": "黏黏宝",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/goomy.webp",
       "primaryColor": "#ECDEF0",
       "palette": [
@@ -4162,6 +4239,7 @@
       "sequence": "075",
       "name": "Sliggoo",
       "zhName": "黏美儿",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/sliggoo.webp",
       "primaryColor": "#D5C3D9",
       "palette": [
@@ -4216,6 +4294,7 @@
       "sequence": "076",
       "name": "Goodra",
       "zhName": "黏美龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/goodra.webp",
       "primaryColor": "#EDD9F1",
       "palette": [
@@ -4270,6 +4349,7 @@
       "sequence": "077",
       "name": "Cramorant",
       "zhName": "古月鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cramorant.webp",
       "primaryColor": "#0163BE",
       "palette": [
@@ -4324,6 +4404,7 @@
       "sequence": "078",
       "name": "Pichu",
       "zhName": "皮丘",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pichu.webp",
       "primaryColor": "#F0DB44",
       "palette": [
@@ -4378,6 +4459,7 @@
       "sequence": "079",
       "name": "Peakychu",
       "zhName": "皮卡丘（浅色）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/peakychu.webp",
       "primaryColor": "#F0F0EF",
       "palette": [
@@ -4432,6 +4514,7 @@
       "sequence": "079",
       "name": "Pikachu",
       "zhName": "皮卡丘",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pikachu.webp",
       "primaryColor": "#FFE200",
       "palette": [
@@ -4486,6 +4569,7 @@
       "sequence": "080",
       "name": "Raichu",
       "zhName": "雷丘",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/raichu.webp",
       "primaryColor": "#DBC003",
       "palette": [
@@ -4540,6 +4624,7 @@
       "sequence": "081",
       "name": "Zubat",
       "zhName": "超音蝠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/zubat.webp",
       "primaryColor": "#B3A7F0",
       "palette": [
@@ -4594,6 +4679,7 @@
       "sequence": "082",
       "name": "Golbat",
       "zhName": "大嘴蝠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/golbat.webp",
       "primaryColor": "#B8A7EF",
       "palette": [
@@ -4648,6 +4734,7 @@
       "sequence": "083",
       "name": "Crobat",
       "zhName": "叉字蝠",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/crobat.webp",
       "primaryColor": "#78BEDE",
       "palette": [
@@ -4702,6 +4789,7 @@
       "sequence": "084",
       "name": "Meowth",
       "zhName": "喵喵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/meowth.webp",
       "primaryColor": "#E0D291",
       "palette": [
@@ -4756,6 +4844,7 @@
       "sequence": "085",
       "name": "Persian",
       "zhName": "猫老大",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/persian.webp",
       "primaryColor": "#E3D37C",
       "palette": [
@@ -4810,6 +4899,7 @@
       "sequence": "086",
       "name": "Psyduck",
       "zhName": "可达鸭",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/psyduck.webp",
       "primaryColor": "#FFD130",
       "palette": [
@@ -4864,6 +4954,7 @@
       "sequence": "087",
       "name": "Golduck",
       "zhName": "哥达鸭",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/golduck.webp",
       "primaryColor": "#78A8E2",
       "palette": [
@@ -4918,6 +5009,7 @@
       "sequence": "088",
       "name": "Growlithe",
       "zhName": "卡蒂狗",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/growlithe.webp",
       "primaryColor": "#FFF2D4",
       "palette": [
@@ -4972,6 +5064,7 @@
       "sequence": "089",
       "name": "Arcanine",
       "zhName": "风速狗",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/arcanine.webp",
       "primaryColor": "#EFDABA",
       "palette": [
@@ -5026,6 +5119,7 @@
       "sequence": "090",
       "name": "Farfetch'd",
       "zhName": "大葱鸭",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/farfetchd.webp",
       "primaryColor": "#E2C8A8",
       "palette": [
@@ -5080,6 +5174,7 @@
       "sequence": "091",
       "name": "Grimer",
       "zhName": "臭泥",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/grimer.webp",
       "primaryColor": "#908EC9",
       "palette": [
@@ -5134,6 +5229,7 @@
       "sequence": "092",
       "name": "Muk",
       "zhName": "臭臭泥",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/muk.webp",
       "primaryColor": "#9091EC",
       "palette": [
@@ -5188,6 +5284,7 @@
       "sequence": "093",
       "name": "Gastly",
       "zhName": "鬼斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gastly.webp",
       "primaryColor": "#674878",
       "palette": [
@@ -5242,6 +5339,7 @@
       "sequence": "094",
       "name": "Haunter",
       "zhName": "鬼斯通",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/haunter.webp",
       "primaryColor": "#7865A2",
       "palette": [
@@ -5296,6 +5394,7 @@
       "sequence": "095",
       "name": "Gengar",
       "zhName": "耿鬼",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gengar.webp",
       "primaryColor": "#7866A2",
       "palette": [
@@ -5350,6 +5449,7 @@
       "sequence": "096",
       "name": "Voltorb",
       "zhName": "霹雳电球",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/voltorb.webp",
       "primaryColor": "#F60034",
       "palette": [
@@ -5404,6 +5504,7 @@
       "sequence": "097",
       "name": "Electrode",
       "zhName": "顽皮雷弹",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/electrode.webp",
       "primaryColor": "#CD1430",
       "palette": [
@@ -5458,6 +5559,7 @@
       "sequence": "098",
       "name": "Exeggcute",
       "zhName": "蛋蛋",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/exeggcute.webp",
       "primaryColor": "#EFBCC6",
       "palette": [
@@ -5512,6 +5614,7 @@
       "sequence": "099",
       "name": "Exeggutor",
       "zhName": "椰蛋树",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/exeggutor.webp",
       "primaryColor": "#499D30",
       "palette": [
@@ -5566,6 +5669,7 @@
       "sequence": "100",
       "name": "Happiny",
       "zhName": "小福蛋",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/happiny.webp",
       "primaryColor": "#FFC6D8",
       "palette": [
@@ -5620,6 +5724,7 @@
       "sequence": "101",
       "name": "Chansey",
       "zhName": "吉利蛋",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/chansey.webp",
       "primaryColor": "#EAAAC0",
       "palette": [
@@ -5674,6 +5779,7 @@
       "sequence": "102",
       "name": "Blissey",
       "zhName": "幸福蛋",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/blissey.webp",
       "primaryColor": "#FEC1D7",
       "palette": [
@@ -5728,6 +5834,7 @@
       "sequence": "103",
       "name": "Elekid",
       "zhName": "电击怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/elekid.webp",
       "primaryColor": "#F8D402",
       "palette": [
@@ -5782,6 +5889,7 @@
       "sequence": "104",
       "name": "Electabuzz",
       "zhName": "电击兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/electabuzz.webp",
       "primaryColor": "#FEDF01",
       "palette": [
@@ -5836,6 +5944,7 @@
       "sequence": "105",
       "name": "Electivire",
       "zhName": "电击魔兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/electivire.webp",
       "primaryColor": "#FFE246",
       "palette": [
@@ -5890,6 +5999,7 @@
       "sequence": "106",
       "name": "Lapras",
       "zhName": "拉普拉斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/lapras.webp",
       "primaryColor": "#64BFF4",
       "palette": [
@@ -5944,6 +6054,7 @@
       "sequence": "107",
       "name": "Munchlax",
       "zhName": "小卡比兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/munchlax.webp",
       "primaryColor": "#498EAC",
       "palette": [
@@ -5998,6 +6109,7 @@
       "sequence": "108",
       "name": "Mosslax",
       "zhName": "卡比兽（萌苔）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mosslax.webp",
       "primaryColor": "#798D30",
       "palette": [
@@ -6052,6 +6164,7 @@
       "sequence": "108",
       "name": "Snorlax",
       "zhName": "卡比兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/snorlax.webp",
       "primaryColor": "#017298",
       "palette": [
@@ -6106,6 +6219,7 @@
       "sequence": "109",
       "name": "Spinarak",
       "zhName": "圆丝蛛",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/spinarak.webp",
       "primaryColor": "#A5DE60",
       "palette": [
@@ -6160,6 +6274,7 @@
       "sequence": "110",
       "name": "Ariados",
       "zhName": "阿利多斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ariados.webp",
       "primaryColor": "#F93348",
       "palette": [
@@ -6214,6 +6329,7 @@
       "sequence": "111",
       "name": "Mareep",
       "zhName": "咩利羊",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mareep.webp",
       "primaryColor": "#E1DA8F",
       "palette": [
@@ -6268,6 +6384,7 @@
       "sequence": "112",
       "name": "Flaaffy",
       "zhName": "茸茸羊",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/flaaffy.webp",
       "primaryColor": "#EC92A8",
       "palette": [
@@ -6322,6 +6439,7 @@
       "sequence": "113",
       "name": "Ampharos",
       "zhName": "电龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ampharos.webp",
       "primaryColor": "#ECCC48",
       "palette": [
@@ -6376,6 +6494,7 @@
       "sequence": "114",
       "name": "Azurill",
       "zhName": "露力丽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/azurill.webp",
       "primaryColor": "#0298D6",
       "palette": [
@@ -6430,6 +6549,7 @@
       "sequence": "115",
       "name": "Marill",
       "zhName": "玛力露",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/marill.webp",
       "primaryColor": "#01AAEA",
       "palette": [
@@ -6484,6 +6604,7 @@
       "sequence": "116",
       "name": "Azumarill",
       "zhName": "玛力露丽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/azumarill.webp",
       "primaryColor": "#02A2E3",
       "palette": [
@@ -6538,6 +6659,7 @@
       "sequence": "117",
       "name": "Wooper",
       "zhName": "乌波",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/wooper.webp",
       "primaryColor": "#78645E",
       "palette": [
@@ -6592,6 +6714,7 @@
       "sequence": "118",
       "name": "Clodsire",
       "zhName": "土王",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/clodsire.webp",
       "primaryColor": "#544948",
       "palette": [
@@ -6646,6 +6769,7 @@
       "sequence": "119",
       "name": "Smeargle",
       "zhName": "图图犬",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/smeargle.webp",
       "primaryColor": "#F1EEDB",
       "palette": [
@@ -6700,6 +6824,7 @@
       "sequence": "119",
       "name": "Smearguru",
       "zhName": "图图犬（彩绘匠）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/smearguru.webp",
       "primaryColor": "#F0EED9",
       "palette": [
@@ -6754,6 +6879,7 @@
       "sequence": "120",
       "name": "Torchic",
       "zhName": "火稚鸡",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/torchic.webp",
       "primaryColor": "#F07801",
       "palette": [
@@ -6808,6 +6934,7 @@
       "sequence": "121",
       "name": "Combusken",
       "zhName": "力壮鸡",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/combusken.webp",
       "primaryColor": "#FEDD61",
       "palette": [
@@ -6862,6 +6989,7 @@
       "sequence": "122",
       "name": "Blaziken",
       "zhName": "火焰鸡",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/blaziken.webp",
       "primaryColor": "#D8322C",
       "palette": [
@@ -6916,6 +7044,7 @@
       "sequence": "123",
       "name": "Wingull",
       "zhName": "长翅鸥",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/wingull.webp",
       "primaryColor": "#F4FFFF",
       "palette": [
@@ -6970,6 +7099,7 @@
       "sequence": "124",
       "name": "Pelipper",
       "zhName": "大嘴鸥",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pelipper.webp",
       "primaryColor": "#E8C718",
       "palette": [
@@ -7024,6 +7154,7 @@
       "sequence": "125",
       "name": "Makuhita",
       "zhName": "幕下力士",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/makuhita.webp",
       "primaryColor": "#F6D161",
       "palette": [
@@ -7078,6 +7209,7 @@
       "sequence": "126",
       "name": "Hariyama",
       "zhName": "铁掌力士",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/hariyama.webp",
       "primaryColor": "#FFDC46",
       "palette": [
@@ -7132,6 +7264,7 @@
       "sequence": "127",
       "name": "Absol",
       "zhName": "阿勃梭鲁",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/absol.webp",
       "primaryColor": "#E2EBF2",
       "palette": [
@@ -7186,6 +7319,7 @@
       "sequence": "128",
       "name": "Piplup",
       "zhName": "波加曼",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/piplup.webp",
       "primaryColor": "#0078D5",
       "palette": [
@@ -7240,6 +7374,7 @@
       "sequence": "129",
       "name": "Prinplup",
       "zhName": "波皇子",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/prinplup.webp",
       "primaryColor": "#015B9B",
       "palette": [
@@ -7294,6 +7429,7 @@
       "sequence": "130",
       "name": "Empoleon",
       "zhName": "帝王拿波",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/empoleon.webp",
       "primaryColor": "#303B49",
       "palette": [
@@ -7348,6 +7484,7 @@
       "sequence": "131",
       "name": "Audino",
       "zhName": "差不多娃娃",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/audino.webp",
       "primaryColor": "#F0DB9F",
       "palette": [
@@ -7402,6 +7539,7 @@
       "sequence": "132",
       "name": "Trubbish",
       "zhName": "破破袋",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/trubbish.webp",
       "primaryColor": "#487565",
       "palette": [
@@ -7456,6 +7594,7 @@
       "sequence": "133",
       "name": "Garbodor",
       "zhName": "灰尘山",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/garbodor.webp",
       "primaryColor": "#9F8E62",
       "palette": [
@@ -7510,6 +7649,7 @@
       "sequence": "134",
       "name": "Zorua",
       "zhName": "索罗亚",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/zorua.webp",
       "primaryColor": "#656087",
       "palette": [
@@ -7564,6 +7704,7 @@
       "sequence": "135",
       "name": "Zoroark",
       "zhName": "索罗亚克",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/zoroark.webp",
       "primaryColor": "#9E1930",
       "palette": [
@@ -7618,6 +7759,7 @@
       "sequence": "136",
       "name": "Minccino",
       "zhName": "泡沫栗鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/minccino.webp",
       "primaryColor": "#BFC1C0",
       "palette": [
@@ -7672,6 +7814,7 @@
       "sequence": "137",
       "name": "Cinccino",
       "zhName": "奇诺栗鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cinccino.webp",
       "primaryColor": "#D9D8D8",
       "palette": [
@@ -7726,6 +7869,7 @@
       "sequence": "138",
       "name": "Grubbin",
       "zhName": "强颚鸡母虫",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/grubbin.webp",
       "primaryColor": "#FFE579",
       "palette": [
@@ -7780,6 +7924,7 @@
       "sequence": "139",
       "name": "Charjabug",
       "zhName": "虫电宝",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/charjabug.webp",
       "primaryColor": "#789443",
       "palette": [
@@ -7834,6 +7979,7 @@
       "sequence": "140",
       "name": "Vikavolt",
       "zhName": "锹农炮虫",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/vikavolt.webp",
       "primaryColor": "#025F79",
       "palette": [
@@ -7888,6 +8034,7 @@
       "sequence": "141",
       "name": "Mimikyu",
       "zhName": "谜拟丘",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mimikyu.webp",
       "primaryColor": "#CAC58D",
       "palette": [
@@ -7942,6 +8089,7 @@
       "sequence": "142",
       "name": "Pawmi",
       "zhName": "布拨",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pawmi.webp",
       "primaryColor": "#F78801",
       "palette": [
@@ -7996,6 +8144,7 @@
       "sequence": "143",
       "name": "Pawmo",
       "zhName": "布土拨",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pawmo.webp",
       "primaryColor": "#F4BD60",
       "palette": [
@@ -8050,6 +8199,7 @@
       "sequence": "144",
       "name": "Pawmot",
       "zhName": "巴布土拨",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pawmot.webp",
       "primaryColor": "#F7A201",
       "palette": [
@@ -8104,6 +8254,7 @@
       "sequence": "145",
       "name": "Tatsugiri (Curly Form)",
       "zhName": "米立龙（上弓姿势）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tatsugiri-curly-form.webp",
       "primaryColor": "#FD6630",
       "palette": [
@@ -8158,6 +8309,7 @@
       "sequence": "145",
       "name": "Tatsugiri (Droopy Form)",
       "zhName": "米立龙（下垂姿势）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tatsugiri-droopy-form.webp",
       "primaryColor": "#FC4A79",
       "palette": [
@@ -8212,6 +8364,7 @@
       "sequence": "145",
       "name": "Tatsugiri (Stretchy Form)",
       "zhName": "米立龙（平挺姿势）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tatsugiri-stretchy-form.webp",
       "primaryColor": "#FFDB09",
       "palette": [
@@ -8266,6 +8419,7 @@
       "sequence": "146",
       "name": "Ekans",
       "zhName": "阿柏蛇",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ekans.webp",
       "primaryColor": "#A578C8",
       "palette": [
@@ -8320,6 +8474,7 @@
       "sequence": "147",
       "name": "Arbok",
       "zhName": "阿柏怪",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/arbok.webp",
       "primaryColor": "#908CAB",
       "palette": [
@@ -8374,6 +8529,7 @@
       "sequence": "148",
       "name": "Cleffa",
       "zhName": "皮宝宝",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cleffa.webp",
       "primaryColor": "#FFC6C0",
       "palette": [
@@ -8428,6 +8584,7 @@
       "sequence": "149",
       "name": "Clefairy",
       "zhName": "皮皮",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/clefairy.webp",
       "primaryColor": "#ECC0C9",
       "palette": [
@@ -8482,6 +8639,7 @@
       "sequence": "150",
       "name": "Clefable",
       "zhName": "皮可西",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/clefable.webp",
       "primaryColor": "#F6BCB5",
       "palette": [
@@ -8536,6 +8694,7 @@
       "sequence": "151",
       "name": "Igglybuff",
       "zhName": "宝宝丁",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/igglybuff.webp",
       "primaryColor": "#F0D3DA",
       "palette": [
@@ -8590,6 +8749,7 @@
       "sequence": "152",
       "name": "Jigglypuff",
       "zhName": "胖丁",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/jigglypuff.webp",
       "primaryColor": "#EEC6CE",
       "palette": [
@@ -8644,6 +8804,7 @@
       "sequence": "153",
       "name": "Wigglytuff",
       "zhName": "胖可丁",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/wigglytuff.webp",
       "primaryColor": "#F3CDDB",
       "palette": [
@@ -8698,6 +8859,7 @@
       "sequence": "154",
       "name": "Diglett",
       "zhName": "地鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/diglett.webp",
       "primaryColor": "#BB907E",
       "palette": [
@@ -8752,6 +8914,7 @@
       "sequence": "155",
       "name": "Dugtrio",
       "zhName": "三地鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dugtrio.webp",
       "primaryColor": "#B9907F",
       "palette": [
@@ -8806,6 +8969,7 @@
       "sequence": "156",
       "name": "Machop",
       "zhName": "腕力",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/machop.webp",
       "primaryColor": "#A6CCDD",
       "palette": [
@@ -8860,6 +9024,7 @@
       "sequence": "157",
       "name": "Machoke",
       "zhName": "豪力",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/machoke.webp",
       "primaryColor": "#CCD5F3",
       "palette": [
@@ -8914,6 +9079,7 @@
       "sequence": "158",
       "name": "Machamp",
       "zhName": "怪力",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/machamp.webp",
       "primaryColor": "#ADD2F0",
       "palette": [
@@ -8968,6 +9134,7 @@
       "sequence": "159",
       "name": "Geodude",
       "zhName": "小拳石",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/geodude.webp",
       "primaryColor": "#90908A",
       "palette": [
@@ -9022,6 +9189,7 @@
       "sequence": "160",
       "name": "Graveler",
       "zhName": "隆隆石",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/graveler.webp",
       "primaryColor": "#90938A",
       "palette": [
@@ -9076,6 +9244,7 @@
       "sequence": "161",
       "name": "Golem",
       "zhName": "隆隆岩",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/golem.webp",
       "primaryColor": "#93928B",
       "palette": [
@@ -9130,6 +9299,7 @@
       "sequence": "162",
       "name": "Magby",
       "zhName": "鸭嘴宝宝",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/magby.webp",
       "primaryColor": "#FC5F60",
       "palette": [
@@ -9184,6 +9354,7 @@
       "sequence": "163",
       "name": "Magmar",
       "zhName": "鸭嘴火兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/magmar.webp",
       "primaryColor": "#F62532",
       "palette": [
@@ -9238,6 +9409,7 @@
       "sequence": "164",
       "name": "Magmortar",
       "zhName": "鸭嘴炎兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/magmortar.webp",
       "primaryColor": "#FC4D33",
       "palette": [
@@ -9292,6 +9464,7 @@
       "sequence": "165",
       "name": "Bonsly",
       "zhName": "盆才怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/bonsly.webp",
       "primaryColor": "#46C830",
       "palette": [
@@ -9346,6 +9519,7 @@
       "sequence": "166",
       "name": "Sudowoodo",
       "zhName": "树才怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/sudowoodo.webp",
       "primaryColor": "#C98D64",
       "palette": [
@@ -9400,6 +9574,7 @@
       "sequence": "167",
       "name": "Murkrow",
       "zhName": "黑暗鸦",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/murkrow.webp",
       "primaryColor": "#013063",
       "palette": [
@@ -9454,6 +9629,7 @@
       "sequence": "168",
       "name": "Honchkrow",
       "zhName": "乌鸦头头",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/honchkrow.webp",
       "primaryColor": "#013060",
       "palette": [
@@ -9508,6 +9684,7 @@
       "sequence": "169",
       "name": "Larvitar",
       "zhName": "幼基拉斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/larvitar.webp",
       "primaryColor": "#A7C17B",
       "palette": [
@@ -9562,6 +9739,7 @@
       "sequence": "170",
       "name": "Pupitar",
       "zhName": "沙基拉斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/pupitar.webp",
       "primaryColor": "#91A3CD",
       "palette": [
@@ -9616,6 +9794,7 @@
       "sequence": "171",
       "name": "Tyranitar",
       "zhName": "班基拉斯",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tyranitar.webp",
       "primaryColor": "#BDE091",
       "palette": [
@@ -9670,6 +9849,7 @@
       "sequence": "172",
       "name": "Lotad",
       "zhName": "莲叶童子",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/lotad.webp",
       "primaryColor": "#61BC48",
       "palette": [
@@ -9724,6 +9904,7 @@
       "sequence": "173",
       "name": "Lombre",
       "zhName": "莲帽小童",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/lombre.webp",
       "primaryColor": "#5FB549",
       "palette": [
@@ -9778,6 +9959,7 @@
       "sequence": "174",
       "name": "Ludicolo",
       "zhName": "乐天河童",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ludicolo.webp",
       "primaryColor": "#A8DB61",
       "palette": [
@@ -9832,6 +10014,7 @@
       "sequence": "175",
       "name": "Mawile",
       "zhName": "大嘴娃",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mawile.webp",
       "primaryColor": "#5D6060",
       "palette": [
@@ -9886,6 +10069,7 @@
       "sequence": "176",
       "name": "Torkoal",
       "zhName": "煤炭龟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/torkoal.webp",
       "primaryColor": "#E8D8B7",
       "palette": [
@@ -9940,6 +10124,7 @@
       "sequence": "177",
       "name": "Kricketot",
       "zhName": "圆法师",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/kricketot.webp",
       "primaryColor": "#FFFFA9",
       "palette": [
@@ -9994,6 +10179,7 @@
       "sequence": "178",
       "name": "Kricketune",
       "zhName": "音箱蟀",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/kricketune.webp",
       "primaryColor": "#FF6029",
       "palette": [
@@ -10048,6 +10234,7 @@
       "sequence": "179",
       "name": "Chatot",
       "zhName": "聒噪鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/chatot.webp",
       "primaryColor": "#01A2DE",
       "palette": [
@@ -10102,6 +10289,7 @@
       "sequence": "180",
       "name": "Riolu",
       "zhName": "利欧路",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/riolu.webp",
       "primaryColor": "#61BEF4",
       "palette": [
@@ -10156,6 +10344,7 @@
       "sequence": "181",
       "name": "Lucario",
       "zhName": "路卡利欧",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/lucario.webp",
       "primaryColor": "#0291D3",
       "palette": [
@@ -10210,6 +10399,7 @@
       "sequence": "182",
       "name": "DJ Rotom",
       "zhName": "洛托姆（立体音响洛托姆）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dj-rotom.webp",
       "primaryColor": "#5C4B49",
       "palette": [
@@ -10264,6 +10454,7 @@
       "sequence": "182",
       "name": "Rotom",
       "zhName": "洛托姆",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/rotom.webp",
       "primaryColor": "#584A48",
       "palette": [
@@ -10318,6 +10509,7 @@
       "sequence": "183",
       "name": "Larvesta",
       "zhName": "燃烧虫",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/larvesta.webp",
       "primaryColor": "#BB3030",
       "palette": [
@@ -10372,6 +10564,7 @@
       "sequence": "184",
       "name": "Volcarona",
       "zhName": "火神蛾",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/volcarona.webp",
       "primaryColor": "#C82F2F",
       "palette": [
@@ -10426,6 +10619,7 @@
       "sequence": "185",
       "name": "Rowlet",
       "zhName": "木木枭",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/rowlet.webp",
       "primaryColor": "#F0BF90",
       "palette": [
@@ -10480,6 +10674,7 @@
       "sequence": "186",
       "name": "Dartrix",
       "zhName": "投羽枭",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dartrix.webp",
       "primaryColor": "#DAD8D4",
       "palette": [
@@ -10534,6 +10729,7 @@
       "sequence": "187",
       "name": "Decidueye",
       "zhName": "狙射树枭",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/decidueye.webp",
       "primaryColor": "#D39560",
       "palette": [
@@ -10588,6 +10784,7 @@
       "sequence": "188",
       "name": "Scorbunny",
       "zhName": "炎兔儿",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/scorbunny.webp",
       "primaryColor": "#F0EFF0",
       "palette": [
@@ -10642,6 +10839,7 @@
       "sequence": "189",
       "name": "Raboot",
       "zhName": "腾蹴小将",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/raboot.webp",
       "primaryColor": "#E34601",
       "palette": [
@@ -10696,6 +10894,7 @@
       "sequence": "190",
       "name": "Cinderace",
       "zhName": "闪焰王牌",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cinderace.webp",
       "primaryColor": "#CF4B2D",
       "palette": [
@@ -10750,6 +10949,7 @@
       "sequence": "191",
       "name": "Skwovet",
       "zhName": "贪心栗鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/skwovet.webp",
       "primaryColor": "#716760",
       "palette": [
@@ -10804,6 +11004,7 @@
       "sequence": "192",
       "name": "Chef Dente",
       "zhName": "藏饱栗鼠（厨师）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/chef-dente.webp",
       "primaryColor": "#905E48",
       "palette": [
@@ -10858,6 +11059,7 @@
       "sequence": "192",
       "name": "Greedent",
       "zhName": "藏饱栗鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/greedent.webp",
       "primaryColor": "#905D49",
       "palette": [
@@ -10912,6 +11114,7 @@
       "sequence": "193",
       "name": "Rolycoly",
       "zhName": "小炭仔",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/rolycoly.webp",
       "primaryColor": "#4A4745",
       "palette": [
@@ -10966,6 +11169,7 @@
       "sequence": "194",
       "name": "Carkol",
       "zhName": "大炭车",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/carkol.webp",
       "primaryColor": "#4A4746",
       "palette": [
@@ -11020,6 +11224,7 @@
       "sequence": "195",
       "name": "Coalossal",
       "zhName": "巨炭山",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/coalossal.webp",
       "primaryColor": "#4B4747",
       "palette": [
@@ -11074,6 +11279,7 @@
       "sequence": "196",
       "name": "Toxel",
       "zhName": "毒电婴",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/toxel.webp",
       "primaryColor": "#A361C7",
       "palette": [
@@ -11128,6 +11334,7 @@
       "sequence": "197",
       "name": "Toxtricity (Amped Form)",
       "zhName": "颤弦蝾螈（高调的样子）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/toxtricity-amped-form.webp",
       "primaryColor": "#6D4895",
       "palette": [
@@ -11182,6 +11389,7 @@
       "sequence": "197",
       "name": "Toxtricity (Low Key Form)",
       "zhName": "颤弦蝾螈（低调的样子）",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/toxtricity-low-key-form.webp",
       "primaryColor": "#6B4A94",
       "palette": [
@@ -11236,6 +11444,7 @@
       "sequence": "198",
       "name": "Fidough",
       "zhName": "狗仔包",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/fidough.webp",
       "primaryColor": "#EBDABF",
       "palette": [
@@ -11290,6 +11499,7 @@
       "sequence": "199",
       "name": "Dachsbun",
       "zhName": "麻花犬",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dachsbun.webp",
       "primaryColor": "#B24B19",
       "palette": [
@@ -11344,6 +11554,7 @@
       "sequence": "200",
       "name": "Charcadet",
       "zhName": "炭小侍",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/charcadet.webp",
       "primaryColor": "#FD1A16",
       "palette": [
@@ -11398,6 +11609,7 @@
       "sequence": "201",
       "name": "Armarouge",
       "zhName": "红莲铠骑",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/armarouge.webp",
       "primaryColor": "#ECE331",
       "palette": [
@@ -11452,6 +11664,7 @@
       "sequence": "202",
       "name": "Ceruledge",
       "zhName": "苍炎刃鬼",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ceruledge.webp",
       "primaryColor": "#1D1843",
       "palette": [
@@ -11506,6 +11719,7 @@
       "sequence": "203",
       "name": "Glimmet",
       "zhName": "晶光芽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/glimmet.webp",
       "primaryColor": "#938FC9",
       "palette": [
@@ -11560,6 +11774,7 @@
       "sequence": "204",
       "name": "Glimmora",
       "zhName": "晶光花",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/glimmora.webp",
       "primaryColor": "#13339D",
       "palette": [
@@ -11614,6 +11829,7 @@
       "sequence": "205",
       "name": "Gimmighoul",
       "zhName": "索财灵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gimmighoul.webp",
       "primaryColor": "#FFF390",
       "palette": [
@@ -11668,6 +11884,7 @@
       "sequence": "206",
       "name": "Gholdengo",
       "zhName": "赛富豪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gholdengo.webp",
       "primaryColor": "#EECB40",
       "palette": [
@@ -11722,6 +11939,7 @@
       "sequence": "207",
       "name": "Vulpix",
       "zhName": "六尾",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/vulpix.webp",
       "primaryColor": "#FF9100",
       "palette": [
@@ -11776,6 +11994,7 @@
       "sequence": "208",
       "name": "Ninetales",
       "zhName": "九尾",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ninetales.webp",
       "primaryColor": "#F0EB94",
       "palette": [
@@ -11830,6 +12049,7 @@
       "sequence": "209",
       "name": "Poliwag",
       "zhName": "蚊香蝌蚪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/poliwag.webp",
       "primaryColor": "#EFF0F4",
       "palette": [
@@ -11884,6 +12104,7 @@
       "sequence": "210",
       "name": "Poliwhirl",
       "zhName": "蚊香君",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/poliwhirl.webp",
       "primaryColor": "#4A76A0",
       "palette": [
@@ -11938,6 +12159,7 @@
       "sequence": "211",
       "name": "Poliwrath",
       "zhName": "蚊香泳士",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/poliwrath.webp",
       "primaryColor": "#618DB6",
       "palette": [
@@ -11992,6 +12214,7 @@
       "sequence": "212",
       "name": "Politoed",
       "zhName": "蚊香蛙皇",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/politoed.webp",
       "primaryColor": "#7ECA2B",
       "palette": [
@@ -12046,6 +12269,7 @@
       "sequence": "213",
       "name": "Abra",
       "zhName": "凯西",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/abra.webp",
       "primaryColor": "#D9A803",
       "palette": [
@@ -12100,6 +12324,7 @@
       "sequence": "214",
       "name": "Kadabra",
       "zhName": "勇基拉",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/kadabra.webp",
       "primaryColor": "#C29004",
       "palette": [
@@ -12154,6 +12379,7 @@
       "sequence": "215",
       "name": "Alakazam",
       "zhName": "胡地",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/alakazam.webp",
       "primaryColor": "#C29003",
       "palette": [
@@ -12208,6 +12434,7 @@
       "sequence": "216",
       "name": "Mime Jr.",
       "zhName": "魔尼尼",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mime-jr.webp",
       "primaryColor": "#18608F",
       "palette": [
@@ -12262,6 +12489,7 @@
       "sequence": "217",
       "name": "Mr. Mime",
       "zhName": "魔墙人偶",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mr-mime.webp",
       "primaryColor": "#186096",
       "palette": [
@@ -12316,6 +12544,7 @@
       "sequence": "218",
       "name": "Porygon",
       "zhName": "多边兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/porygon.webp",
       "primaryColor": "#FA6078",
       "palette": [
@@ -12370,6 +12599,7 @@
       "sequence": "219",
       "name": "Porygon2",
       "zhName": "多边兽Ⅱ",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/porygon2.webp",
       "primaryColor": "#E41977",
       "palette": [
@@ -12424,6 +12654,7 @@
       "sequence": "220",
       "name": "Porygon-Z",
       "zhName": "多边兽Ｚ",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/porygon-z.webp",
       "primaryColor": "#01A9F0",
       "palette": [
@@ -12478,6 +12709,7 @@
       "sequence": "221",
       "name": "Dratini",
       "zhName": "迷你龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dratini.webp",
       "primaryColor": "#94A3D6",
       "palette": [
@@ -12532,6 +12764,7 @@
       "sequence": "222",
       "name": "Dragonair",
       "zhName": "哈克龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dragonair.webp",
       "primaryColor": "#01A9F3",
       "palette": [
@@ -12586,6 +12819,7 @@
       "sequence": "223",
       "name": "Dragonite",
       "zhName": "快龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dragonite.webp",
       "primaryColor": "#DD8F02",
       "palette": [
@@ -12640,6 +12874,7 @@
       "sequence": "224",
       "name": "Cyndaquil",
       "zhName": "火球鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cyndaquil.webp",
       "primaryColor": "#F17B23",
       "palette": [
@@ -12694,6 +12929,7 @@
       "sequence": "225",
       "name": "Quilava",
       "zhName": "火岩鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/quilava.webp",
       "primaryColor": "#F3E68F",
       "palette": [
@@ -12748,6 +12984,7 @@
       "sequence": "226",
       "name": "Typhlosion",
       "zhName": "火暴兽",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/typhlosion.webp",
       "primaryColor": "#FFE45E",
       "palette": [
@@ -12802,6 +13039,7 @@
       "sequence": "227",
       "name": "Misdreavus",
       "zhName": "梦妖",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/misdreavus.webp",
       "primaryColor": "#397590",
       "palette": [
@@ -12856,6 +13094,7 @@
       "sequence": "228",
       "name": "Mismagius",
       "zhName": "梦妖魔",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mismagius.webp",
       "primaryColor": "#7C609B",
       "palette": [
@@ -12910,6 +13149,7 @@
       "sequence": "229",
       "name": "Girafarig",
       "zhName": "麒麟奇",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/girafarig.webp",
       "primaryColor": "#FFDB00",
       "palette": [
@@ -12964,6 +13204,7 @@
       "sequence": "230",
       "name": "Farigiraf",
       "zhName": "奇麒麟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/farigiraf.webp",
       "primaryColor": "#443919",
       "palette": [
@@ -13018,6 +13259,7 @@
       "sequence": "231",
       "name": "Ralts",
       "zhName": "拉鲁拉丝",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ralts.webp",
       "primaryColor": "#ACE590",
       "palette": [
@@ -13072,6 +13314,7 @@
       "sequence": "232",
       "name": "Kirlia",
       "zhName": "奇鲁莉安",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/kirlia.webp",
       "primaryColor": "#A8E090",
       "palette": [
@@ -13126,6 +13369,7 @@
       "sequence": "233",
       "name": "Gardevoir",
       "zhName": "沙奈朵",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/gardevoir.webp",
       "primaryColor": "#E6EEF0",
       "palette": [
@@ -13180,6 +13424,7 @@
       "sequence": "234",
       "name": "Gallade",
       "zhName": "艾路雷朵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/gallade.webp",
       "primaryColor": "#039660",
       "palette": [
@@ -13234,6 +13479,7 @@
       "sequence": "235",
       "name": "Plusle",
       "zhName": "正电拍拍",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/plusle.webp",
       "primaryColor": "#FF4B60",
       "palette": [
@@ -13288,6 +13534,7 @@
       "sequence": "236",
       "name": "Minun",
       "zhName": "负电拍拍",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/minun.webp",
       "primaryColor": "#30C1FE",
       "palette": [
@@ -13342,6 +13589,7 @@
       "sequence": "237",
       "name": "Trapinch",
       "zhName": "大颚蚁",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/trapinch.webp",
       "primaryColor": "#FF9648",
       "palette": [
@@ -13396,6 +13644,7 @@
       "sequence": "238",
       "name": "Vibrava",
       "zhName": "超音波幼虫",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/vibrava.webp",
       "primaryColor": "#45BF30",
       "palette": [
@@ -13450,6 +13699,7 @@
       "sequence": "239",
       "name": "Flygon",
       "zhName": "沙漠蜻蜓",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/flygon.webp",
       "primaryColor": "#B2D378",
       "palette": [
@@ -13504,6 +13754,7 @@
       "sequence": "240",
       "name": "Swablu",
       "zhName": "青绵鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/swablu.webp",
       "primaryColor": "#CFD6DB",
       "palette": [
@@ -13558,6 +13809,7 @@
       "sequence": "241",
       "name": "Altaria",
       "zhName": "七夕青鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/altaria.webp",
       "primaryColor": "#ECF0F0",
       "palette": [
@@ -13612,6 +13864,7 @@
       "sequence": "242",
       "name": "Duskull",
       "zhName": "夜巡灵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/duskull.webp",
       "primaryColor": "#A8A894",
       "palette": [
@@ -13666,6 +13919,7 @@
       "sequence": "243",
       "name": "Dusclops",
       "zhName": "彷徨夜灵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dusclops.webp",
       "primaryColor": "#8D9091",
       "palette": [
@@ -13720,6 +13974,7 @@
       "sequence": "244",
       "name": "Dusknoir",
       "zhName": "黑夜魔灵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dusknoir.webp",
       "primaryColor": "#C5CCA8",
       "palette": [
@@ -13774,6 +14029,7 @@
       "sequence": "245",
       "name": "Beldum",
       "zhName": "铁哑铃",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/beldum.webp",
       "primaryColor": "#48DBFF",
       "palette": [
@@ -13828,6 +14084,7 @@
       "sequence": "246",
       "name": "Metang",
       "zhName": "金属怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/metang.webp",
       "primaryColor": "#3E8DAB",
       "palette": [
@@ -13882,6 +14139,7 @@
       "sequence": "247",
       "name": "Metagross",
       "zhName": "巨金怪",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/metagross.webp",
       "primaryColor": "#3798B6",
       "palette": [
@@ -13936,6 +14194,7 @@
       "sequence": "248",
       "name": "Snivy",
       "zhName": "藤藤蛇",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/snivy.webp",
       "primaryColor": "#03B05A",
       "palette": [
@@ -13990,6 +14249,7 @@
       "sequence": "249",
       "name": "Servine",
       "zhName": "青藤蛇",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/servine.webp",
       "primaryColor": "#01BA60",
       "palette": [
@@ -14044,6 +14304,7 @@
       "sequence": "250",
       "name": "Serperior",
       "zhName": "君主蛇",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/serperior.webp",
       "primaryColor": "#037248",
       "palette": [
@@ -14098,6 +14359,7 @@
       "sequence": "251",
       "name": "Froakie",
       "zhName": "呱呱泡蛙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/froakie.webp",
       "primaryColor": "#34ACCB",
       "palette": [
@@ -14152,6 +14414,7 @@
       "sequence": "252",
       "name": "Frogadier",
       "zhName": "呱头蛙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/frogadier.webp",
       "primaryColor": "#136199",
       "palette": [
@@ -14206,6 +14469,7 @@
       "sequence": "253",
       "name": "Greninja",
       "zhName": "甲贺忍蛙",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/greninja.webp",
       "primaryColor": "#0D4898",
       "palette": [
@@ -14260,6 +14524,7 @@
       "sequence": "254",
       "name": "Dedenne",
       "zhName": "咚咚鼠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dedenne.webp",
       "primaryColor": "#D88F01",
       "palette": [
@@ -14314,6 +14579,7 @@
       "sequence": "255",
       "name": "Noibat",
       "zhName": "嗡蝠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/noibat.webp",
       "primaryColor": "#F0CAF1",
       "palette": [
@@ -14368,6 +14634,7 @@
       "sequence": "256",
       "name": "Noivern",
       "zhName": "音波龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/noivern.webp",
       "primaryColor": "#584847",
       "palette": [
@@ -14422,6 +14689,7 @@
       "sequence": "257",
       "name": "Rookidee",
       "zhName": "稚山雀",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/rookidee.webp",
       "primaryColor": "#302E1A",
       "palette": [
@@ -14476,6 +14744,7 @@
       "sequence": "258",
       "name": "Corvisquire",
       "zhName": "蓝鸦",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/corvisquire.webp",
       "primaryColor": "#31301C",
       "palette": [
@@ -14530,6 +14799,7 @@
       "sequence": "259",
       "name": "Corviknight",
       "zhName": "钢铠鸦",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/corviknight.webp",
       "primaryColor": "#342F55",
       "palette": [
@@ -14584,6 +14854,7 @@
       "sequence": "260",
       "name": "Dreepy",
       "zhName": "多龙梅西亚",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dreepy.webp",
       "primaryColor": "#7AA690",
       "palette": [
@@ -14638,6 +14909,7 @@
       "sequence": "261",
       "name": "Drakloak",
       "zhName": "多龙奇",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/drakloak.webp",
       "primaryColor": "#49626D",
       "palette": [
@@ -14692,6 +14964,7 @@
       "sequence": "262",
       "name": "Dragapult",
       "zhName": "多龙巴鲁托",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/dragapult.webp",
       "primaryColor": "#5AC0C0",
       "palette": [
@@ -14746,6 +15019,7 @@
       "sequence": "263",
       "name": "Sprigatito",
       "zhName": "新叶喵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/sprigatito.webp",
       "primaryColor": "#5EB118",
       "palette": [
@@ -14800,6 +15074,7 @@
       "sequence": "264",
       "name": "Floragato",
       "zhName": "蒂蕾喵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/floragato.webp",
       "primaryColor": "#27612D",
       "palette": [
@@ -14854,6 +15129,7 @@
       "sequence": "265",
       "name": "Meowscarada",
       "zhName": "魔幻假面喵",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/meowscarada.webp",
       "primaryColor": "#318A38",
       "palette": [
@@ -14908,6 +15184,7 @@
       "sequence": "266",
       "name": "Wattrel",
       "zhName": "电海燕",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/wattrel.webp",
       "primaryColor": "#394149",
       "palette": [
@@ -14962,6 +15239,7 @@
       "sequence": "267",
       "name": "Kilowattrel",
       "zhName": "大电海燕",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/kilowattrel.webp",
       "primaryColor": "#CCA82F",
       "palette": [
@@ -15016,6 +15294,7 @@
       "sequence": "268",
       "name": "Tinkatink",
       "zhName": "小锻匠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tinkatink.webp",
       "primaryColor": "#E94A90",
       "palette": [
@@ -15070,6 +15349,7 @@
       "sequence": "269",
       "name": "Tinkatuff",
       "zhName": "巧锻匠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tinkatuff.webp",
       "primaryColor": "#907DA8",
       "palette": [
@@ -15124,6 +15404,7 @@
       "sequence": "270",
       "name": "Tinkaton",
       "zhName": "巨锻匠",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tinkaton.webp",
       "primaryColor": "#9179A7",
       "palette": [
@@ -15178,6 +15459,7 @@
       "sequence": "271",
       "name": "Aerodactyl",
       "zhName": "化石翼龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/aerodactyl.webp",
       "primaryColor": "#9C7EA4",
       "palette": [
@@ -15232,6 +15514,7 @@
       "sequence": "272",
       "name": "Cranidos",
       "zhName": "头盖龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/cranidos.webp",
       "primaryColor": "#79CAFF",
       "palette": [
@@ -15286,6 +15569,7 @@
       "sequence": "273",
       "name": "Rampardos",
       "zhName": "战槌龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/rampardos.webp",
       "primaryColor": "#606D77",
       "palette": [
@@ -15340,6 +15624,7 @@
       "sequence": "274",
       "name": "Shieldon",
       "zhName": "盾甲龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/shieldon.webp",
       "primaryColor": "#DBBC62",
       "palette": [
@@ -15394,6 +15679,7 @@
       "sequence": "275",
       "name": "Bastiodon",
       "zhName": "护城龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/bastiodon.webp",
       "primaryColor": "#76787B",
       "palette": [
@@ -15448,6 +15734,7 @@
       "sequence": "276",
       "name": "Tyrunt",
       "zhName": "宝宝暴龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tyrunt.webp",
       "primaryColor": "#746049",
       "palette": [
@@ -15502,6 +15789,7 @@
       "sequence": "277",
       "name": "Tyrantrum",
       "zhName": "怪颚龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/tyrantrum.webp",
       "primaryColor": "#814648",
       "palette": [
@@ -15556,6 +15844,7 @@
       "sequence": "278",
       "name": "Amaura",
       "zhName": "冰雪龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/amaura.webp",
       "primaryColor": "#79B0D6",
       "palette": [
@@ -15610,6 +15899,7 @@
       "sequence": "279",
       "name": "Aurorus",
       "zhName": "冰雪巨龙",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/aurorus.webp",
       "primaryColor": "#78A5E1",
       "palette": [
@@ -15664,6 +15954,7 @@
       "sequence": "280",
       "name": "Eevee",
       "zhName": "伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/eevee.webp",
       "primaryColor": "#EFA849",
       "palette": [
@@ -15718,6 +16009,7 @@
       "sequence": "281",
       "name": "Vaporeon",
       "zhName": "水伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/vaporeon.webp",
       "primaryColor": "#32A7C3",
       "palette": [
@@ -15772,6 +16064,7 @@
       "sequence": "282",
       "name": "Jolteon",
       "zhName": "雷伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/jolteon.webp",
       "primaryColor": "#FFDB00",
       "palette": [
@@ -15826,6 +16119,7 @@
       "sequence": "283",
       "name": "Flareon",
       "zhName": "火伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/flareon.webp",
       "primaryColor": "#F2EA95",
       "palette": [
@@ -15880,6 +16174,7 @@
       "sequence": "284",
       "name": "Espeon",
       "zhName": "太阳伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/espeon.webp",
       "primaryColor": "#E7C0D6",
       "palette": [
@@ -15934,6 +16229,7 @@
       "sequence": "285",
       "name": "Umbreon",
       "zhName": "月亮伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/umbreon.webp",
       "primaryColor": "#3D4947",
       "palette": [
@@ -15988,6 +16284,7 @@
       "sequence": "286",
       "name": "Leafeon",
       "zhName": "叶伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/leafeon.webp",
       "primaryColor": "#FFEB92",
       "palette": [
@@ -16042,6 +16339,7 @@
       "sequence": "287",
       "name": "Glaceon",
       "zhName": "冰伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/glaceon.webp",
       "primaryColor": "#BADDF0",
       "palette": [
@@ -16096,6 +16394,7 @@
       "sequence": "288",
       "name": "Sylveon",
       "zhName": "仙子伊布",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/sylveon.webp",
       "primaryColor": "#FBAABD",
       "palette": [
@@ -16150,6 +16449,7 @@
       "sequence": "289",
       "name": "Kyogre",
       "zhName": "盖欧卡",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/kyogre.webp",
       "primaryColor": "#0462B7",
       "palette": [
@@ -16204,6 +16504,7 @@
       "sequence": "290",
       "name": "Raikou",
       "zhName": "雷公",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/raikou.webp",
       "primaryColor": "#F5D001",
       "palette": [
@@ -16258,6 +16559,7 @@
       "sequence": "291",
       "name": "Entei",
       "zhName": "炎帝",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/entei.webp",
       "primaryColor": "#975E26",
       "palette": [
@@ -16312,6 +16614,7 @@
       "sequence": "292",
       "name": "Suicune",
       "zhName": "水君",
+      "bodySize": "large",
       "imagePath": "/assets/runtime/pokemon/suicune.webp",
       "primaryColor": "#5EAEBB",
       "palette": [
@@ -16366,6 +16669,7 @@
       "sequence": "293",
       "name": "Volcanion",
       "zhName": "波尔凯尼恩",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/volcanion.webp",
       "primaryColor": "#9F2F31",
       "palette": [
@@ -16420,6 +16724,7 @@
       "sequence": "294",
       "name": "Articuno",
       "zhName": "急冻鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/articuno.webp",
       "primaryColor": "#5EB1DB",
       "palette": [
@@ -16474,6 +16779,7 @@
       "sequence": "295",
       "name": "Zapdos",
       "zhName": "闪电鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/zapdos.webp",
       "primaryColor": "#FFDC54",
       "palette": [
@@ -16528,6 +16834,7 @@
       "sequence": "296",
       "name": "Moltres",
       "zhName": "火焰鸟",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/moltres.webp",
       "primaryColor": "#F4C502",
       "palette": [
@@ -16582,6 +16889,7 @@
       "sequence": "297",
       "name": "Lugia",
       "zhName": "洛奇亚",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/lugia.webp",
       "primaryColor": "#DDE5EE",
       "palette": [
@@ -16636,6 +16944,7 @@
       "sequence": "298",
       "name": "Ho-Oh",
       "zhName": "凤王",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/ho-oh.webp",
       "primaryColor": "#FC4913",
       "palette": [
@@ -16690,6 +16999,7 @@
       "sequence": "299",
       "name": "Mewtwo",
       "zhName": "超梦",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mewtwo.webp",
       "primaryColor": "#ECD8F1",
       "palette": [
@@ -16744,6 +17054,7 @@
       "sequence": "300",
       "name": "Mew",
       "zhName": "梦幻",
+      "bodySize": "other",
       "imagePath": "/assets/runtime/pokemon/mew.webp",
       "primaryColor": "#EFD4DB",
       "palette": [

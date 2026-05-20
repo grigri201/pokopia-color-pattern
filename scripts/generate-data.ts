@@ -9,8 +9,10 @@ import {
   RECOMMENDATIONS_SCHEMA_VERSION,
   type CompactItem,
   type CompactItemsData,
+  type FurnitureSize,
   type ItemColorEntry,
   type ItemColorsData,
+  type PokemonBodySize,
   type PokemonIndexData,
   type PokemonIndexEntry,
   type PokemonMetadataOverridesData,
@@ -43,6 +45,8 @@ type RawJsonItem = {
   id?: unknown;
   slug?: unknown;
   menu_category?: unknown;
+  habitat_item_category_ids?: unknown;
+  description?: unknown;
   color_variants?: unknown;
   variantSrcs?: unknown;
 };
@@ -51,6 +55,23 @@ type PokemonPreferenceSourceData = {
   schemaVersion?: unknown;
   pokemon?: unknown;
   itemPreferenceTerms?: unknown;
+};
+
+type PokemonBodySizeSourceData = {
+  schemaVersion?: unknown;
+  defaultBodySize?: unknown;
+  largePokemon?: unknown;
+};
+
+type PokemonBodySizeSourceEntry = {
+  slug: string;
+  bodySize: PokemonBodySize;
+};
+
+type PokemonBodySizeSource = {
+  defaultBodySize: PokemonBodySize;
+  bodySizeBySlug: Map<string, PokemonBodySize>;
+  entries: PokemonBodySizeSourceEntry[];
 };
 
 type PokemonPreferenceSourceEntry = {
@@ -62,6 +83,17 @@ type PokemonPreferenceSourceEntry = {
 type ItemPreferenceSourceEntry = {
   slug: string;
   terms: string[];
+};
+
+type FurnitureSizeSourceData = {
+  schemaVersion?: unknown;
+  largeHabitatItemCategoryIds?: unknown;
+  largeDescriptionTerms?: unknown;
+};
+
+type FurnitureSizeSource = {
+  largeHabitatItemCategoryIds: Set<number>;
+  largeDescriptionTerms: string[];
 };
 
 type ItemTranslationSource = {
@@ -117,6 +149,7 @@ const projectRoot = process.cwd();
 const itemManifestPath = "docs/pokopia_image_sources/item_portraits/manifest.csv";
 const placeableCsvPath = "docs/pokopia_image_sources/pokopiadex_placeable_items.csv";
 const placeableJsonPath = "docs/pokopia_image_sources/pokopiadex_placeable_items.json";
+const furnitureSizePath = "docs/pokopia_image_sources/pokopia_furniture_sizes.json";
 const itemTranslationCsvPaths = [
   "docs/pokopia_image_sources/infipoke_items_zh_hans.csv",
   "docs/pokopia_image_sources/decorative_item_images.csv",
@@ -124,6 +157,7 @@ const itemTranslationCsvPaths = [
 ] as const;
 const pokemonManifestPath = "docs/pokopia_image_sources/pokemon_portraits/manifest.csv";
 const pokemonPreferencePath = "docs/pokopia_image_sources/pokopiadex_pokemon_preferences.json";
+const pokemonBodySizePath = "docs/pokopia_image_sources/pokopia_pokemon_body_sizes.json";
 const pokemonOverridePath = "data/overrides/pokemon-metadata.json";
 
 const compactItemsOutputPath = "generated/data/compact-items.json";
@@ -150,9 +184,11 @@ const pokemonAllowedWithoutPreferenceTerms = new Set(["ditto"]);
 const absoluteItemManifestPath = resolve(projectRoot, itemManifestPath);
 const absolutePlaceableCsvPath = resolve(projectRoot, placeableCsvPath);
 const absolutePlaceableJsonPath = resolve(projectRoot, placeableJsonPath);
+const absoluteFurnitureSizePath = resolve(projectRoot, furnitureSizePath);
 const absoluteItemTranslationCsvPaths = itemTranslationCsvPaths.map((path) => resolve(projectRoot, path));
 const absolutePokemonManifestPath = resolve(projectRoot, pokemonManifestPath);
 const absolutePokemonPreferencePath = resolve(projectRoot, pokemonPreferencePath);
+const absolutePokemonBodySizePath = resolve(projectRoot, pokemonBodySizePath);
 const absolutePokemonOverridePath = resolve(projectRoot, pokemonOverridePath);
 const absoluteCompactItemsOutputPath = resolve(projectRoot, compactItemsOutputPath);
 const absoluteItemColorsOutputPath = resolve(projectRoot, itemColorsOutputPath);
@@ -171,24 +207,29 @@ if (validateOnly) {
 
 async function generateData(): Promise<void> {
   const issues: GenerationIssue[] = [];
-  const [manifestCsv, placeableCsv, placeableJsonText, pokemonCsv, pokemonPreferenceText, overrideText] = await Promise.all([
+  const [manifestCsv, placeableCsv, placeableJsonText, furnitureSizeText, pokemonCsv, pokemonPreferenceText, pokemonBodySizeText, overrideText] = await Promise.all([
     readFile(absoluteItemManifestPath, "utf8"),
     readFile(absolutePlaceableCsvPath, "utf8"),
     readFile(absolutePlaceableJsonPath, "utf8"),
+    readFile(absoluteFurnitureSizePath, "utf8"),
     readFile(absolutePokemonManifestPath, "utf8"),
     readFile(absolutePokemonPreferencePath, "utf8"),
+    readFile(absolutePokemonBodySizePath, "utf8"),
     readFile(absolutePokemonOverridePath, "utf8"),
   ]);
   const itemTranslationCsvs = await Promise.all(absoluteItemTranslationCsvPaths.map((path) => readFile(path, "utf8")));
 
   const overrides = parsePokemonOverrides(overrideText, issues);
   const pokemonPreferenceSource = parsePokemonPreferenceSource(pokemonPreferenceText, issues);
+  const pokemonBodySizeSource = parsePokemonBodySizeSource(pokemonBodySizeText, issues);
+  const furnitureSizeSource = parseFurnitureSizeSource(furnitureSizeText, issues);
   const itemTranslationSource = parseItemTranslationSource(itemTranslationCsvs, issues);
   const compactItemsBuild = buildCompactItems(
     manifestCsv,
     placeableCsv,
     placeableJsonText,
     pokemonPreferenceSource.itemTermsBySlug,
+    furnitureSizeSource,
     itemTranslationSource,
     issues,
   );
@@ -200,6 +241,7 @@ async function generateData(): Promise<void> {
     pokemonCsv,
     pokemonPreferenceSource.pokemonTermsBySlug,
     pokemonPreferenceSource.pokemonDexNumberBySlug,
+    pokemonBodySizeSource,
     overrides,
     issues,
   );
@@ -302,6 +344,7 @@ function buildCompactItems(
   placeableCsv: string,
   placeableJsonText: string,
   itemPreferenceTermsBySlug: Map<string, string[]>,
+  furnitureSizeSource: FurnitureSizeSource,
   itemTranslationSource: ItemTranslationSource,
   issues: GenerationIssue[],
 ): CompactItemsBuildResult {
@@ -320,6 +363,7 @@ function buildCompactItems(
         placeableBySlug.get(row.values.slug),
         rawJsonBySlug.get(row.values.slug),
         itemPreferenceTermsBySlug.get(row.values.slug) ?? [],
+        furnitureSizeSource,
         itemTranslationSource,
         issues,
       ),
@@ -455,6 +499,7 @@ async function buildPokemonIndex(
   pokemonCsv: string,
   pokemonPreferenceTermsBySlug: Map<string, string[]>,
   pokemonDexNumberBySlug: Map<string, string>,
+  pokemonBodySizeSource: PokemonBodySizeSource,
   overrides: PokemonMetadataOverridesData,
   issues: GenerationIssue[],
 ): Promise<PokemonIndexBuildResult> {
@@ -492,6 +537,7 @@ async function buildPokemonIndex(
     const preferenceTerms = uniqueSorted([...metadataPreferenceTerms, ...overrideFields.preferenceTerms].map(toPreferenceTerm).filter(Boolean));
     const preferenceSource = overrideFields.preferenceSource ?? (metadataPreferenceTerms.length > 0 ? "metadata" : null);
     const overrideSource = overrideFields.overrideSource;
+    const bodySize = pokemonBodySizeSource.bodySizeBySlug.get(slug) ?? pokemonBodySizeSource.defaultBodySize;
 
     if (override?.primaryColor || override?.palette) {
       const overridePalette = overrideFields.overridePalette;
@@ -501,6 +547,7 @@ async function buildPokemonIndex(
           sequence,
           name,
           zhName: nullable(row.values.name_zh_hans),
+          bodySize,
           imagePath: runtimeImagePath,
           primaryColor: overrideFields.overridePrimaryColor ?? overridePalette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
           palette: overridePalette,
@@ -524,6 +571,7 @@ async function buildPokemonIndex(
           sequence,
           name,
           zhName: nullable(row.values.name_zh_hans),
+          bodySize,
           imagePath: runtimeImagePath,
           primaryColor: palette[0]?.hex ?? DEFAULT_FALLBACK_COLOR,
           palette,
@@ -544,6 +592,7 @@ async function buildPokemonIndex(
         sequence,
         name,
         zhName: nullable(row.values.name_zh_hans),
+        bodySize,
         imagePath: runtimeImagePath,
         primaryColor: DEFAULT_FALLBACK_COLOR,
         palette: [],
@@ -561,6 +610,11 @@ async function buildPokemonIndex(
   Object.keys(overrides.pokemon).forEach((slug) => {
     if (!seenPokemonSlugs.has(slug)) {
       issues.push({ file: pokemonOverridePath, slug, field: `$.pokemon.${slug}`, message: "Override slug has no matching Pokemon" });
+    }
+  });
+  pokemonBodySizeSource.entries.forEach((entry) => {
+    if (!seenPokemonSlugs.has(entry.slug)) {
+      issues.push({ file: pokemonBodySizePath, slug: entry.slug, field: "$.largePokemon[].slug", message: "Body-size slug has no matching Pokemon" });
     }
   });
 
@@ -942,6 +996,7 @@ function toCompactItem(
   placeableRow: CsvRow | undefined,
   rawJson: RawJsonItem | undefined,
   itemPreferenceTerms: string[],
+  furnitureSizeSource: FurnitureSizeSource,
   itemTranslationSource: ItemTranslationSource,
   issues: GenerationIssue[],
 ): CompactItemBuildResult {
@@ -973,6 +1028,7 @@ function toCompactItem(
       isDyeable: isDyeableItem(rawJson),
       dyeColorVariants: normalizeDyeColorVariants(rawJson),
       itemPrimaryColor: null,
+      furnitureSize: resolveFurnitureSize(category, rawJson, furnitureSizeSource),
     },
   };
 
@@ -1028,6 +1084,26 @@ function normalizeDyeColorVariants(rawJson: RawJsonItem | undefined): string[] {
   return [];
 }
 
+function resolveFurnitureSize(category: string | null, rawJson: RawJsonItem | undefined, source: FurnitureSizeSource): FurnitureSize | null {
+  if (toRoleTag(category ?? "") !== "furniture") {
+    return null;
+  }
+
+  const categoryIds = Array.isArray(rawJson?.habitat_item_category_ids)
+    ? rawJson.habitat_item_category_ids.filter((value): value is number => typeof value === "number" && Number.isInteger(value))
+    : [];
+  if (categoryIds.some((id) => source.largeHabitatItemCategoryIds.has(id))) {
+    return "large";
+  }
+
+  const description = asString(rawJson?.description)?.toLowerCase() ?? "";
+  if (source.largeDescriptionTerms.some((term) => description.includes(term))) {
+    return "large";
+  }
+
+  return "other";
+}
+
 function hasNonEmptyArray(value: unknown): boolean {
   return Array.isArray(value) && value.length > 0;
 }
@@ -1059,6 +1135,45 @@ function parsePlaceableJson(text: string, issues: GenerationIssue[]): Map<string
   });
 
   return bySlug;
+}
+
+function parseFurnitureSizeSource(text: string, issues: GenerationIssue[]): FurnitureSizeSource {
+  const parsed = parseJsonValue(text, furnitureSizePath, issues) as FurnitureSizeSourceData;
+  const largeHabitatItemCategoryIds = new Set<number>();
+  const largeDescriptionTerms: string[] = [];
+
+  if (!isRecord(parsed)) {
+    issues.push({ file: furnitureSizePath, field: "$", message: "Expected furniture-size source object" });
+    return { largeHabitatItemCategoryIds, largeDescriptionTerms };
+  }
+  if (parsed.schemaVersion !== "pokopia-furniture-sizes.v1") {
+    issues.push({ file: furnitureSizePath, field: "$.schemaVersion", message: "Expected pokopia-furniture-sizes.v1" });
+  }
+  if (!Array.isArray(parsed.largeHabitatItemCategoryIds)) {
+    issues.push({ file: furnitureSizePath, field: "$.largeHabitatItemCategoryIds", message: "Expected large category id array" });
+  } else {
+    parsed.largeHabitatItemCategoryIds.forEach((value, index) => {
+      if (typeof value !== "number" || !Number.isInteger(value)) {
+        issues.push({ file: furnitureSizePath, field: `$.largeHabitatItemCategoryIds[${index}]`, message: "Expected integer category id" });
+        return;
+      }
+      largeHabitatItemCategoryIds.add(value);
+    });
+  }
+  if (!Array.isArray(parsed.largeDescriptionTerms)) {
+    issues.push({ file: furnitureSizePath, field: "$.largeDescriptionTerms", message: "Expected description term array" });
+  } else {
+    parsed.largeDescriptionTerms.forEach((value, index) => {
+      const term = typeof value === "string" ? value.trim().toLowerCase() : "";
+      if (!term) {
+        issues.push({ file: furnitureSizePath, field: `$.largeDescriptionTerms[${index}]`, message: "Expected non-empty description term" });
+        return;
+      }
+      largeDescriptionTerms.push(term);
+    });
+  }
+
+  return { largeHabitatItemCategoryIds, largeDescriptionTerms };
 }
 
 function parsePokemonPreferenceSource(
@@ -1121,6 +1236,62 @@ function parsePokemonPreferenceSource(
   }
 
   return { pokemonTermsBySlug, pokemonDexNumberBySlug, itemTermsBySlug, pokemonEntries, itemEntries };
+}
+
+function parsePokemonBodySizeSource(text: string, issues: GenerationIssue[]): PokemonBodySizeSource {
+  const parsed = parseJsonValue(text, pokemonBodySizePath, issues) as PokemonBodySizeSourceData;
+  const bodySizeBySlug = new Map<string, PokemonBodySize>();
+  const entries: PokemonBodySizeSourceEntry[] = [];
+  let defaultBodySize: PokemonBodySize = "other";
+
+  if (!isRecord(parsed)) {
+    issues.push({ file: pokemonBodySizePath, field: "$", message: "Expected Pokemon body-size source object" });
+    return { defaultBodySize, bodySizeBySlug, entries };
+  }
+  if (parsed.schemaVersion !== "pokopia-pokemon-body-sizes.v1") {
+    issues.push({ file: pokemonBodySizePath, field: "$.schemaVersion", message: "Expected pokopia-pokemon-body-sizes.v1" });
+  }
+  if (parsed.defaultBodySize === "large" || parsed.defaultBodySize === "other") {
+    defaultBodySize = parsed.defaultBodySize;
+  } else {
+    issues.push({ file: pokemonBodySizePath, field: "$.defaultBodySize", message: "Expected large or other" });
+  }
+  if (defaultBodySize !== "other") {
+    issues.push({ file: pokemonBodySizePath, field: "$.defaultBodySize", message: "Expected defaultBodySize to remain other" });
+  }
+
+  if (!Array.isArray(parsed.largePokemon)) {
+    issues.push({ file: pokemonBodySizePath, field: "$.largePokemon", message: "Expected large Pokemon array" });
+    return { defaultBodySize, bodySizeBySlug, entries };
+  }
+
+  parsed.largePokemon.forEach((entry, index) => {
+    const path = `$.largePokemon[${index}]`;
+    if (!isRecord(entry) || typeof entry.slug !== "string") {
+      issues.push({ file: pokemonBodySizePath, field: path, message: "Expected large Pokemon entry with slug" });
+      return;
+    }
+    const slug = entry.slug;
+    if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      issues.push({ file: pokemonBodySizePath, slug, field: `${path}.slug`, message: "Expected canonical kebab-case slug" });
+      return;
+    }
+    if (entry.sourceStatus !== "No") {
+      issues.push({ file: pokemonBodySizePath, slug, field: `${path}.sourceStatus`, message: "Expected den-fit No source status" });
+    }
+    if (bodySizeBySlug.has(slug)) {
+      issues.push({ file: pokemonBodySizePath, slug, field: `${path}.slug`, message: "Duplicate body-size slug" });
+      return;
+    }
+    bodySizeBySlug.set(slug, "large");
+    entries.push({ slug, bodySize: "large" });
+  });
+
+  if (entries.length === 0) {
+    issues.push({ file: pokemonBodySizePath, field: "$.largePokemon", message: "Expected at least one large Pokemon entry" });
+  }
+
+  return { defaultBodySize, bodySizeBySlug, entries };
 }
 
 function resolvePokemonDexNumber(entry: Record<string, unknown>): string | null {

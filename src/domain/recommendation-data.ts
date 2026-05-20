@@ -12,6 +12,7 @@ import {
 import { evaluateOklchHarmony } from "./color-harmony.js";
 import {
   buildRecommendationResults,
+  isFurnitureSizeCompatible,
   matchRecommendationPreferenceTerms,
   rankRecommendationEntries,
   toPokemonPreferenceProfile,
@@ -146,6 +147,7 @@ export function buildRecommendationDataSet(
     preferenceTerms: item.recommendation.preferenceTerms,
     roleTags: item.recommendation.roleTags,
     isDyeable: item.recommendation.isDyeable,
+    furnitureSize: item.recommendation.furnitureSize,
     dyeColorVariants: item.recommendation.dyeColorVariants,
   }));
   const recommendationInputBySlug = new Map(recommendationInputs.map((item) => [item.slug, item]));
@@ -327,6 +329,9 @@ function buildDefaultDyeableRecommendationDrafts(
       return [];
     }
     if (excludedSlugs.has(item.slug)) {
+      return [];
+    }
+    if (!isFurnitureSizeCompatible(pokemon.bodySize, item.recommendation.furnitureSize)) {
       return [];
     }
 
