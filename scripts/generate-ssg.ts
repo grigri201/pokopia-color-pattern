@@ -1,6 +1,15 @@
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
 import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_ORIGIN,
+  SITE_SEO_TITLE,
+  pokemonSeoDescription,
+  pokemonSeoTitle,
+} from "../src/app/seo.js";
+import {
   RECOMMENDATIONS_SCHEMA_VERSION,
   validateCompactItemsData,
   validatePokemonIndexData,
@@ -134,18 +143,18 @@ function renderPokemonStaticPage(
   const fieldInk = readableInk(primaryColor);
   const staticMuted = readableMuted(primaryColor);
   const recommendationSummary = buildRecommendationSummaryText(pokemon, recommendationResult);
-  const pageTitle = `${displayPokemonName(pokemon)} | ${siteName}`;
+  const pageTitle = pokemonSeoTitle(pokemon.name);
   const staticBody = renderStaticBody(pokemon, recommendationResult, recommendationSummary);
   const html = indexHtml
     .replace(
-      /<title>.*?<\/title>\s*<meta name="description" content=".*?" \/>/,
-      `<title>${escapeHtml(pageTitle)}</title>\n    ${renderHeadMetadata(pageTitle, recommendationSummary.text, pokemon)}`,
+      /<!-- SEO_START -->[\s\S]*?<!-- SEO_END -->/,
+      renderHeadMetadata(pageTitle, recommendationSummary.text, pokemon),
     )
     .replace(
       '<div id="loading" class="loading">Pokopia Decor Dex</div>',
       `<div id="loading" class="loading is-hidden">Pokopia Decor Dex</div><div id="staticPage" class="static-page-shell" style="--field:${escapeAttribute(primaryColor)}; --field-ink:${escapeAttribute(fieldInk)}; --accent:${escapeAttribute(primaryColor)}; --static-muted:${escapeAttribute(staticMuted)};">${staticBody}</div>`,
     );
-  if (!html.includes('id="staticPage"') || html.includes(siteTagline)) {
+  if (!html.includes('id="staticPage"') || html.includes("SEO_START") || html.includes(SITE_DESCRIPTION)) {
     throw new Error(`Unable to inject static page content for ${pokemon.slug}; dist/index.html template changed`);
   }
   return html;
@@ -160,19 +169,72 @@ function renderHeadMetadata(pageTitle: string, pageDescription: string, pokemon:
   const canonicalUrl = staticPageUrl(pokemon.slug);
   const imageUrl = staticAssetUrl(pokemon.imagePath);
   return [
-    `<link rel="canonical" href="${escapeAttribute(canonicalUrl)}" />`,
+    `<title>${escapeHtml(pageTitle)}</title>`,
     `<meta name="description" content="${escapeAttribute(pageDescription)}" />`,
+    `<meta name="keywords" content="${escapeAttribute(SITE_KEYWORDS)}" />`,
+    `<meta name="robots" content="index, follow" />`,
+    `<meta name="application-name" content="${escapeAttribute(SITE_NAME)}" />`,
+    `<meta name="theme-color" content="${escapeAttribute(pokemon.primaryColor)}" />`,
+    `<link rel="canonical" href="${escapeAttribute(canonicalUrl)}" />`,
     `<meta property="og:type" content="website" />`,
-    `<meta property="og:site_name" content="${escapeAttribute(siteName)}" />`,
+    `<meta property="og:site_name" content="${escapeAttribute(SITE_NAME)}" />`,
     `<meta property="og:title" content="${escapeAttribute(pageTitle)}" />`,
     `<meta property="og:description" content="${escapeAttribute(pageDescription)}" />`,
     `<meta property="og:image" content="${escapeAttribute(imageUrl)}" />`,
+    `<meta property="og:image:alt" content="${escapeAttribute(`${pokemon.name} color palette portrait`)}" />`,
     `<meta property="og:url" content="${escapeAttribute(canonicalUrl)}" />`,
+    `<meta property="og:locale" content="en_US" />`,
     `<meta name="twitter:card" content="summary" />`,
     `<meta name="twitter:title" content="${escapeAttribute(pageTitle)}" />`,
     `<meta name="twitter:description" content="${escapeAttribute(pageDescription)}" />`,
     `<meta name="twitter:image" content="${escapeAttribute(imageUrl)}" />`,
+    `<meta name="twitter:image:alt" content="${escapeAttribute(`${pokemon.name} color palette portrait`)}" />`,
+    renderPokemonJsonLd(pageTitle, pageDescription, pokemon, canonicalUrl, imageUrl),
   ].join("\n    ");
+}
+
+function renderPokemonJsonLd(
+  pageTitle: string,
+  pageDescription: string,
+  pokemon: PokemonIndexEntry,
+  canonicalUrl: string,
+  imageUrl: string,
+): string {
+  return `<script type="application/ld+json">${jsonForHtml({
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: pageTitle,
+    description: pageDescription,
+    url: canonicalUrl,
+    inLanguage: "en",
+    isPartOf: {
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: `${siteOrigin}/`,
+    },
+    primaryImageOfPage: {
+      "@type": "ImageObject",
+      url: imageUrl,
+      caption: `${pokemon.name} color palette portrait`,
+    },
+    about: {
+      "@type": "Thing",
+      name: pokemon.name,
+      identifier: `pokemon-${pokemon.sequence}`,
+      additionalProperty: [
+        {
+          "@type": "PropertyValue",
+          name: "Primary color",
+          value: pokemon.primaryColor,
+        },
+        {
+          "@type": "PropertyValue",
+          name: "Pattern colors",
+          value: pokemon.pattern.length,
+        },
+      ],
+    },
+  })}</script>`;
 }
 
 function renderStaticBody(
@@ -186,14 +248,14 @@ function renderStaticBody(
   return `
       <article class="static-page" data-static-pokemon="${escapeAttribute(pokemon.slug)}">
         <header class="static-hero">
-          <p class="kicker">Pokopia Decor Dex / Static Page</p>
-          <h1>${escapeHtml(pokemon.zhName || pokemon.name)} <em>${escapeHtml(pokemon.name)}</em></h1>
-          <p class="static-number">No. ${escapeHtml(pokemon.sequence)} · #${escapeHtml(pokemon.slug)}</p>
+          <p class="kicker">Pokopia Decor Dex / Static Pokemon Profile</p>
+          <h1>${escapeHtml(pokemon.name)} <em>Color Palette</em></h1>
+          <p class="static-number">No. ${escapeHtml(pokemon.sequence)} / #${escapeHtml(pokemon.slug)}</p>
           <img class="static-portrait" src="${escapeAttribute(pokemon.imagePath)}" alt="${escapeAttribute(displayPokemonName(pokemon))}" />
         </header>
 
         <section class="static-section" aria-label="Pokemon color values">
-          <h2>主色与色板</h2>
+          <h2>Primary Color and Palette</h2>
           <dl class="static-color-grid">
             <div><dt>HEX</dt><dd>${escapeHtml(pokemon.primaryColor)}</dd></div>
             <div><dt>Color Source</dt><dd>${escapeHtml(pokemon.colorSource)}</dd></div>
@@ -205,7 +267,7 @@ function renderStaticBody(
         </section>
 
         <section class="static-section" aria-label="Recommendation summary">
-          <h2>推荐摘要</h2>
+          <h2>Recommendation Summary</h2>
           <p class="static-summary" data-recommendation-summary="${escapeAttribute(recommendationSummary.text)}" data-recommendation-status="${escapeAttribute(recommendationSummary.status)}" data-recommendation-count="${recommendationResult.data.recommendations.length}">${escapeHtml(recommendationSummary.text)}</p>
           ${recommendationHtml}
         </section>
@@ -252,25 +314,39 @@ function buildRecommendationSummaryText(
   pokemon: PokemonIndexEntry,
   recommendationResult: RecommendationReadResult,
 ): RecommendationSummaryText {
-  const displayName = displayPokemonName(pokemon);
-  const slugLabel = `#${pokemon.slug}`;
   const entries = recommendationResult.data.recommendations.slice(0, 3);
   if (entries.length > 0) {
-    const names = entries.map((entry) => displayItemName(requireRecommendationItem(entry))).join("、");
+    const names = entries.map((entry) => displayItemName(requireRecommendationItem(entry)));
     return {
       status: "ready",
-      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}，推荐搭配：${names}。`,
+      text: pokemonSeoDescription({
+        name: pokemon.name,
+        primaryColor: pokemon.primaryColor,
+        patternCount: pokemon.pattern.length,
+        recommendationNames: names,
+        recommendationStatus: "ready",
+      }),
     };
   }
   if (recommendationResult.fallback?.fallbackType === "missing_recommendation_file") {
     return {
       status: "missing",
-      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前缺少推荐数据文件，静态页先展示色板与可恢复空推荐摘要。`,
+      text: pokemonSeoDescription({
+        name: pokemon.name,
+        primaryColor: pokemon.primaryColor,
+        patternCount: pokemon.pattern.length,
+        recommendationStatus: "missing",
+      }),
     };
   }
   return {
     status: "empty",
-    text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前数据和规则暂未产生推荐搭配，可先查看色板。`,
+    text: pokemonSeoDescription({
+      name: pokemon.name,
+      primaryColor: pokemon.primaryColor,
+      patternCount: pokemon.pattern.length,
+      recommendationStatus: "empty",
+    }),
   };
 }
 
@@ -283,7 +359,87 @@ function requireRecommendationItem(entry: RecommendationEntry): CompactItem {
 }
 
 function displayItemName(item: CompactItem): string {
-  return item.nameZh || item.name;
+  return item.name;
+}
+
+async function writeRootIndex(indexHtml: string): Promise<void> {
+  const html = indexHtml.replace(/<!-- SEO_START -->[\s\S]*?<!-- SEO_END -->/, renderRootHeadMetadata());
+  if (html.includes("SEO_START") || !html.includes(SITE_SEO_TITLE) || !html.includes(`${siteOrigin}/`)) {
+    throw new Error("Unable to inject root SEO metadata; dist/index.html template changed");
+  }
+  await writeFile(distIndexPath, html, "utf8");
+}
+
+function renderRootHeadMetadata(): string {
+  const rootUrl = `${siteOrigin}/`;
+  return [
+    `<title>${escapeHtml(SITE_SEO_TITLE)}</title>`,
+    `<meta name="description" content="${escapeAttribute(SITE_DESCRIPTION)}" />`,
+    `<meta name="keywords" content="${escapeAttribute(SITE_KEYWORDS)}" />`,
+    `<meta name="robots" content="index, follow" />`,
+    `<meta name="application-name" content="${escapeAttribute(SITE_NAME)}" />`,
+    `<meta name="theme-color" content="#f8f1dc" />`,
+    `<link rel="canonical" href="${escapeAttribute(rootUrl)}" />`,
+    `<meta property="og:type" content="website" />`,
+    `<meta property="og:site_name" content="${escapeAttribute(SITE_NAME)}" />`,
+    `<meta property="og:title" content="${escapeAttribute(SITE_SEO_TITLE)}" />`,
+    `<meta property="og:description" content="${escapeAttribute(SITE_DESCRIPTION)}" />`,
+    `<meta property="og:url" content="${escapeAttribute(rootUrl)}" />`,
+    `<meta property="og:locale" content="en_US" />`,
+    `<meta name="twitter:card" content="summary" />`,
+    `<meta name="twitter:title" content="${escapeAttribute(SITE_SEO_TITLE)}" />`,
+    `<meta name="twitter:description" content="${escapeAttribute(SITE_DESCRIPTION)}" />`,
+    `<script type="application/ld+json">${jsonForHtml({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: SITE_NAME,
+      url: rootUrl,
+      description: SITE_DESCRIPTION,
+      inLanguage: "en",
+      potentialAction: {
+        "@type": "SearchAction",
+        target: `${siteOrigin}/pokemon/{search_term_string}/`,
+        "query-input": "required name=search_term_string",
+      },
+    })}</script>`,
+  ].join("\n    ");
+}
+
+async function writeSeoFiles(results: SsgGenerationResult[]): Promise<void> {
+  await Promise.all([
+    writeFile(sitemapPath, renderSitemap(results), "utf8"),
+    writeFile(robotsPath, renderRobotsTxt(), "utf8"),
+  ]);
+}
+
+function renderSitemap(results: SsgGenerationResult[]): string {
+  const urls = [
+    { loc: `${siteOrigin}/`, priority: "1.0" },
+    ...results.map((result) => ({
+      loc: staticPageUrl(result.pokemonSlug),
+      priority: "0.8",
+    })),
+  ];
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
+  .map(
+    (url) => `  <url>
+    <loc>${escapeHtml(url.loc)}</loc>
+    <changefreq>weekly</changefreq>
+    <priority>${url.priority}</priority>
+  </url>`,
+  )
+  .join("\n")}
+</urlset>
+`;
+}
+
+function renderRobotsTxt(): string {
+  return `User-agent: *
+Allow: /
+Sitemap: ${siteOrigin}/sitemap.xml
+`;
 }
 
 async function writeSsgReport(results: SsgGenerationResult[]): Promise<void> {
@@ -297,6 +453,10 @@ async function writeSsgReport(results: SsgGenerationResult[]): Promise<void> {
       pagesGenerated: results.length,
       metadataCount: results.length,
       siteUrl: siteOrigin,
+      siteTitle: SITE_SEO_TITLE,
+      rootUrl: `${siteOrigin}/`,
+      sitemapUrl: `${siteOrigin}/sitemap.xml`,
+      robotsUrl: `${siteOrigin}/robots.txt`,
       fallbackCount: fallbacks.length,
       emptyRecommendationCount: fallbacks.filter((fallback) => fallback.fallbackType === "empty_recommendations").length,
       missingRecommendationFileCount: fallbacks.filter((fallback) => fallback.fallbackType === "missing_recommendation_file").length,
@@ -350,16 +510,16 @@ function emptyRecommendations(slug: string): RecommendationsData {
 
 function recoveryText(status: RecommendationSummaryText["status"]): string {
   if (status === "missing") {
-    return "推荐数据文件缺失；重新生成数据后此页会自动展示搭配候选。";
+    return "Recommendation data is missing; regenerate the data bundle to restore decor match candidates.";
   }
   if (status === "empty") {
-    return "推荐数据为空；补充偏好词或 override 后此页会自动展示搭配候选。";
+    return "Recommendation data is empty; add preference terms or overrides to expand decor match candidates.";
   }
-  return "推荐摘要来自当前 Pokemon 的 generated recommendation data。";
+  return "Recommendation summary is generated from the current Pokemon decor match data.";
 }
 
 function displayPokemonName(pokemon: PokemonIndexEntry): string {
-  return pokemon.zhName ? `${pokemon.zhName} / ${pokemon.name}` : pokemon.name;
+  return pokemon.name;
 }
 
 function isMissingFileError(error: unknown): boolean {
@@ -462,4 +622,8 @@ function escapeHtml(value: unknown): string {
 
 function escapeAttribute(value: unknown): string {
   return escapeHtml(value);
+}
+
+function jsonForHtml(value: unknown): string {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
 }

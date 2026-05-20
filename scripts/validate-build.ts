@@ -6,6 +6,15 @@ import { spawnSync } from "node:child_process";
 import { gzipSync } from "node:zlib";
 import sharp from "sharp";
 import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_ORIGIN,
+  SITE_SEO_TITLE,
+  pokemonSeoDescription,
+  pokemonSeoTitle,
+} from "../src/app/seo.js";
+import {
   validateCompactItemsData,
   validateItemColorsData,
   validatePokemonIndexData,
@@ -26,6 +35,7 @@ type StaticPokemonEntry = {
   zhName: string | null;
   imagePath: string;
   primaryColor: string;
+  patternCount: number;
 };
 
 type StaticItemEntry = {
@@ -77,6 +87,7 @@ const recommendationDiagnosticsPath = "generated/reports/recommendation-diagnost
 const ssgGenerationSummaryPath = "generated/reports/ssg-generation-summary.json";
 const runtimeAssetSourcesPath = "generated/reports/runtime-asset-sources.json";
 const runtimeAssetManifestPath = "dist/assets/runtime/asset-manifest.json";
+
 const sitemapPath = "dist/sitemap.xml";
 const robotsPath = "dist/robots.txt";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
@@ -92,6 +103,7 @@ const runtimePokemonMaxEdge = 420;
 const runtimeItemMaxEdge = 240;
 const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
+
 const defaultSiteOrigin = "https://decor-dex.pokokit.com";
 const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? defaultSiteOrigin);
 const distOnly = process.argv.includes("--dist");
@@ -164,6 +176,7 @@ async function validateDistOutput(): Promise<void> {
   const distDataFiles = await validateRuntimeDataTree("dist/data", missingRecommendationFilesFromReport(ssgReport));
   await validateRecommendationBundleSizeBudget("dist/data/recommendations");
   const runtimeAssetPaths = await validateRuntimeAssetManifest();
+  await validateRootSeoMetadata();
   await validateStaticPokemonPages(ssgReport);
   const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map", ".txt", ".xml"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
@@ -188,6 +201,42 @@ async function validateDistOutput(): Promise<void> {
   validateManifestRuntimeAssetsAreReferenced(runtimeAssetPaths, referencedRuntimeAssetPaths);
   await validateSensitiveTextFiles(files.map((file) => relative(projectRoot, file)), "dist deployable text output");
   await validateSensitiveRuntimeData([...bundleFiles.map((file) => relative(projectRoot, file)), ...distDataFiles]);
+}
+
+async function validateRootSeoMetadata(): Promise<void> {
+  let text: string;
+  try {
+    text = await readFile(distIndexPath, "utf8");
+  } catch (error) {
+    issues.push({ file: distIndexPath, message: `Unable to read root HTML for SEO validation: ${error instanceof Error ? error.message : String(error)}` });
+    return;
+  }
+
+  const title = matchFirst(text, /<title>([^<]+)<\/title>/);
+  const description = matchFirst(text, /<meta name="description" content="([^"]*)" \/>/);
+  const canonicalUrl = matchFirst(text, /<link rel="canonical" href="([^"]*)" \/>/);
+  const robots = matchFirst(text, /<meta name="robots" content="([^"]*)" \/>/);
+  const keywords = matchFirst(text, /<meta name="keywords" content="([^"]*)" \/>/);
+  const expectedRootUrl = `${siteOrigin}/`;
+
+  if (title !== SITE_SEO_TITLE) {
+    issues.push({ file: distIndexPath, message: `Root title must be ${SITE_SEO_TITLE}` });
+  }
+  if (description !== SITE_DESCRIPTION) {
+    issues.push({ file: distIndexPath, message: "Root description must match the shared English SEO description" });
+  }
+  if (canonicalUrl !== expectedRootUrl) {
+    issues.push({ file: distIndexPath, message: `Root canonical URL must be ${expectedRootUrl}` });
+  }
+  if (robots !== "index, follow") {
+    issues.push({ file: distIndexPath, message: "Root robots metadata must allow indexing" });
+  }
+  if (keywords !== SITE_KEYWORDS) {
+    issues.push({ file: distIndexPath, message: "Root keywords metadata must match the shared SEO keyword set" });
+  }
+  if (!/"@type"\s*:\s*"WebSite"/.test(text) || !text.includes('"potentialAction"')) {
+    issues.push({ file: distIndexPath, message: "Root page must include WebSite JSON-LD search metadata" });
+  }
 }
 
 async function validateStaticPokemonPages(ssgReport: unknown | null): Promise<void> {
@@ -468,21 +517,23 @@ function toStaticPokemonEntry(value: unknown, index: number, file: string): Stat
   const zhName = value.zhName;
   const imagePath = value.imagePath;
   const primaryColor = value.primaryColor;
+  const pattern = value.pattern;
   if (
     typeof slug !== "string" ||
     typeof sequence !== "string" ||
     typeof name !== "string" ||
     (zhName !== null && typeof zhName !== "string") ||
     typeof imagePath !== "string" ||
-    typeof primaryColor !== "string"
+    typeof primaryColor !== "string" ||
+    !Array.isArray(pattern)
   ) {
-    issues.push({ file, message: `Expected pokemon[${index}] to include slug, sequence, name, zhName, imagePath, and primaryColor` });
+    issues.push({ file, message: `Expected pokemon[${index}] to include slug, sequence, name, zhName, imagePath, primaryColor, and pattern` });
     return null;
   }
   if (!imagePath.startsWith("/assets/runtime/pokemon/")) {
     issues.push({ file, message: `Expected pokemon[${index}].imagePath to use /assets/runtime/pokemon/**` });
   }
-  return { slug, sequence, name, zhName, imagePath, primaryColor };
+  return { slug, sequence, name, zhName, imagePath, primaryColor, patternCount: pattern.length };
 }
 
 async function readStaticItemEntries(): Promise<Map<string, StaticItemEntry>> {
@@ -571,7 +622,7 @@ function validateStaticPokemonPage(
   }
   validateStaticMetadata(file, pokemon, text, summary, metadataAccumulator);
   validateStaticRecommendationSummary(file, pokemon, text, recommendationResult, summary, itemBySlug);
-  if (!text.includes("主色与色板") || !text.includes("推荐摘要") || !/<img\b[^>]*class="static-portrait"/.test(text)) {
+  if (!text.includes("Primary Color and Palette") || !text.includes("Recommendation Summary") || !/<img\b[^>]*class="static-portrait"/.test(text)) {
     issues.push({ file, message: "Static Pokemon page is missing required no-JS readable content" });
   }
   validateRootAbsoluteHtmlReferences(file, text);
@@ -587,8 +638,10 @@ function validateStaticMetadata(
 ): void {
   const title = matchFirst(text, /<title>([^<]+)<\/title>/);
   const description = matchFirst(text, /<meta name="description" content="([^"]*)" \/>/);
+  const keywords = matchFirst(text, /<meta name="keywords" content="([^"]*)" \/>/);
+  const robots = matchFirst(text, /<meta name="robots" content="([^"]*)" \/>/);
   const renderedSummary = matchFirst(text, /data-recommendation-summary="([^"]*)"/);
-  const expectedTitle = escapeHtmlForValidation(`${displayPokemonName(pokemon)} | Pokopia Decor Dex`);
+  const expectedTitle = escapeHtmlForValidation(pokemonSeoTitle(pokemon.name));
   const expectedDescription = escapeHtmlForValidation(summary.text);
   const expectedCanonicalUrl = staticPageUrl(pokemon.slug);
   const expectedImageUrl = staticAssetUrl(pokemon);
@@ -611,6 +664,12 @@ function validateStaticMetadata(
   }
   if (description && renderedSummary && description !== renderedSummary) {
     issues.push({ file, message: "Description metadata must match the rendered recommendation summary" });
+  }
+  if (keywords !== escapeHtmlForValidation(SITE_KEYWORDS)) {
+    issues.push({ file, message: "Static Pokemon page keywords must match the shared English SEO keyword set" });
+  }
+  if (robots !== "index, follow") {
+    issues.push({ file, message: "Static Pokemon page robots metadata must allow indexing" });
   }
 
   const canonicalUrl = matchFirst(text, /<link rel="canonical" href="([^"]*)" \/>/);
@@ -645,6 +704,9 @@ function validateStaticMetadata(
   if (twitterImage !== expectedImageUrl) {
     issues.push({ file, message: "Twitter image must be an absolute URL for the current Pokemon image" });
   }
+  if (!text.includes('type="application/ld+json"') || !text.includes('"@type":"WebPage"')) {
+    issues.push({ file, message: "Static Pokemon page must include WebPage JSON-LD metadata" });
+  }
 }
 
 function validateStaticRecommendationSummary(
@@ -668,7 +730,7 @@ function validateStaticRecommendationSummary(
     issues.push({ file, message: `Static page recommendation count must match generated data count ${expectedCount}` });
   }
   if (recommendationResult.missing) {
-    if (!text.includes("当前缺少推荐数据文件")) {
+    if (!text.includes("match data is regenerated")) {
       issues.push({ file, message: "Missing recommendation static page must render recoverable missing-data summary" });
     }
     return;
@@ -685,7 +747,7 @@ function validateStaticRecommendationSummary(
     return;
   }
   if (expectedCount === 0) {
-    if (!text.includes('data-recommendation-status="empty"') || !text.includes("当前数据和规则暂未产生推荐搭配")) {
+    if (!text.includes('data-recommendation-status="empty"') || !text.includes("match rules expand")) {
       issues.push({ file, message: "Empty recommendation static page must render recoverable empty summary" });
     }
     return;
@@ -766,6 +828,18 @@ function validateSsgReportSummary(summary: unknown, expectedCount: number, expec
   });
   if (summary.siteUrl !== siteOrigin) {
     issues.push({ file: ssgGenerationSummaryPath, message: `Expected summary.siteUrl ${siteOrigin}, got ${String(summary.siteUrl)}` });
+  }
+  if (summary.siteTitle !== SITE_SEO_TITLE) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Expected summary.siteTitle ${SITE_SEO_TITLE}, got ${String(summary.siteTitle)}` });
+  }
+  if (summary.rootUrl !== `${siteOrigin}/`) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Expected summary.rootUrl ${siteOrigin}/, got ${String(summary.rootUrl)}` });
+  }
+  if (summary.sitemapUrl !== `${siteOrigin}/sitemap.xml`) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Expected summary.sitemapUrl ${siteOrigin}/sitemap.xml, got ${String(summary.sitemapUrl)}` });
+  }
+  if (summary.robotsUrl !== `${siteOrigin}/robots.txt`) {
+    issues.push({ file: ssgGenerationSummaryPath, message: `Expected summary.robotsUrl ${siteOrigin}/robots.txt, got ${String(summary.robotsUrl)}` });
   }
 }
 
@@ -921,12 +995,15 @@ function expectedRecommendationSummary(
   recommendationResult: DistRecommendationReadResult,
   itemBySlug: Map<string, StaticItemEntry>,
 ): RecommendationSummaryText {
-  const displayName = displayPokemonName(pokemon);
-  const slugLabel = `#${pokemon.slug}`;
   if (recommendationResult.missing) {
     return {
       status: "missing",
-      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前缺少推荐数据文件，静态页先展示色板与可恢复空推荐摘要。`,
+      text: pokemonSeoDescription({
+        name: pokemon.name,
+        primaryColor: pokemon.primaryColor,
+        patternCount: pokemon.patternCount,
+        recommendationStatus: "missing",
+      }),
     };
   }
   const recommendations = recommendationResult.data;
@@ -941,20 +1018,31 @@ function expectedRecommendationSummary(
         return item ? displayStaticItemName(item) : null;
       })
       .filter((name): name is string => typeof name === "string")
-      .join("、");
+      .slice(0, 3);
     return {
       status: "ready",
-      text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}，推荐搭配：${names}。`,
+      text: pokemonSeoDescription({
+        name: pokemon.name,
+        primaryColor: pokemon.primaryColor,
+        patternCount: pokemon.patternCount,
+        recommendationNames: names,
+        recommendationStatus: "ready",
+      }),
     };
   }
   return {
     status: "empty",
-    text: `${displayName}（${slugLabel}）主色 ${pokemon.primaryColor}；当前数据和规则暂未产生推荐搭配，可先查看色板。`,
+    text: pokemonSeoDescription({
+      name: pokemon.name,
+      primaryColor: pokemon.primaryColor,
+      patternCount: pokemon.patternCount,
+      recommendationStatus: "empty",
+    }),
   };
 }
 
 function displayStaticItemName(item: StaticItemEntry): string {
-  return item.nameZh || item.name;
+  return item.name;
 }
 
 function recommendationCount(recommendationResult: DistRecommendationReadResult): number {
@@ -973,7 +1061,7 @@ function expectedFallbackType(recommendationResult: DistRecommendationReadResult
 }
 
 function displayPokemonName(pokemon: StaticPokemonEntry): string {
-  return pokemon.zhName ? `${pokemon.zhName} / ${pokemon.name}` : pokemon.name;
+  return pokemon.name;
 }
 
 function addMetadataValue(values: Map<string, string[]>, value: string, file: string): void {
