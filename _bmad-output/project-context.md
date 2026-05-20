@@ -27,7 +27,7 @@ _This file contains critical rules and patterns that AI agents must follow when 
 
 - 项目是 Vite + TypeScript 的 brownfield Web SPA，`package.json` 使用 `"type": "module"`。
 - 当前构建入口是 `index.html` + `src/main.ts` + `src/styles.css`，不是 React/Vue/Next 项目。
-- 公开品牌名是 `Pokopia Decor Dex`；根页面 SEO title 是 `Pokopia Decor Dex - Color Palettes and Item Matches`；tagline 是 `A Pokopia dex for colors, decor, and item matches.`；默认站点 URL 是 `https://pokopia-decor-dex.tinytoolshelf.com`。
+- 公开品牌名是 `Pokopia Decor Dex`；根页面 SEO title 是 `Pokopia Decor Dex - Color Palettes and Item Matches`；tagline 是 `A Pokopia dex for colors, decor, and item matches.`；默认站点 URL 是 `https://decor-dex.pokokit.com`。
 - TypeScript 使用 strict 模式：`strict: true`、`isolatedModules: true`、`moduleResolution: "Bundler"`、`noEmit: true`。
 - TypeScript 版本以 lockfile 为准：`typescript` 5.9.3。
 - Vite 版本以 lockfile 为准：`vite` 7.3.3；`package.json` 中是 `^7.1.12` 范围。

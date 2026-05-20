@@ -31,7 +31,10 @@ const ssgReportPath = resolve(projectRoot, "generated/reports/ssg-generation-sum
 const sitemapPath = resolve(projectRoot, "dist/sitemap.xml");
 const robotsPath = resolve(projectRoot, "dist/robots.txt");
 const expectedPokemonCount = 311;
-const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? SITE_ORIGIN);
+const siteName = "Pokopia Decor Dex";
+const siteTagline = "A Pokopia dex for colors, decor, and item matches.";
+const defaultSiteOrigin = "https://decor-dex.pokokit.com";
+const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? defaultSiteOrigin);
 
 const template = await readFile(distIndexPath, "utf8");
 const compactItems = await readJson<CompactItemsData>(compactItemsPath);
@@ -60,8 +63,7 @@ const generationResults = await Promise.all(
   }),
 );
 
-await writeRootIndex(template);
-await writeSeoFiles(generationResults);
+await writeSeoFiles(pokemonIndex.pokemon.map((pokemon) => pokemon.slug));
 await writeSsgReport(generationResults);
 console.log(`Generated ${pokemonIndex.pokemon.length} static Pokemon pages under dist/pokemon/{slug}/index.html.`);
 
@@ -473,6 +475,29 @@ async function writeSsgReport(results: SsgGenerationResult[]): Promise<void> {
   await writeFile(ssgReportPath, `${JSON.stringify(report, null, 2)}\n`, "utf8");
 }
 
+async function writeSeoFiles(slugs: string[]): Promise<void> {
+  const sortedSlugs = [...slugs].sort((left, right) => left.localeCompare(right, "en"));
+  await Promise.all([
+    writeFile(sitemapPath, renderSitemapXml(sortedSlugs), "utf8"),
+    writeFile(robotsPath, renderRobotsTxt(), "utf8"),
+  ]);
+}
+
+function renderSitemapXml(slugs: string[]): string {
+  const urls = [homePageUrl(), ...slugs.map((slug) => staticPageUrl(slug))];
+  return [
+    '<?xml version="1.0" encoding="UTF-8"?>',
+    '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">',
+    ...urls.map((url) => `  <url><loc>${escapeXml(url)}</loc></url>`),
+    "</urlset>",
+    "",
+  ].join("\n");
+}
+
+function renderRobotsTxt(): string {
+  return ["User-agent: *", "Allow: /", `Sitemap: ${siteOrigin}/sitemap.xml`, ""].join("\n");
+}
+
 function emptyRecommendations(slug: string): RecommendationsData {
   return {
     schemaVersion: RECOMMENDATIONS_SCHEMA_VERSION,
@@ -505,8 +530,21 @@ function staticPageUrl(slug: string): string {
   return `${siteOrigin}/pokemon/${slug}/`;
 }
 
+function homePageUrl(): string {
+  return `${siteOrigin}/`;
+}
+
 function staticAssetUrl(path: string): string {
   return `${siteOrigin}${path}`;
+}
+
+function escapeXml(value: string): string {
+  return value
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
 
 function normalizeSiteOrigin(value: string): string {

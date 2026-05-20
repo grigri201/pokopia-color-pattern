@@ -87,7 +87,7 @@ const recommendationDiagnosticsPath = "generated/reports/recommendation-diagnost
 const ssgGenerationSummaryPath = "generated/reports/ssg-generation-summary.json";
 const runtimeAssetSourcesPath = "generated/reports/runtime-asset-sources.json";
 const runtimeAssetManifestPath = "dist/assets/runtime/asset-manifest.json";
-const distIndexPath = "dist/index.html";
+
 const sitemapPath = "dist/sitemap.xml";
 const robotsPath = "dist/robots.txt";
 const runtimeDataPaths = [compactItemsPath, itemColorsPath, pokemonIndexPath];
@@ -103,7 +103,9 @@ const runtimePokemonMaxEdge = 420;
 const runtimeItemMaxEdge = 240;
 const expectedPokemonCount = 311;
 const projectRoot = process.cwd();
-const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? SITE_ORIGIN);
+
+const defaultSiteOrigin = "https://decor-dex.pokokit.com";
+const siteOrigin = normalizeSiteOrigin(process.env.POKOPIA_SITE_URL ?? defaultSiteOrigin);
 const distOnly = process.argv.includes("--dist");
 const recommendationsOnly = process.argv.includes("--recommendations");
 const issues: ValidationIssue[] = [];
@@ -176,10 +178,10 @@ async function validateDistOutput(): Promise<void> {
   const runtimeAssetPaths = await validateRuntimeAssetManifest();
   await validateRootSeoMetadata();
   await validateStaticPokemonPages(ssgReport);
-  const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map", ".xml", ".txt"])).filter((file) => {
+  const files = (await listFiles(resolve(projectRoot, "dist"), [".html", ".css", ".js", ".json", ".map", ".txt", ".xml"])).filter((file) => {
     const outputPath = relative(projectRoot, file);
     return (
-      outputPath === distIndexPath ||
+      outputPath === "dist/index.html" ||
       outputPath === sitemapPath ||
       outputPath === robotsPath ||
       outputPath.startsWith("dist/assets/") ||
@@ -921,51 +923,44 @@ function validateSsgReportFallbacks(fallbacks: unknown, expectedSlugSet: Set<str
 }
 
 async function validateSeoFiles(expectedSlugs: string[]): Promise<void> {
-  const expectedUrls = [`${siteOrigin}/`, ...expectedSlugs.map(staticPageUrl)];
-  await validateSitemap(expectedUrls);
-  await validateRobots();
+  const [sitemapText, robotsText] = await Promise.all([
+    readRequiredTextFile(sitemapPath, "Expected sitemap.xml to be generated"),
+    readRequiredTextFile(robotsPath, "Expected robots.txt to be generated"),
+  ]);
+  const expectedUrls = [homePageUrl(), ...expectedSlugs.map((slug) => staticPageUrl(slug))];
+
+  if (sitemapText !== null) {
+    if (sitemapText.includes("tinytoolshelf.com")) {
+      issues.push({ file: sitemapPath, message: "sitemap.xml must not reference the old tinytoolshelf.com domain" });
+    }
+    const actualUrls = Array.from(sitemapText.matchAll(/<loc>([^<]+)<\/loc>/g), (match) => match[1]);
+    if (actualUrls.length !== expectedUrls.length) {
+      issues.push({ file: sitemapPath, message: `Expected ${expectedUrls.length} sitemap URLs, got ${actualUrls.length}` });
+    }
+    expectedUrls.forEach((expectedUrl, index) => {
+      if (actualUrls[index] !== expectedUrl) {
+        issues.push({ file: sitemapPath, message: `Expected sitemap URL ${index + 1} to be ${expectedUrl}, got ${actualUrls[index] ?? "<missing>"}` });
+      }
+    });
+  }
+
+  if (robotsText !== null) {
+    if (robotsText.includes("tinytoolshelf.com")) {
+      issues.push({ file: robotsPath, message: "robots.txt must not reference the old tinytoolshelf.com domain" });
+    }
+    const expectedRobots = ["User-agent: *", "Allow: /", `Sitemap: ${siteOrigin}/sitemap.xml`, ""].join("\n");
+    if (robotsText !== expectedRobots) {
+      issues.push({ file: robotsPath, message: "robots.txt must point Sitemap at the configured site origin" });
+    }
+  }
 }
 
-async function validateSitemap(expectedUrls: string[]): Promise<void> {
-  let text: string;
+async function readRequiredTextFile(file: string, message: string): Promise<string | null> {
   try {
-    text = await readFile(sitemapPath, "utf8");
+    return await readFile(file, "utf8");
   } catch (error) {
-    issues.push({ file: sitemapPath, message: `Unable to read sitemap: ${error instanceof Error ? error.message : String(error)}` });
-    return;
-  }
-  if (!text.includes('xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"')) {
-    issues.push({ file: sitemapPath, message: "Sitemap must use the standard sitemap XML namespace" });
-  }
-  const actualUrls = Array.from(text.matchAll(/<loc>([^<]+)<\/loc>/g)).map((match) => match[1]);
-  const actualSet = new Set(actualUrls);
-  const expectedSet = new Set(expectedUrls);
-  if (actualUrls.length !== expectedUrls.length) {
-    issues.push({ file: sitemapPath, message: `Expected ${expectedUrls.length} sitemap URLs, got ${actualUrls.length}` });
-  }
-  expectedSet.forEach((url) => {
-    if (!actualSet.has(url)) {
-      issues.push({ file: sitemapPath, message: `Missing sitemap URL ${url}` });
-    }
-  });
-  actualSet.forEach((url) => {
-    if (!expectedSet.has(url)) {
-      issues.push({ file: sitemapPath, message: `Unexpected sitemap URL ${url}` });
-    }
-  });
-}
-
-async function validateRobots(): Promise<void> {
-  let text: string;
-  try {
-    text = await readFile(robotsPath, "utf8");
-  } catch (error) {
-    issues.push({ file: robotsPath, message: `Unable to read robots.txt: ${error instanceof Error ? error.message : String(error)}` });
-    return;
-  }
-  const expectedSitemap = `Sitemap: ${siteOrigin}/sitemap.xml`;
-  if (!text.includes("User-agent: *") || !text.includes("Allow: /") || !text.includes(expectedSitemap)) {
-    issues.push({ file: robotsPath, message: `robots.txt must allow crawling and reference ${expectedSitemap}` });
+    issues.push({ file, message: `${message}: ${error instanceof Error ? error.message : String(error)}` });
+    return null;
   }
 }
 
@@ -1090,6 +1085,10 @@ function validateUniqueMetadataMap(label: string, values: Map<string, string[]>)
 
 function staticPageUrl(slug: string): string {
   return `${siteOrigin}/pokemon/${slug}/`;
+}
+
+function homePageUrl(): string {
+  return `${siteOrigin}/`;
 }
 
 function staticAssetUrl(pokemon: StaticPokemonEntry): string {
