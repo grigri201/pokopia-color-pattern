@@ -1,5 +1,5 @@
 export const SITE_NAME = "Pokopia Decor Dex";
-export const SITE_ORIGIN = "https://pokopia-decor-dex.tinytoolshelf.com";
+export const SITE_ORIGIN = "https://decor-dex.pokokit.com";
 export const SITE_SEO_TITLE = "Pokopia Decor Dex - Pokemon Color Palettes and Decor Matches";
 export const SITE_DESCRIPTION =
   "Explore Pokemon Pokopia color palettes, pattern grids, and decor recommendations for furniture, blocks, toys, food, and nature items.";
