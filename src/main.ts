@@ -7,14 +7,21 @@ import {
   parsePokemonSlugFromLocation,
   type PokemonRouteSource,
 } from "./app/router.js";
+import {
+  SITE_DESCRIPTION,
+  SITE_KEYWORDS,
+  SITE_NAME,
+  SITE_ORIGIN,
+  SITE_SEO_TITLE,
+  pokemonSeoDescription,
+  pokemonSeoTitle,
+} from "./app/seo.js";
 import { GeneratedDataError, loadGeneratedData, loadRecommendationData } from "./data/client";
 import type { CompactItem, PokemonIndexEntry, RecommendationEntry, RecommendationsData } from "./data/schemas";
 
 const ITEM_FILTER_KEYS = ["全部", "家具", "装饰", "玩具", "地块", "食物"] as const;
 const LOCALES = ["zh", "en"] as const;
 const DEFAULT_LOCALE: Locale = "en";
-const SITE_NAME = "Pokopia Decor Dex";
-const SITE_SEO_TITLE = "Pokopia Decor Dex - Color Palettes and Item Matches";
 const LOCALE_STORAGE_KEY = "pokopia-decor-dex.locale";
 const NATIVE_FULLSCREEN_SYNC_DELAY_MS = 700;
 const CHROME_PRESENTATION_SYNC_DELAY_MS = 250;
@@ -463,7 +470,7 @@ function setLocale(locale: Locale): void {
 function renderLocaleChrome(): void {
   const labels = text();
   document.documentElement.lang = labels.htmlLang;
-  document.title = SITE_SEO_TITLE;
+  updateRootSeoMetadata();
   els.drawerBackdrop.setAttribute("aria-label", labels.closeDrawer);
   els.drawerClose.setAttribute("aria-label", labels.closeDrawer);
   els.languageToggle.textContent = labels.languageToggle;
@@ -499,6 +506,137 @@ function renderLocaleChrome(): void {
   if (state.selected) {
     renderFullscreenShell(state.selected);
   }
+}
+
+function updateRootSeoMetadata(): void {
+  updateSeoMetadata({
+    title: SITE_SEO_TITLE,
+    description: SITE_DESCRIPTION,
+    path: "/",
+    robots: "index, follow",
+  });
+  setMetaName("keywords", SITE_KEYWORDS);
+}
+
+function updateSelectedSeoMetadata(pokemon: SelectedPokemon): void {
+  const recommendationPanel = state.recommendations;
+  const readyRecommendations =
+    recommendationPanel.status === "ready" && recommendationPanel.slug === pokemon.slug
+      ? recommendationPanel.data?.recommendations ?? []
+      : [];
+  const recommendationStatus =
+    recommendationPanel.status === "ready" && recommendationPanel.slug === pokemon.slug
+      ? readyRecommendations.length > 0
+        ? "ready"
+        : "empty"
+      : undefined;
+  const recommendationNames = readyRecommendations
+    .slice(0, 3)
+    .map((entry) => state.itemBySlug.get(entry.itemSlug)?.name || entry.itemSlug);
+
+  updateSeoMetadata({
+    title: pokemonSeoTitle(pokemon.name),
+    description: pokemonSeoDescription({
+      name: pokemon.name,
+      primaryColor: pokemon.primaryColor.hex.toUpperCase(),
+      patternCount: pokemon.pattern.length,
+      recommendationNames,
+      recommendationStatus,
+    }),
+    path: `/pokemon/${pokemon.slug}/`,
+    imagePath: pokemon.image,
+    robots: "index, follow",
+  });
+}
+
+function updateRouteNotFoundSeo(slug: string): void {
+  updateSeoMetadata({
+    title: `Pokemon Not Found | ${SITE_NAME}`,
+    description: `The requested Pokopia Decor Dex route ${slug || "unknown"} was not found. Search the Decor Dex for another Pokemon color palette.`,
+    path: "/",
+    robots: "noindex, follow",
+  });
+}
+
+type SeoMetadata = {
+  title: string;
+  description: string;
+  path: string;
+  imagePath?: string;
+  robots: string;
+};
+
+function updateSeoMetadata(metadata: SeoMetadata): void {
+  const canonicalUrl = absoluteSiteUrl(metadata.path);
+  document.title = metadata.title;
+  setCanonicalUrl(canonicalUrl);
+  setMetaName("description", metadata.description);
+  setMetaName("robots", metadata.robots);
+  setMetaName("application-name", SITE_NAME);
+  setMetaProperty("og:type", "website");
+  setMetaProperty("og:site_name", SITE_NAME);
+  setMetaProperty("og:title", metadata.title);
+  setMetaProperty("og:description", metadata.description);
+  setMetaProperty("og:url", canonicalUrl);
+  setMetaProperty("og:locale", "en_US");
+  setMetaName("twitter:card", "summary");
+  setMetaName("twitter:title", metadata.title);
+  setMetaName("twitter:description", metadata.description);
+
+  const imageUrl = metadata.imagePath ? absoluteSiteUrl(metadata.imagePath) : null;
+  setOptionalMetaProperty("og:image", imageUrl);
+  setOptionalMetaName("twitter:image", imageUrl);
+}
+
+function setCanonicalUrl(href: string): void {
+  let link = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]');
+  if (!link) {
+    link = document.createElement("link");
+    link.rel = "canonical";
+    document.head.append(link);
+  }
+  link.href = href;
+}
+
+function setMetaName(name: string, content: string): void {
+  let meta = document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`);
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.name = name;
+    document.head.append(meta);
+  }
+  meta.content = content;
+}
+
+function setMetaProperty(property: string, content: string): void {
+  let meta = document.head.querySelector<HTMLMetaElement>(`meta[property="${property}"]`);
+  if (!meta) {
+    meta = document.createElement("meta");
+    meta.setAttribute("property", property);
+    document.head.append(meta);
+  }
+  meta.content = content;
+}
+
+function setOptionalMetaName(name: string, content: string | null): void {
+  if (content) {
+    setMetaName(name, content);
+    return;
+  }
+  document.head.querySelector<HTMLMetaElement>(`meta[name="${name}"]`)?.remove();
+}
+
+function setOptionalMetaProperty(property: string, content: string | null): void {
+  if (content) {
+    setMetaProperty(property, content);
+    return;
+  }
+  document.head.querySelector<HTMLMetaElement>(`meta[property="${property}"]`)?.remove();
+}
+
+function absoluteSiteUrl(path: string): string {
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${SITE_ORIGIN}${normalizedPath}`;
 }
 
 function renderItemFilterOptions(): void {
@@ -743,7 +881,7 @@ function renderRouteNotFound(slug: string, source: PokemonRouteSource): void {
   document.documentElement.style.setProperty("--field", fallback.hex);
   document.documentElement.style.setProperty("--field-ink", readableInk(fallback.rgb));
   document.documentElement.style.setProperty("--accent", fallback.hex);
-  document.title = `${labels.notFoundPokemon} | ${SITE_NAME}`;
+  updateRouteNotFoundSeo(slug);
   closeFullscreenOverlay();
 
   renderList();
@@ -832,7 +970,7 @@ function renderStage(pokemon: SelectedPokemon): void {
   document.documentElement.style.setProperty("--field", primary.hex);
   document.documentElement.style.setProperty("--field-ink", textColor);
   document.documentElement.style.setProperty("--accent", primary.hex);
-  document.title = `${pokemonDisplayName(pokemon)} | ${SITE_NAME}`;
+  updateSelectedSeoMetadata(pokemon);
 
   els.title.innerHTML = pokemonTitleHtml(pokemon);
   els.selectedPortrait.src = pokemon.image;
@@ -1198,6 +1336,7 @@ function renderRecommendations(): void {
     renderRecommendationState(labels.loadingRecommendations, "recommendation-state");
     return;
   }
+  updateSelectedSeoMetadata(selected);
 
   if (panel.status === "error") {
     renderRecommendationState(
